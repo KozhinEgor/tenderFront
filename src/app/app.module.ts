@@ -1,4 +1,8 @@
 import { NgModule } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeRu from '@angular/common/locales/ru';
+registerLocaleData(localeRu, 'ru');
+import { MAT_DATE_LOCALE } from '@angular/material/core';
 
 // COMPONENT
 import { AppComponent } from './app.component';
@@ -62,7 +66,7 @@ import {HttpClientModule } from '@angular/common/http';
     MatTableModule,
     HttpClientModule
   ],
-  providers: [{provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true}}],
+  providers: [{provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true}}, {provide: MAT_DATE_LOCALE, useValue: 'ru-RU'}],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

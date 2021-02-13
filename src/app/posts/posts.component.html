@@ -90,11 +90,11 @@
       </ng-container>
       <ng-container matColumnDef="dateStart">
         <th mat-header-cell *matHeaderCellDef>Дата начала</th>
-        <td mat-cell *matCellDef="let post"> {{ post.dateStart | date:'dd.MM.yyyy' }} </td>
+        <td mat-cell *matCellDef="let post"> {{ post.dateStart | date:'dd.MM.yyyy': "UTC" }} </td>
       </ng-container>
       <ng-container matColumnDef="dateFinish">
         <th mat-header-cell *matHeaderCellDef>Дата окончания</th>
-        <td mat-cell *matCellDef="let post"> {{ post.dateFinish | date:'dd.MM.yyyy HH:mm:ss'}} </td>
+        <td mat-cell *matCellDef="let post"> {{ post.dateFinish | date:'dd.MM.yyyy HH:mm:ss': "UTC"}} </td>
       </ng-container>
 
 
