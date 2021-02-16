@@ -9,9 +9,10 @@ import { AppComponent } from './app.component';
 import { AutocompletTypeComponent } from './autocomplet-type/autocomplet-type.component';
 import { CustomAutocompletComponent } from './custom-autocomplet/custom-autocomplet.component';
 import { DataRangeComponent } from './data-range/data-range.component';
-import { ErrorDialogComponent } from './posts/posts.component';
-import { PostsComponent } from './posts/posts.component';
+import { ErrorDialogComponent } from './page-tender-date/page-tender-date.component';
+
 import { WinnerAutocompletComponent } from './winner-autocomplet/winner-autocomplet.component';
+import { PageTenderDateComponent } from './page-tender-date/page-tender-date.component';
 // MODULE
 import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -32,6 +33,24 @@ import {MatSortModule} from '@angular/material/sort';
 import {MatTableModule } from '@angular/material/table';
 
 import {HttpClientModule } from '@angular/common/http';
+import {RouterModule} from '@angular/router';
+import { PageHomeComponent } from './page-home/page-home.component';
+import { PageProductComponent } from './page-product/page-product.component';
+import { PageTenderComponent } from './page-tender/page-tender.component';
+import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatIconModule} from '@angular/material/icon';
+import {MatSidenavModule} from '@angular/material/sidenav';
+import {MatListModule} from '@angular/material/list';
+import { PageAddTenderComponent } from './page-add-tender/page-add-tender.component';
+
+const routes = [
+  {path: '', component: PageHomeComponent},
+  {path: 'product', component: PageProductComponent},
+  {path: 'tender', component: PageTenderComponent },
+  {path: 'tender-date', component: PageTenderDateComponent},
+  {path: 'add-tender', component: PageAddTenderComponent}
+];
+
 
 
 
@@ -43,8 +62,12 @@ import {HttpClientModule } from '@angular/common/http';
     CustomAutocompletComponent,
     DataRangeComponent,
     ErrorDialogComponent,
-    PostsComponent,
-    WinnerAutocompletComponent
+    WinnerAutocompletComponent,
+    PageTenderDateComponent,
+    PageHomeComponent,
+    PageProductComponent,
+    PageTenderComponent,
+    PageAddTenderComponent
   ],
   imports: [
     AppRoutingModule,
@@ -59,11 +82,16 @@ import {HttpClientModule } from '@angular/common/http';
     MatDialogModule,
     MatExpansionModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
+    MatListModule,
     MatMomentDateModule,
     MatPaginatorModule,
+    MatSidenavModule,
     MatSortModule,
     MatTableModule,
+    MatToolbarModule,
+    RouterModule.forRoot(routes),
     HttpClientModule
   ],
   providers: [{provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true}}, {provide: MAT_DATE_LOCALE, useValue: 'ru-RU'}],

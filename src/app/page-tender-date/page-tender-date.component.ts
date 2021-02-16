@@ -3,16 +3,16 @@ import {MatSort} from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiService } from '../api.service';
-import {DataRangeComponent} from '../data-range/data-range.component'
+import {DataRangeComponent} from '../data-range/data-range.component';
 
 import { Post, ReceivedJson } from '../classes';
 import { registerLocaleData } from '@angular/common';
 import localeRu from '@angular/common/locales/ru';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {AutocompletTypeComponent} from "../autocomplet-type/autocomplet-type.component";
-import {CustomAutocompletComponent} from "../custom-autocomplet/custom-autocomplet.component";
-import {WinnerAutocompletComponent} from "../winner-autocomplet/winner-autocomplet.component";
-import {MAT_DIALOG_DATA, MatDialog} from "@angular/material/dialog";
+import {AutocompletTypeComponent} from '../autocomplet-type/autocomplet-type.component';
+import {CustomAutocompletComponent} from '../custom-autocomplet/custom-autocomplet.component';
+import {WinnerAutocompletComponent} from '../winner-autocomplet/winner-autocomplet.component';
+import {MAT_DIALOG_DATA, MatDialog} from '@angular/material/dialog';
 
 
 
@@ -24,13 +24,12 @@ export interface DialogData {
   error: string;
 }
 
-
 @Component({
-  selector: 'app-posts',
-  templateUrl: './posts.component.html',
-  styleUrls: ['./posts.component.scss']
+  selector: 'app-page-tender-date',
+  templateUrl: './page-tender-date.component.html',
+  styleUrls: ['./page-tender-date.component.scss']
 })
-export class PostsComponent implements OnInit, AfterViewInit {
+export class PageTenderDateComponent implements OnInit {
   AllColumn: string[] = ['id', 'nameTender', 'customer', 'typetender', 'numberTender', 'bicoTender', 'gosZakupki', 'price', 'currency', 'rate', 'sum', 'dateStart',
     'dateFinish', 'fullSum', 'winner', 'winSum'];
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
@@ -53,7 +52,7 @@ export class PostsComponent implements OnInit, AfterViewInit {
   minSum = new FormControl('', [Validators.max(999999999999), Validators.min(0)]);
   maxSum = new FormControl('', [Validators.max(999999999999), Validators.min(0)]);
 
-ChoseColums: group[] = [];
+  ChoseColums: group[] = [];
 
   AllColums: group[] = [{name: 'id', nameru: 'ID'}, {name: 'nameTender', nameru: 'Название тендера'}, {name: 'customer', nameru: 'Заказчик'}, {name: 'typetender', nameru: 'Тип тендера'},
 
@@ -83,7 +82,7 @@ ChoseColums: group[] = [];
       this.json.minSum = this.minSum.value;
     }
     else if (this.minSum && this.maxSum && this.maxSum.value < this.minSum.value){
-       this.dialog.open(ErrorDialogComponent, { data: 'Максимальная сумма меньше минимальной'});
+      this.dialog.open(ErrorDialogComponent, { data: 'Максимальная сумма меньше минимальной'});
     }
 
     console.log(this.json);
@@ -100,13 +99,8 @@ ChoseColums: group[] = [];
 
     });*/
   }
-
-
-  ngAfterViewInit() {
-
-  }
   toggleOffer(offer: any): void {
-    let index = this.ChoseColums.indexOf(offer);
+    const index = this.ChoseColums.indexOf(offer);
     if (index >= 0) {
       this.ChoseColums.splice(index, 1);
       const indexDisplay = this.displayedColumns.indexOf(offer.name);

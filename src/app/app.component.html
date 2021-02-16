@@ -1,1 +1,26 @@
-<app-posts></app-posts>
+<mat-toolbar color="primary">
+  <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon" (click)="drawer.toggle()">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <span><a routerLink="/" class="nameApp" (click)="drawer.close()">My App</a></span>
+  <span class="example-spacer"></span>
+</mat-toolbar>
+
+<mat-drawer-container class = "container" [hasBackdrop]="true">
+  <mat-drawer #drawer mode=over>
+    <mat-list>
+      <a mat-list-item routerLink="/" (click)="drawer.close()">Главная</a>
+      <a mat-list-item routerLink="/product" (click)="drawer.close()">Продукты</a>
+      <a mat-list-item routerLink="/tender"(click)="drawer.close()">Тендеры по продуктам</a>
+      <a mat-list-item routerLink="/tender-date"(click)="drawer.close()">Тендеры по датам</a>
+      <a mat-list-item routerLink="/add-tender"(click)="drawer.close()"><mat-icon>add_circle_outline</mat-icon> Добавить тендеры</a>
+    </mat-list>
+  </mat-drawer>
+  <mat-drawer-content>
+
+    <router-outlet></router-outlet>
+
+  </mat-drawer-content>
+</mat-drawer-container>
+
+
