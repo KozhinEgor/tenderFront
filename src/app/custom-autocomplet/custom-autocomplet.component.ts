@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {FormControl} from "@angular/forms";
 import {Custom} from "../classes";
 import {Observable} from "rxjs";
@@ -11,7 +11,7 @@ import {map, startWith} from "rxjs/operators";
   styleUrls: ['./custom-autocomplet.component.scss']
 })
 export class CustomAutocompletComponent implements OnInit {
-
+  @Input() value = '';
   myControl = new FormControl();
   options: Custom[] = [];
   filteredOptions: Observable<Custom[]> | undefined;
@@ -27,7 +27,7 @@ export class CustomAutocompletComponent implements OnInit {
           map(custom => custom ? this._filter(custom) : this.options.slice())
         );
     });
-
+    this.myControl.setValue({name: this.value});
   }
 
   displayFn(custom: Custom): string {

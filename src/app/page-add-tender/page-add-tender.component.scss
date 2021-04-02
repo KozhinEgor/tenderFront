@@ -1,11 +1,10 @@
 .tableContainer {
-  width: 97%;
-  overflow: visible;
+  width: 90%;
+  overflow: auto;
   margin: 1.5rem auto;
   height: fit-content;
 
-
-  .mat-column-id, .mat-column-id, .mat-column-nameTender, .mat-column-numberTender,.mat-column-bicoTender, .mat-column-gosZakupki, .mat-column-price,
+  .mat-column-id, .mat-column-nameTender, .mat-column-numberTender,.mat-column-bicoTender, .mat-column-gosZakupki, .mat-column-price,
   .mat-column-currency, .mat-column-rate, .mat-column-sum, .mat-column-typetender,.mat-column-fullSum, .mat-column-winSum, .mat-column-dateFinish,
   .mat-column-dateStart, .mat-column-winner, .mat-column-customer{
     padding: 0px 5px 0px 5px;
@@ -15,7 +14,7 @@
   .mat-column-id {
 
     text-align: center;
-    width: 10px;
+    width: 30px;
   }
   .mat-column-nameTender {
     min-width: 400px;
@@ -70,81 +69,61 @@
 
     min-width: 200px;
   }
+  .example-box.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
 
+  .example-chip .cdk-drop-list-dragging {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
+  tr.example-detail-row {
+    height: 0;
+  }
+
+
+
+  .example-element-row td {
+    border-bottom-width: 0;
+  }
+
+  .example-element-detail {
+    overflow: hidden;
+
+  }
+
+  .example-element-description {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+
+  }
+  .block_column{
+
+    margin-top: 5px;
+    margin-right: 5px;
+
+  }
 }
 
 .ChoseContainer{
   display: flex;
+  justify-content: space-around;
+  align-items: center;
   flex-wrap: wrap;
   width: 97%;
   padding: 5px;
   margin: 1.5rem auto;
 
-  height: fit-content;
-.mat-expansion-panel-header{
-  padding: 0px;
-}
-.mat-accordion{
-  width: 100%;
-}
-.mat-expansion-panel-header{
-  height: fit-content;
-}
-.mat-chip-list{
-  margin-left: auto;
-  margin-right: auto;
-}
-.mat-chip{
-  margin-top: 10px;
-  margin-bottom: 10px;
-  font-size: 10px;
-}
 
-.mat-flat-button{
-  margin: 10px 10px 10px auto;
+  .SelectButton{
+    margin: 10px auto 10px 10px;
+  }
+  .UploadButton{
+    margin: 10px 10px 10px auto;
+  }
+  .nameFile{
+
+  }
 }
-
-}
-.example-box.cdk-drag-animating {
-  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-}
-
-.example-chip .cdk-drop-list-dragging {
-  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-}
-.MinSum{
-  margin: 5px;
-}
-.MaxSum{
-  margin: 5px;
-}
-tr.example-detail-row {
-  height: 0;
-}
-
-
-
-.example-element-row td {
-  border-bottom-width: 0;
-}
-
-.example-element-detail {
-  overflow: hidden;
-
-}
-
-.example-element-description {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  flex-wrap: wrap;
-
-}
-.block_column{
-
-  margin-top: 5px;
-  margin-right: 5px;
-
-}
-
 

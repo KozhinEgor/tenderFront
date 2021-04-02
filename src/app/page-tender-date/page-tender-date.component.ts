@@ -12,13 +12,14 @@ import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {AutocompletTypeComponent} from '../autocomplet-type/autocomplet-type.component';
 import {CustomAutocompletComponent} from '../custom-autocomplet/custom-autocomplet.component';
 import {WinnerAutocompletComponent} from '../winner-autocomplet/winner-autocomplet.component';
-import {MAT_DIALOG_DATA, MatDialog} from '@angular/material/dialog';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
+import {animate, state, style, transition, trigger} from "@angular/animations";
 
 
 
 export interface group {
   name: string;
-  nameru: String;
+  nameru: string;
 }
 export interface DialogData {
   error: string;
@@ -27,11 +28,16 @@ export interface DialogData {
 @Component({
   selector: 'app-page-tender-date',
   templateUrl: './page-tender-date.component.html',
-  styleUrls: ['./page-tender-date.component.scss']
+  styleUrls: ['./page-tender-date.component.scss'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({height: '0px', minHeight: '0'})),
+      state('expanded', style({height: '*'})),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
 })
 export class PageTenderDateComponent implements OnInit {
-  AllColumn: string[] = ['id', 'nameTender', 'customer', 'typetender', 'numberTender', 'bicoTender', 'gosZakupki', 'price', 'currency', 'rate', 'sum', 'dateStart',
-    'dateFinish', 'fullSum', 'winner', 'winSum'];
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
   @ViewChild(MatSort) sort: MatSort | null = null;
   dataSource = new MatTableDataSource<Post>();
@@ -45,7 +51,7 @@ export class PageTenderDateComponent implements OnInit {
 
   @ViewChild(DataRangeComponent)
   private dataRange: DataRangeComponent | undefined;
-
+  expandedElement: Post | null;
 
   panelOpenState = false;
 
@@ -53,17 +59,17 @@ export class PageTenderDateComponent implements OnInit {
   maxSum = new FormControl('', [Validators.max(999999999999), Validators.min(0)]);
 
   ChoseColums: group[] = [];
+  displayedColumns: string[] = [];
 
   AllColums: group[] = [{name: 'id', nameru: 'ID'}, {name: 'nameTender', nameru: 'Название тендера'}, {name: 'customer', nameru: 'Заказчик'}, {name: 'typetender', nameru: 'Тип тендера'},
 
-    {name: 'numberTender', nameru: 'Номер тендера'}, {name: 'bicoTender', nameru: 'БикоТендер'}, {name: 'gosZakupki', nameru: 'Госзакупки'}, {name: 'price', nameru: 'Цена'},
-    {name: 'currency', nameru: 'Валюта'}, {name: 'rate', nameru: 'Курс'}, {name: 'sum', nameru: 'Сумма'}, {name: 'dateStart', nameru: 'Дата начала'},
-    {name: 'dateFinish', nameru: 'Дата окончания'}, {name: 'fullSum', nameru: 'Полная сумма'}, {name: 'winner', nameru: 'Победитель'}, {name: 'winSum', nameru: 'Выиграшная сумма'}];
+     {name: 'sum', nameru: 'Сумма'}, {name: 'dateStart', nameru: 'Дата начала'},
+    {name: 'dateFinish', nameru: 'Дата окончания'},  {name: 'winner', nameru: 'Победитель'}, {name: 'winSum', nameru: 'Выиграшная сумма'}];
 
-  displayedColumns: string[] = [];
+
 
   constructor(private api: ApiService, public dialog: MatDialog) {
-    for (let index = 0; index < 14; index++){
+    for (let index = 0; index < this.AllColums.length - 2; index++){
       this.ChoseColums.push(this.AllColums[index]);
       this.displayedColumns.push(this.AllColums[index].name);
     }
@@ -72,8 +78,8 @@ export class PageTenderDateComponent implements OnInit {
   json: ReceivedJson = {dateStart: '', dateFinish: '', type: '%', custom: '%', winner: '%', minSum: 0, maxSum: 999999999999};
 
   showTables(): void{
-    this.json.dateStart = this.dataRange?.getDateStart() || '';
-    this.json.dateFinish = this.dataRange?.getDateFinish() || '';
+    this.json.dateStart = this.dataRange?.getDateStart() || '2018-01-01T00:00Z[UTC]';
+    this.json.dateFinish = this.dataRange?.getDateFinish() || '2040-01-01T00:00Z[UTC]';
     this.json.type = this.autocompletType?.getType() || '%';
     this.json.custom = this.customAutocomplet?.getCustom() || '%';
     this.json.winner = this.winnerAutocomplet?.getWinner() || '%';
@@ -90,6 +96,12 @@ export class PageTenderDateComponent implements OnInit {
       this.dataSource = new MatTableDataSource<Post>(posts) ;
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
+    /*
+    this.api.getPosts().subscribe(posts => {
+      this.dataSource = new MatTableDataSource<Post>(posts) ;
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+      */
     });
   }
   ngOnInit(): void {
@@ -107,7 +119,8 @@ export class PageTenderDateComponent implements OnInit {
       this.displayedColumns.splice(indexDisplay, 1);
     } else {
       this.ChoseColums.push(offer);
-      const indexDisplay = this.AllColumn.indexOf(offer.name);
+      const indexDisplay = this.AllColums.indexOf(offer);
+      console.log(indexDisplay);
       this.displayedColumns.splice(indexDisplay, 0, offer.name);
     }
   }
@@ -125,7 +138,9 @@ export class PageTenderDateComponent implements OnInit {
     }
   }
 */
-
+  showTender(){
+    this.dialog.open(TenderDialogComponent, { width: '80%', height: '80%', data:  this.expandedElement});
+  }
 }
 @Component({
   selector: 'app-error-dialog',
@@ -133,5 +148,16 @@ export class PageTenderDateComponent implements OnInit {
 })
 export class ErrorDialogComponent {
   constructor(@Inject(MAT_DIALOG_DATA) public data: DialogData) {}
+
+}
+@Component({
+  selector: 'app-tender-dialog',
+  templateUrl: './tender-dialog.component.html',
+  styleUrls: ['./tender-dialog.component.scss'],
+})
+export class TenderDialogComponent {
+  constructor(
+    public dialogRef: MatDialogRef<TenderDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: Post) {}
 
 }

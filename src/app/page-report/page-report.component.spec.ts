@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PageAddTenderComponent } from './page-add-tender.component';
+import { PageReportComponent } from './page-report.component';
 
-describe('PageAddTenderComponent', () => {
-  let component: PageAddTenderComponent;
-  let fixture: ComponentFixture<PageAddTenderComponent>;
+describe('PageReportComponent', () => {
+  let component: PageReportComponent;
+  let fixture: ComponentFixture<PageReportComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PageAddTenderComponent ]
+      declarations: [ PageReportComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PageAddTenderComponent);
+    fixture = TestBed.createComponent(PageReportComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

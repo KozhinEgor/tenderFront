@@ -1,0 +1,30 @@
+<mat-dialog-content>
+  <div class = "rowHeader">
+    <div class = "id">{{data.id}}</div>
+    <div class = "name_tender">{{data.name_tender}}</div>
+    <div class = "number_tender">{{data.number_tender}}</div>
+  </div>
+  <hr>
+  <div class = "row">
+      <div class = "typetender">
+        Тип тендера: <br><span >{{data.typetender}}</span>
+      </div>
+    <div class = "customer">Заказчик <br>{{data.customer}}</div>
+      <div class = "inn">ИНН <br>{{data.inn}}</div>
+  </div>
+  <hr>
+  <div class = "row">
+    <div class="block_column"><span>Цена - {{data.price| currency : data.currency:'symbol': '1.2-2':'ru'}}</span></div>
+    <div class="block_column"><span>Валюта - {{data.currency}}</span></div>
+    <div class="block_column"><span>Курс - {{data.rate}}</span></div>
+    <div class="block_column"><span>Полня стоимость - {{data.full_sum  | currency : data.currency:'symbol': '1.2-2':'ru'}}</span></div>
+  </div>
+  <div class = "row">
+    <app-product-category-autocomplet></app-product-category-autocomplet>
+  </div>
+  <div class = "row"></div>
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Ok</button>
+</mat-dialog-actions>

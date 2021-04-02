@@ -1,0 +1,29 @@
+.rowHeader{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.id{
+  margin: 10px auto 10px 10px;
+}
+.name_tender{
+ margin-right: 15px;
+  margin-left: 15px;
+}
+.number_tender{
+  margin: 10px 10px 10px auto;
+}
+hr {
+  border: none; /* Убираем границу */
+  background-color: #6e6e6e; /* Цвет линии */
+  height: 1px; /* Толщина линии */
+}
+.row{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.customer{
+  margin-right: 15px;
+  margin-left: 15px;
+}

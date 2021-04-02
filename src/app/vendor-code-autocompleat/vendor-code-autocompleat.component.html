@@ -1,0 +1,10 @@
+<mat-form-field appearance="outline" >
+  <mat-label>Укажите артикуль</mat-label>
+  <input type="text" matInput [formControl]="myControl" [matAutocomplete]="auto" (ngModelChange)="Change.emit( myControl.value)" />
+  <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" autoActiveFirstOption >
+    <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+      {{option.vendor_code}}
+    </mat-option>
+  </mat-autocomplete>
+</mat-form-field>
+

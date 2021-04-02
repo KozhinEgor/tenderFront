@@ -1,0 +1,24 @@
+
+<div class="mat-action-row">
+  <google-chart *ngIf = "!load" #chart
+                                          [type]="type"
+                                          [data]="reportdata"
+                                          [columns]="columnNames"
+                                          [options]="options"
+                                          [width]="width"
+                                          [height]="height">
+</google-chart>
+
+  <p>
+      <span *ngFor="let rep of reportQuarter">
+    В {{rep.year}} в {{rep.quarter}} квартале c "{{rep.product}}" было {{rep.count}} тендеров на общую сумму {{ rep.sum | currency : 'RUB':'symbol': '1.2-2':'ru'}}. Вендоры в этом квартале {{getVendor(rep)}}<br>
+      </span>
+  </p>
+</div>
+
+
+
+<mat-progress-bar mode="query" style="margin:20% auto;"  *ngIf = "load"></mat-progress-bar>
+
+
+

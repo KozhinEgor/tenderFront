@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
@@ -17,7 +17,7 @@ export interface User {
   styleUrls: ['./autocomplet-type.component.scss']
 })
 export class AutocompletTypeComponent implements OnInit {
-
+ @Input() value = '';
   myControl = new FormControl();
   options: Type[] = [];
  filteredOptions: Observable<Type[]> | undefined;
@@ -33,7 +33,7 @@ export class AutocompletTypeComponent implements OnInit {
           map(type => type ? this._filter(type) : this.options.slice())
         );
     });
-
+    this.myControl.setValue({name: this.value});
   }
 
   displayFn(type: Type): string {

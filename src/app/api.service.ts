@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
-import {Post, Type, ReceivedJson, Custom, Winner} from './classes';
+import {Post, Type, ReceivedJson, Custom, Winner, ReportQuarter, ProductCategory, Product} from './classes';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +12,7 @@ export class ApiService {
 
   getPosts() {
     // http://localhost:8081/demo/getAll
-    return this.http.get('http://localhost:8081/demo/getAll').pipe(
+    return this.http.get('http://localhost:8082/demo/Tender').pipe(
       map(posts => posts as Post[])
     );
     // tslint:disable-next-line:max-line-length
@@ -21,23 +21,44 @@ export class ApiService {
   getPostWithParametrs(json: ReceivedJson){
     //const body = {dateStart: '2020-10-01T00:00:00Z', dateFinish: '2020-10-10T12:00:00Z'};
     // {dateStart: '', dateFinish: '', type: '%', custom: '%', winner: '%', minSum: 0, maxSum: 999999999999}
-    return this.http.post('http://localhost:8081/demo/betweenDate', json).pipe(
+    return this.http.post('http://localhost:8082/demo/Tender', json).pipe(
       map(posts => posts as Post[])
     );
   }
   getAllTypes(){
-      return this.http.get('http://localhost:8081/demo/getAllTypes').pipe(
+      return this.http.get('http://localhost:8082/demo/TypeTender').pipe(
         map(types => types as Type[])
       );
     }
   getAllCustom(){
-    return this.http.get('http://localhost:8081/demo/getAllCustom').pipe(
+    return this.http.get('http://localhost:8082/demo/Customer').pipe(
       map(customs => customs as Custom[])
     );
   }
   getAllWinner(){
-    return this.http.get('http://localhost:8081/demo/getAllWinner').pipe(
+    return this.http.get('http://localhost:8082/demo/Winner').pipe(
       map(winners => winners as Winner[])
+    );
+  }
+  getReportQuarter(){
+    return this.http.get('http://localhost:8081/demo/quarter').pipe(
+      map(reportQuarter => reportQuarter as ReportQuarter[])
+    );
+  }
+  addTender(uploadData: any){
+    console.log(uploadData.get('excel'));
+    return this.http.post('http://localhost:8082/demo/addTender', uploadData).pipe(
+      map(posts => posts as Post[])
+    );
+  }
+  getAllProductCategory(){
+    return this.http.get('http://localhost:8082/demo/ProductCategory/').pipe(
+      map(productCategories => productCategories as ProductCategory[])
+    );
+  }
+  getVendorCode(productCategory: number){
+    return this.http.get('http://localhost:8082/demo/VendorCode/' + productCategory.toString()).pipe(
+      map(product => product as Product[])
     );
   }
 }
