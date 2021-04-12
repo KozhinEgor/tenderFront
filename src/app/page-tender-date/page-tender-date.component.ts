@@ -1,11 +1,11 @@
-import {AfterViewInit, Component, Inject, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, Inject, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {MatSort} from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiService } from '../api.service';
 import {DataRangeComponent} from '../data-range/data-range.component';
 
-import { Post, ReceivedJson } from '../classes';
+import {Orders, OrdersDB, Post, Product, ProductCategory, ReceivedJson} from '../classes';
 import { registerLocaleData } from '@angular/common';
 import localeRu from '@angular/common/locales/ru';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
@@ -14,6 +14,8 @@ import {CustomAutocompletComponent} from '../custom-autocomplet/custom-autocompl
 import {WinnerAutocompletComponent} from '../winner-autocomplet/winner-autocomplet.component';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {animate, state, style, transition, trigger} from "@angular/animations";
+import {VendorCodeAutocompleatComponent} from "../vendor-code-autocompleat/vendor-code-autocompleat.component";
+import {ProductCategoryAutocompletComponent} from "../product-category-autocomplet/product-category-autocomplet.component";
 
 
 
@@ -155,9 +157,162 @@ export class ErrorDialogComponent {
   templateUrl: './tender-dialog.component.html',
   styleUrls: ['./tender-dialog.component.scss'],
 })
-export class TenderDialogComponent {
+export class TenderDialogComponent implements OnInit {
+  @ViewChild(VendorCodeAutocompleatComponent)
+  private vendorCodeAutocomplete: VendorCodeAutocompleatComponent;
+  @ViewChild(ProductCategoryAutocompletComponent)
+  private productCategoryAutocompletComponent: ProductCategoryAutocompletComponent;
+
+  dataSource = new MatTableDataSource<Orders>();
+
+  product: Product  = null;
+  Category: ProductCategory = null;
+  channel = null;
+  nameCategory: string;
+  vendor = null;
+  frequency = null;
+  vxi = null;
+  portable = null;
+  usb = null;
+  comment = '';
+  number = null;
+  price = null;
+  winprice = null;
+  editOrders = null;
+  flag = false;
+  orders: Orders[] = [];
+  ordersDB: OrdersDB[] = [];
+  default(){
+    this.dataSource = new MatTableDataSource<Orders>(this.orders);
+    this.productCategoryAutocompletComponent.myControl.setValue('');
+    this.vendorCodeAutocomplete.myControl.setValue('');
+    this.product = null;
+    this.Category = null;
+    this.channel = null;
+    this.nameCategory = null;
+    this.vendor = null;
+    this.frequency = null;
+    this.vxi = null;
+    this.portable = null;
+    this.usb = null;
+    this.comment = '';
+    this.number = null;
+    this.price = null;
+    this.editOrders = null;
+  }
+  addProduct(){
+    if (this.number !== null) {
+      if (this.product.vendor_code === 'no_vendor_code' || this.Category.id === 7) {
+        this.comment = (this.vendor ? this.vendor : '')   + ' ' + (this.portable ? 'портативный ' : '') + (this.usb ? 'USB ' : '') + (this.vxi ? 'VXI ' : '') + String(this.frequency) + ' ' + this.channel + ' ' + this.comment;
+      }
+      this.ordersDB.push({
+        id: null,
+        vendor: this.product.vendor_id ? this.product.vendor_id : null,
+        tender: this.data.id,
+        product_category: this.Category.id,
+        comment: this.comment ? this.comment : '',
+        id_product: this.product.id,
+        number: this.number,
+        price: this.price ? this.price : 0,
+        winprice: this.winprice ? this.winprice : 0
+      });
+      this.orders.push({
+        tender: this.data.id,
+        vendor: this.vendor ? this.vendor : '',
+        product_category: this.Category.category,
+        id_product: (this.vendor ? this.vendor : '') + ' ' + this.product.vendor_code,
+        comment: this.comment ? this.comment : '' ,
+        number: this.number,
+        price: this.price !== null ? this.price : 0,
+        winprice: this.winprice !== null ? this.winprice : 0
+      });
+      this.default();
+    }
+  }
+  deleteProduct(or: Orders) {
+        this.orders.splice(this.orders.indexOf(or), 1);
+    this.ordersDB.splice(this.orders.indexOf(or), 1);
+    this.dataSource = new MatTableDataSource<Orders>(this.orders);
+  }
+  editProduct(or: Orders){
+    this.editOrders = this.orders.indexOf(or);
+    this.productCategoryAutocompletComponent.myControl.setValue({id: this.ordersDB[this.editOrders].product_category, category: or.product_category , category_en: null});
+    this.api.getVendorCodeById(this.ordersDB[this.orders.indexOf(or)].product_category, this.ordersDB[this.editOrders].id_product).subscribe(product =>{
+      this.vendorCodeAutocomplete.myControl.setValue(product); }
+      );
+    this.comment = or.comment;
+    this.number = or.number;
+    this.price = or.price;
+  }
+  saveProduct(){
+    this.orders[this.editOrders] = {tender: this.data.id,
+      vendor: this.vendor ? this.vendor : '',
+      product_category: this.Category.category,
+      id_product: (this.vendor ? this.vendor : '') + ' ' + this.product.vendor_code,
+      comment: this.comment ? this.comment : '' ,
+      number: this.number,
+      price: this.price ? this.price : 0,
+      winprice: this.winprice ? this.winprice : 0};
+    this.ordersDB[this.editOrders] = {
+      id: this.ordersDB[this.editOrders].id,
+      vendor: this.product.vendor_id ? this.product.vendor_id : null,
+      tender: this.data.id,
+      product_category: this.Category.id,
+      comment: this.comment ? this.comment : '',
+      id_product: this.product.id,
+      number: this.number,
+      price: this.price ? this.price : 0,
+      winprice: this.winprice ? this.winprice : 0
+    };
+    this.default();
+  }
+  onChange(t: any) {
+    if (t != null && typeof t !== 'string') {
+      this.Category = t;
+      this.vendorCodeAutocomplete.start(this.Category.id);
+
+    }
+  }
+  onChangeVendorCode(product: Product){
+
+    if (product != null && typeof product !== 'string'){
+      this.product = product;
+      if ( this.product.vendor_code === 'no_vendor_code' || this.Category.id === 7){
+        this.product.vendor = null;
+      }
+      this.vendor = this.product.vendor;
+      this.vxi = this.product.vxi;
+      this.portable = this.product.portable;
+      this.usb = this.product.usb;
+      this.frequency = this.product.frequency !== 0 ? this.product.frequency : '';
+      this.flag = true;
+    }
+  }
+  Save(){
+    console.log('cj[hfybnm');
+    this.api.addOrders( this.ordersDB).subscribe(str =>{
+      console.log(str);
+    });
+  }
+  ngOnInit() {
+    this.api.getOrdersByTender(this.data.id).subscribe(order => {
+
+      this.orders = order.orders;
+      this.dataSource = new MatTableDataSource<Orders>(order.orders) ;
+      console.log(this.dataSource);
+      this.ordersDB = order.ordersDB;
+
+      /*
+      this.api.getPosts().subscribe(posts => {
+        this.dataSource = new MatTableDataSource<Post>(posts) ;
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+        */
+    });
+  }
+
   constructor(
     public dialogRef: MatDialogRef<TenderDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: Post) {}
+    @Inject(MAT_DIALOG_DATA) public data: Post, private api: ApiService) {}
 
 }

@@ -20,7 +20,6 @@ export class VendorCodeAutocompleatComponent implements OnInit {
   constructor(private api: ApiService) {
   }
   public start(productCategory: number){
-    console.log("я тут");
     this.api.getVendorCode(productCategory).subscribe( product => {
       this.options = product;
       this.filteredOptions = this.myControl.valueChanges
@@ -31,6 +30,7 @@ export class VendorCodeAutocompleatComponent implements OnInit {
         );
     });
   }
+
   ngOnInit() {
   }
 

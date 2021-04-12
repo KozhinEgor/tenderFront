@@ -13,7 +13,29 @@
 .number_tender{
   margin: 10px 10px 10px auto;
 }
-hr {
+.typetender{
+ white-space: nowrap;
+  margin-right: 5px;
+  margin-left: 15px;
+}
+.typetender_name{
+  white-space: nowrap;
+  margin-right: 15px;
+  margin-left: 5px;
+}
+.customer{
+  white-space: nowrap;
+  margin-right: 5px;
+  margin-left: 15px;
+}
+.customer_name{
+  margin-right: 15px;
+  margin-left: 5px;
+}
+.inn{
+  text-align: center
+}
+.hr {
   border: none; /* Убираем границу */
   background-color: #6e6e6e; /* Цвет линии */
   height: 1px; /* Толщина линии */
@@ -23,7 +45,15 @@ hr {
   justify-content: space-around;
   align-items: center;
 }
-.customer{
-  margin-right: 15px;
-  margin-left: 15px;
+
+table{
+  width: 90%;
+}
+.num{
+  min-width: 80px;
+  max-width: 100px;
+}
+.vendor{
+  min-width: 100px;
+  max-width: 150px;
 }

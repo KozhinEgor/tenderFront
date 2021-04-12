@@ -9,10 +9,10 @@ import { AppComponent } from './app.component';
 import { AutocompletTypeComponent } from './autocomplet-type/autocomplet-type.component';
 import { CustomAutocompletComponent } from './custom-autocomplet/custom-autocomplet.component';
 import { DataRangeComponent } from './data-range/data-range.component';
-import {ErrorDialogComponent, TenderDialogComponent} from './page-tender-date/page-tender-date.component';
+import {ErrorDialogComponent} from './page-tender-date/page-tender-date.component';
 
 import { WinnerAutocompletComponent } from './winner-autocomplet/winner-autocomplet.component';
-import { PageTenderDateComponent } from './page-tender-date/page-tender-date.component';
+import { PageTenderDateComponent, TenderDialogComponent } from './page-tender-date/page-tender-date.component';
 // MODULE
 import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -49,6 +49,7 @@ import { PageReportComponent } from './page-report/page-report.component';
 import { ProductCategoryAutocompletComponent } from './product-category-autocomplet/product-category-autocomplet.component';
 import { VendorCodeAutocompleatComponent } from './vendor-code-autocompleat/vendor-code-autocompleat.component';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+
 
 const routes = [
   {path: '', component: PageHomeComponent},

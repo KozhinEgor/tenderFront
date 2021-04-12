@@ -1,7 +1,18 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
-import {Post, Type, ReceivedJson, Custom, Winner, ReportQuarter, ProductCategory, Product} from './classes';
+import {
+  Post,
+  Type,
+  ReceivedJson,
+  Custom,
+  Winner,
+  ReportQuarter,
+  ProductCategory,
+  Product,
+  Vendor,
+  OrdersDB, OrdersReceived
+} from './classes';
 
 @Injectable({
   providedIn: 'root'
@@ -46,7 +57,6 @@ export class ApiService {
     );
   }
   addTender(uploadData: any){
-    console.log(uploadData.get('excel'));
     return this.http.post('http://localhost:8082/demo/addTender', uploadData).pipe(
       map(posts => posts as Post[])
     );
@@ -57,8 +67,29 @@ export class ApiService {
     );
   }
   getVendorCode(productCategory: number){
-    return this.http.get('http://localhost:8082/demo/VendorCode/' + productCategory.toString()).pipe(
+    return this.http.get('http://localhost:8082/demo/VendorCode/' + productCategory).pipe(
       map(product => product as Product[])
+    );
+  }
+  getVendorCodeById(productCategory: number, id_product: number){
+    return this.http.get('http://localhost:8082/demo/VendorCodeById/' + productCategory + '/' + id_product).pipe(
+      map(product => product as Product)
+    );
+  }
+  getOrdersByTender(tender: number){
+    return this.http.get('http://localhost:8082/demo/OrdersByTender/' + tender).pipe(
+      map(order => order as OrdersReceived)
+    );
+  }
+  addOrders(json: OrdersDB[]){
+    console.log(json);
+    return this.http.post('http://localhost:8082/demo/addOrders', json).pipe(
+      map(answear => answear as string)
+    );
+  }
+  getVendorName(){
+    return this.http.get('http://localhost:8082/demo/Vendor/').pipe(
+      map(vendors => vendors as Vendor[])
     );
   }
 }

@@ -48,23 +48,30 @@ export interface ReportQuarter{
   year: number;
   vendor: any;
 }
-export interface Order{
+export interface Orders {
   product_category: string;
+  vendor: string;
   id_product: string;
   tender: number;
   number: number;
   comment: string;
   price: number;
-  win_price: number;
+  winprice: number;
 }
-export interface OrderDB{
+export interface OrdersDB {
+  id: number;
+  vendor: number;
   product_category: number;
   id_product: number;
   tender: number;
   number: number;
   comment: string;
   price: number;
-  win_price: number;
+  winprice: number;
+}
+export interface OrdersReceived{
+  orders: Orders[];
+  ordersDB: OrdersDB[];
 }
 export interface ProductCategory{
   id: number;
@@ -73,10 +80,17 @@ export interface ProductCategory{
 }
 export interface Product{
   id: number;
+  vendor_id: number;
   vendor_code: string;
   frequency: number;
   usb: boolean;
   vxi: boolean;
   portable: boolean;
   vendor: string;
+  channel: number;
+}
+export interface Vendor{
+  id: number;
+  name: string;
+  second_name: string;
 }

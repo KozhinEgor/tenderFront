@@ -4,6 +4,8 @@ import {ProductCategory, Type} from "../classes";
 import {Observable} from "rxjs";
 import {ApiService} from "../api.service";
 import {map, startWith} from "rxjs/operators";
+import {MatAutocomplete} from "@angular/material/autocomplete";
+import {isElementScrolledOutsideView} from "@angular/cdk/overlay/position/scroll-clip";
 
 
 
@@ -22,6 +24,9 @@ export class ProductCategoryAutocompletComponent implements OnInit {
   constructor(private api: ApiService) {
   }
   ngOnInit() {
+    this.myControl.setValue('') ;
+   console.log(this.myControl);
+    this.options = [];
     this.api.getAllProductCategory().subscribe( productCategories => {
       this.options = productCategories;
       this.filteredOptions = this.myControl.valueChanges
@@ -32,17 +37,20 @@ export class ProductCategoryAutocompletComponent implements OnInit {
         );
     });
   }
-
+  public start(): void{
+  }
   displayFn(productCategory: ProductCategory): string {
     return productCategory && productCategory.category ? productCategory.category : '';
   }
-
-  private _filter(category: string): ProductCategory[] {
+  public changeValue(category: string): void{
+    this.myControl.setValue(this._filter(category));
+  }
+  public _filter(category: string): ProductCategory[] {
     const filterValue = category.toLowerCase();
 
     return this.options.filter(option => option.category.toLowerCase().indexOf(filterValue) === 0);
   }
   getProduct(): any{
-    return this.myControl.value != null ? this.myControl.value.id : '%';
+
   }
 }
