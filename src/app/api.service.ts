@@ -84,7 +84,7 @@ export class ApiService {
   addOrders(json: OrdersDB[]){
     console.log(json);
     return this.http.post('http://localhost:8082/demo/addOrders', json).pipe(
-      map(answear => answear as string)
+      map(status => status as string)
     );
   }
   getVendorName(){

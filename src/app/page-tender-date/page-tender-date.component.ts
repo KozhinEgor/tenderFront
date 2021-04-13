@@ -19,6 +19,7 @@ import {ProductCategoryAutocompletComponent} from "../product-category-autocompl
 
 
 
+
 export interface group {
   name: string;
   nameru: string;
@@ -152,6 +153,16 @@ export class ErrorDialogComponent {
   constructor(@Inject(MAT_DIALOG_DATA) public data: DialogData) {}
 
 }
+
+@Component({
+  selector: 'delete-product',
+  templateUrl: './delete-product.html',
+})
+export class DeleteProductComponent {
+  constructor(@Inject(MAT_DIALOG_DATA) public data: Orders) {}
+
+}
+
 @Component({
   selector: 'app-tender-dialog',
   templateUrl: './tender-dialog.component.html',
@@ -202,37 +213,91 @@ export class TenderDialogComponent implements OnInit {
   }
   addProduct(){
     if (this.number !== null) {
-      if (this.product.vendor_code === 'no_vendor_code' || this.Category.id === 7) {
-        this.comment = (this.vendor ? this.vendor : '')   + ' ' + (this.portable ? 'портативный ' : '') + (this.usb ? 'USB ' : '') + (this.vxi ? 'VXI ' : '') + String(this.frequency) + ' ' + this.channel + ' ' + this.comment;
+      try {
+        if (this.product.vendor_code === 'no_vendor_code' || this.Category.id === 7) {
+          console.log(this.vendor);
+          this.comment = (this.vendor === 'no_vendor' || this.vendor === null ? ''  : this.vendor + ' ') + (this.portable ? 'портативный ' : '') + (this.usb ? 'USB ' : '') + (this.vxi ? 'VXI ' : '') + (this.frequency?  String(this.frequency) +  ' ' : '') + (this.channel? String(this.channel)+  ' ' : '') + this.comment ;
+        }
+        this.ordersDB.push({
+          id: null,
+          vendor: this.product.vendor_id ? this.product.vendor_id : null,
+          tender: this.data.id,
+          product_category: this.Category.id,
+          comment: this.comment ? this.comment : '',
+          id_product: this.product.id,
+          number: this.number,
+          price: this.price ? this.price : 0,
+          winprice: this.winprice ? this.winprice : 0
+        });
+        this.orders.push({
+          tender: this.data.id,
+          vendor: this.vendor ? this.vendor : '',
+          product_category: this.Category.category,
+          id_product: (this.vendor ? this.vendor : '') + ' ' + this.product.vendor_code,
+          comment: this.comment ? this.comment : '' ,
+          number: this.number,
+          price: this.price !== null ? this.price : 0,
+          winprice: this.winprice !== null ? this.winprice : 0
+        });
+        this.default();
       }
-      this.ordersDB.push({
-        id: null,
-        vendor: this.product.vendor_id ? this.product.vendor_id : null,
-        tender: this.data.id,
-        product_category: this.Category.id,
-        comment: this.comment ? this.comment : '',
-        id_product: this.product.id,
-        number: this.number,
-        price: this.price ? this.price : 0,
-        winprice: this.winprice ? this.winprice : 0
-      });
-      this.orders.push({
-        tender: this.data.id,
-        vendor: this.vendor ? this.vendor : '',
-        product_category: this.Category.category,
-        id_product: (this.vendor ? this.vendor : '') + ' ' + this.product.vendor_code,
-        comment: this.comment ? this.comment : '' ,
-        number: this.number,
-        price: this.price !== null ? this.price : 0,
-        winprice: this.winprice !== null ? this.winprice : 0
-      });
-      this.default();
+    catch (e){
+        if(e instanceof TypeError){
+          this.dialog.open(ErrorDialogComponent, { data: 'Проверьте все значения, не подходит значениее в ' + e.message.substring(e.message.indexOf("\'")+1,e.message.lastIndexOf("\'")) + 'значие должно быть выбранно из списка'})
+        }
+        else {
+          this.dialog.open(ErrorDialogComponent, { data: e});
+        }
+    }
     }
   }
+
   deleteProduct(or: Orders) {
-        this.orders.splice(this.orders.indexOf(or), 1);
-    this.ordersDB.splice(this.orders.indexOf(or), 1);
-    this.dataSource = new MatTableDataSource<Orders>(this.orders);
+    const dialogRef = this.dialog.open(DeleteProductComponent, { data: or});
+    dialogRef.afterClosed().subscribe(result =>{
+      this.orders.splice(this.orders.indexOf(or), 1);
+      this.ordersDB.splice(this.orders.indexOf(or), 1);
+      if(!result ){
+        var index = null;
+        for( var i = 0; i < this.ordersDB.length; i++){
+          if(this.ordersDB[i].id_product === 7 && this.ordersDB[i].product_category === 7){
+            index = i;
+          }
+        }
+        if(index !== null){
+          this.orders[index].number = this.orders[index].number + or.number;
+          this.orders[index].comment = String(Number(this.orders[index].comment.replace(/[^\d]/g,'')) + 1) + 'наименований';
+
+          this.ordersDB[index].number = this.ordersDB[index].number + or.number;
+          this.ordersDB[index].comment = String(Number(this.ordersDB[index].comment.replace(/[^\d]/g,'')) + 1) + 'наименований';
+        }
+        else{
+          this.ordersDB.push({
+            id: null,
+            vendor:  null,
+            tender: this.data.id,
+            product_category: 7,
+            comment: '1 наименование',
+            id_product: 7,
+            number: or.number,
+            price: 0,
+            winprice: 0
+          });
+          this.orders.push({
+            tender: this.data.id,
+            vendor: '',
+            product_category: 'Продукты',
+            id_product: 'Другое оборудование',
+            comment: '1 наименование' ,
+            number: or.number,
+            price:0,
+            winprice: 0
+          });
+        }
+      }
+      this.dataSource = new MatTableDataSource<Orders>(this.orders);
+   });
+
   }
   editProduct(or: Orders){
     this.editOrders = this.orders.indexOf(or);
@@ -289,10 +354,30 @@ export class TenderDialogComponent implements OnInit {
     }
   }
   Save(){
-    console.log('cj[hfybnm');
-    this.api.addOrders( this.ordersDB).subscribe(str =>{
-      console.log(str);
-    });
+    if(this.ordersDB.length === 0){
+      this.ordersDB.push({
+        id: null,
+        vendor:  null,
+        tender: this.data.id,
+        product_category: null,
+        comment: '',
+        id_product: null,
+        number: null,
+        price: 0,
+        winprice: 0
+      });
+
+    }
+    this.api.addOrders( this.ordersDB).subscribe(data => console.log(data),
+      err => {if(err.status === 200){
+        this.dialog.open(ErrorDialogComponent, { data: 'Сохранил'});
+      }
+      else {
+        this.dialog.open(ErrorDialogComponent, { data: err});
+      }
+      },
+      () => console.log('yay'));
+
   }
   ngOnInit() {
     this.api.getOrdersByTender(this.data.id).subscribe(order => {
@@ -313,6 +398,6 @@ export class TenderDialogComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<TenderDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: Post, private api: ApiService) {}
+    @Inject(MAT_DIALOG_DATA) public data: Post, private api: ApiService, public dialog: MatDialog) {}
 
 }

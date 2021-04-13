@@ -12,7 +12,7 @@ import { DataRangeComponent } from './data-range/data-range.component';
 import {ErrorDialogComponent} from './page-tender-date/page-tender-date.component';
 
 import { WinnerAutocompletComponent } from './winner-autocomplet/winner-autocomplet.component';
-import { PageTenderDateComponent, TenderDialogComponent } from './page-tender-date/page-tender-date.component';
+import { PageTenderDateComponent, TenderDialogComponent, DeleteProductComponent } from './page-tender-date/page-tender-date.component';
 // MODULE
 import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -81,7 +81,8 @@ const routes = [
     PageReportComponent,
     TenderDialogComponent,
     ProductCategoryAutocompletComponent,
-    VendorCodeAutocompleatComponent
+    VendorCodeAutocompleatComponent,
+    DeleteProductComponent
   ],
   imports: [
     AppRoutingModule,
