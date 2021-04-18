@@ -1,7 +1,7 @@
 <mat-form-field appearance="outline" class="vendor_code">
   <mat-label>Укажите артикуль</mat-label>
   <input type="text" matInput [formControl]="myControl" [matAutocomplete]="auto" (ngModelChange)="Change.emit( myControl.value)" />
-  <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" autoActiveFirstOption >
+  <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" autoActiveFirstOption panelWidth = "auto">
     <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
       {{option.vendor_code}}
     </mat-option>

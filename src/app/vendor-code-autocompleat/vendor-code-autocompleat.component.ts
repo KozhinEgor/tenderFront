@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormControl} from "@angular/forms";
 import {Product} from "../classes";
 import {Observable} from "rxjs";
@@ -14,6 +14,8 @@ export class VendorCodeAutocompleatComponent implements OnInit {
 
   // tslint:disable-next-line:no-output-on-prefix
   @Output() Change = new EventEmitter<Product>();
+
+
   myControl = new FormControl();
   options: Product[] = [];
   filteredOptions: Observable<Product[]> | undefined;

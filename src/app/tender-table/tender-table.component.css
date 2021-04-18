@@ -1,0 +1,101 @@
+.tableContainer {
+  width: 97%;
+  overflow: visible;
+  margin: 1.5rem auto;
+  height: fit-content;
+}
+.mat-column-id, .mat-column-id, .mat-column-nameTender, .mat-column-numberTender,.mat-column-bicoTender, .mat-column-gosZakupki, .mat-column-price,
+.mat-column-currency, .mat-column-rate, .mat-column-sum, .mat-column-typetender,.mat-column-fullSum, .mat-column-winSum, .mat-column-dateFinish,
+.mat-column-dateStart, .mat-column-winner, .mat-column-customer, .mat-column-product{
+  padding: 0px 5px 0px 5px;
+  font-size: 12px;
+
+}
+.mat-column-id {
+
+  text-align: center;
+  width: 10px;
+}
+.mat-column-nameTender {
+  min-width: 400px;
+
+}
+.mat-column-numberTender {
+
+  min-width: 75px;
+}
+.mat-column-bicoTender {
+
+  min-width: 80px;
+}
+.mat-column-gosZakupki {
+
+  min-width: 80px;
+}
+.mat-column-price {
+  min-width: 75px;
+
+}
+.mat-column-currency {
+  min-width: 30px;
+}
+.mat-column-rate{
+  text-align: center;
+  min-width: 50px;
+}
+.mat-column-sum{
+  min-width: 75px;
+}
+.mat-column-dateStart{
+  min-width: 80px;
+}
+.mat-column-dateFinish{
+  min-width: 120px;
+}
+.mat-column-winSum{
+  min-width: 75px;
+}
+.mat-column-fullSum{
+  min-width: 75px;
+}
+.mat-column-typetender{
+  min-width: 100px;
+}
+.mat-column-customer {
+
+  min-width: 200px;
+}
+.mat-column-winner {
+
+  min-width: 200px;
+}
+.mat-column-product{
+  min-width: 200px;
+}
+tr.example-detail-row {
+  height: 0;
+}
+
+
+
+.example-element-row td {
+  border-bottom-width: 0;
+}
+
+.example-element-detail {
+  overflow: hidden;
+
+}
+
+.example-element-description {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+
+}
+.block_column {
+
+  margin-top: 5px;
+  margin-right: 5px;
+}

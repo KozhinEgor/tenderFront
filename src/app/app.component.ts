@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import {ApiService} from "./api.service";
+import {count} from "rxjs/operators";
 
 @Component({
   selector: 'app-root',
@@ -7,5 +9,11 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'tender';
-  Page;
+  CountTender: number = null;
+  constructor(private api: ApiService) {
+  }
+  getCount(){
+    this.api.getCountTenderWithoutOrders().subscribe(count => {this.CountTender = count;},
+      err=> {this.CountTender = null;})
+  }
 }

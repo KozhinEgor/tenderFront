@@ -87,6 +87,15 @@ export class ApiService {
       map(status => status as string)
     );
   }
+  getCountTenderWithoutOrders(){
+    return this.http.get('http://localhost:8082/demo/CountTenderWithoutOrders').pipe(
+      map(count => count as number)
+    );
+  }
+  getTenderWithoutOrders(){
+    return this.http.get('http://localhost:8082/demo/TenderWithoutOrders').pipe(
+      map(posts => posts as Post[]));
+  }
   getVendorName(){
     return this.http.get('http://localhost:8082/demo/Vendor/').pipe(
       map(vendors => vendors as Vendor[])

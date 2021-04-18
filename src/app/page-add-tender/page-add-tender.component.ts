@@ -8,33 +8,23 @@ import {MatSort} from '@angular/material/sort';
 import {group} from '../page-tender-date/page-tender-date.component';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 
+import {MatDialog} from "@angular/material/dialog";
+import {ErrorDialogComponent} from "../error-dialog/error-dialog.component";
+import {ErrorDialogTenderComponent} from "../tender-table/tender-table.component";
+
 @Component({
   selector: 'app-page-add-tender',
   templateUrl: './page-add-tender.component.html',
   styleUrls: ['./page-add-tender.component.scss'],
-  animations: [
-    trigger('detailExpand', [
-      state('collapsed', style({height: '0px', minHeight: '0'})),
-      state('expanded', style({height: '*'})),
-      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
-    ]),
-  ],
 })
 export class PageAddTenderComponent implements OnInit {
-  @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
-  @ViewChild(MatSort) sort: MatSort | null = null;
-  dataSource = new MatTableDataSource<Post>();
-  expandedElement: Post | null;
+   dataSource = new MatTableDataSource<Post>();
   load: boolean = false;
   arrayBuffer: any;
+  upload_button = false;
   file: File;
+  displayedColumns: string[] = ['id','nameTender','customer','typetender','sum','dateStart','dateFinish','product'];
 
-  displayedColumns: string[] = [];
-
-  AllColums: group[] = [{name: 'id', nameru: 'ID'}, {name: 'nameTender', nameru: 'Название тендера'}, {name: 'customer', nameru: 'Заказчик'}, {name: 'typetender', nameru: 'Тип тендера'},
-
-    {name: 'sum', nameru: 'Сумма'}, {name: 'dateStart', nameru: 'Дата начала'},
-    {name: 'dateFinish', nameru: 'Дата окончания'},  {name: 'winner', nameru: 'Победитель'}, {name: 'winSum', nameru: 'Выиграшная сумма'}];
 
   onFileChanged(event)
   {
@@ -45,17 +35,23 @@ export class PageAddTenderComponent implements OnInit {
   Upload() {
     const uploadData = new FormData();
     uploadData.append('excel', this.file, this.file.name);
-    console.log(uploadData.get('excel'));
-    this.api.addTender(uploadData).subscribe(posts => {
-      this.dataSource = new MatTableDataSource<Post>(posts) ;
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-    });
-  }
-  constructor(private api: ApiService) {
-    for (let index = 0; index < this.AllColums.length - 2; index++){
-      this.displayedColumns.push(this.AllColums[index].name);
+    this.upload_button = true;
+    try {
+        this.api.addTender(uploadData).subscribe(posts => {
+        this.dataSource = new MatTableDataSource<Post>(posts) ;
+
+
+      },
+  err => {
+        this.dialog.open(ErrorDialogTenderComponent, { data: err.message});
+            });
     }
+    catch (e) {
+      this.dialog.open(ErrorDialogComponent, {data: e.message});
+    }
+    this.upload_button = false;
+  }
+  constructor(private api: ApiService, public dialog: MatDialog) {
   }
 
   ngOnInit(): void {

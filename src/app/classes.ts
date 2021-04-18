@@ -16,6 +16,7 @@ export interface Post {
   winner: string;
   customer: string;
   inn: string;
+  product: string;
 }
 export interface Type{
   id: number;

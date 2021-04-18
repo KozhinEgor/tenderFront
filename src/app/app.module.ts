@@ -9,10 +9,10 @@ import { AppComponent } from './app.component';
 import { AutocompletTypeComponent } from './autocomplet-type/autocomplet-type.component';
 import { CustomAutocompletComponent } from './custom-autocomplet/custom-autocomplet.component';
 import { DataRangeComponent } from './data-range/data-range.component';
-import {ErrorDialogComponent} from './page-tender-date/page-tender-date.component';
+import {ErrorDialogComponent} from './error-dialog/error-dialog.component';
 
 import { WinnerAutocompletComponent } from './winner-autocomplet/winner-autocomplet.component';
-import { PageTenderDateComponent, TenderDialogComponent, DeleteProductComponent } from './page-tender-date/page-tender-date.component';
+import { PageTenderDateComponent } from './page-tender-date/page-tender-date.component';
 // MODULE
 import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -20,6 +20,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import {MatBadgeModule} from '@angular/material/badge';
 import {MatButtonModule} from '@angular/material/button';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {MatChipsModule} from '@angular/material/chips';
@@ -32,6 +33,7 @@ import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MatMomentDateModule, MomentDateAdapter}
 import {MatPaginatorModule } from '@angular/material/paginator';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatSortModule} from '@angular/material/sort';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatTableModule } from '@angular/material/table';
 import {MatTabsModule} from '@angular/material/tabs';
 import {HttpClientModule } from '@angular/common/http';
@@ -49,6 +51,10 @@ import { PageReportComponent } from './page-report/page-report.component';
 import { ProductCategoryAutocompletComponent } from './product-category-autocomplet/product-category-autocomplet.component';
 import { VendorCodeAutocompleatComponent } from './vendor-code-autocompleat/vendor-code-autocompleat.component';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+import { TenderTableComponent, TenderDialogComponent, DeleteProductComponent, ErrorDialogTenderComponent } from './tender-table/tender-table.component';
+import { PageTenderWithoutOrdersComponent } from './page-tender-without-orders/page-tender-without-orders.component';
+
+
 
 
 const routes = [
@@ -57,7 +63,8 @@ const routes = [
   {path: 'tender', component: PageTenderComponent },
   {path: 'tender-date', component: PageTenderDateComponent},
   {path: 'report', component: PageReportComponent},
-  {path: 'add-tender', component: PageAddTenderComponent}
+  {path: 'add-tender', component: PageAddTenderComponent},
+  {path: 'tender-without-orders', component: PageTenderWithoutOrdersComponent}
 
 ];
 
@@ -82,7 +89,10 @@ const routes = [
     TenderDialogComponent,
     ProductCategoryAutocompletComponent,
     VendorCodeAutocompleatComponent,
-    DeleteProductComponent
+    DeleteProductComponent,
+    TenderTableComponent,
+    ErrorDialogTenderComponent,
+    PageTenderWithoutOrdersComponent
   ],
   imports: [
     AppRoutingModule,
@@ -92,6 +102,7 @@ const routes = [
     DragDropModule,
     FormsModule, ReactiveFormsModule,
     MatAutocompleteModule,
+    MatBadgeModule,
     MatButtonModule,
     MatCheckboxModule,
     MatChipsModule,
@@ -107,6 +118,7 @@ const routes = [
     MatProgressBarModule,
     MatSidenavModule,
     MatSortModule,
+    MatProgressSpinnerModule,
     MatTableModule,
     MatToolbarModule,
     MatTabsModule,

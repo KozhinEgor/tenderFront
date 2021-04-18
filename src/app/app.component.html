@@ -1,5 +1,5 @@
 <mat-toolbar color="primary">
-  <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon" (click)="drawer.toggle()">
+  <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon" (click)="drawer.toggle(); getCount()">
     <mat-icon>menu</mat-icon>
   </button>
   <span><a routerLink="/" class="nameApp" (click)="drawer.close()">My App</a></span>
@@ -15,6 +15,7 @@
       <a mat-list-item routerLink="/tender-date"(click)="drawer.close()">Тендеры по датам</a>
       <a mat-list-item routerLink="/report"(click)="drawer.close()">Отчеты</a>
       <a mat-list-item routerLink="/add-tender"(click)="drawer.close()"><mat-icon>add_circle_outline</mat-icon> Добавить тендеры</a>
+      <a mat-list-item routerLink="/tender-without-orders"(click)="drawer.close()"><span [matBadge] = CountTender >Тендеры без продуктов</span></a>
     </mat-list>
   </mat-drawer>
   <mat-drawer-content>
