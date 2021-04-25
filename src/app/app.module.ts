@@ -53,6 +53,7 @@ import { VendorCodeAutocompleatComponent } from './vendor-code-autocompleat/vend
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import { TenderTableComponent, TenderDialogComponent, DeleteProductComponent, ErrorDialogTenderComponent } from './tender-table/tender-table.component';
 import { PageTenderWithoutOrdersComponent } from './page-tender-without-orders/page-tender-without-orders.component';
+import { VendorAutocompletComponent } from './vendor-autocomplet/vendor-autocomplet.component';
 
 
 
@@ -92,7 +93,8 @@ const routes = [
     DeleteProductComponent,
     TenderTableComponent,
     ErrorDialogTenderComponent,
-    PageTenderWithoutOrdersComponent
+    PageTenderWithoutOrdersComponent,
+    VendorAutocompletComponent
   ],
   imports: [
     AppRoutingModule,

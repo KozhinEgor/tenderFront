@@ -24,7 +24,8 @@
     <div class="block_column"><span>Полня стоимость - {{data.full_sum  | currency : data.currency:'symbol': '1.2-2':'ru'}}</span></div>
   </div>
   <hr>
-  <div class = "row"><app-product-category-autocomplet (Change)="onChange($event)" class="vendor_code"></app-product-category-autocomplet>
+  <div class = "row">
+    <app-product-category-autocomplet (Change)="onChange($event)" class="vendor_code"></app-product-category-autocomplet>
     <app-vendor-code-autocompleat (Change)="onChangeVendorCode($event)"></app-vendor-code-autocompleat>
     <mat-form-field appearance="outline" *ngIf="vendor" class="vendor">
       <mat-label>Вендор</mat-label>
@@ -56,11 +57,11 @@
     <mat-checkbox class="example-margin" color="primary" *ngIf="vxi != null" [(ngModel)]="vxi" >VXI</mat-checkbox>
     <mat-checkbox class="example-margin" color="primary" *ngIf="usb != null" [(ngModel)]="usb">USB</mat-checkbox>
     <mat-checkbox class="example-margin" color="primary" *ngIf="portable != null" [(ngModel)]="portable">Портативный</mat-checkbox>
-    <mat-form-field appearance="outline" *ngIf="frequency != null">
+    <mat-form-field appearance="outline" *ngIf="frequency != -1 ">
       <mat-label>Частота/Полоса пропускания</mat-label>
       <input matInput placeholder="Частота/Полоса пропускания" type="number" [(ngModel)]="frequency" >
     </mat-form-field>
-    <mat-form-field appearance="outline" *ngIf="frequency != null">
+    <mat-form-field appearance="outline" *ngIf="channel != -1">
       <mat-label>Каналы</mat-label>
       <input matInput placeholder="Число каналов" type="number" [(ngModel)]="channel" >
     </mat-form-field>
@@ -133,6 +134,7 @@
   </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
+  <button mat-button (click)="setprice()">Посчитать цену</button>
   <button mat-button (click)="Save()">Сохранить</button>
   <button mat-button mat-dialog-close>Закрыть</button>
 </mat-dialog-actions>

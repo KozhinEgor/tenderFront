@@ -11,7 +11,7 @@ import {
   ProductCategory,
   Product,
   Vendor,
-  OrdersDB, OrdersReceived
+  OrdersDB, OrdersReceived, ReportVendorQuarter
 } from './classes';
 
 @Injectable({
@@ -36,6 +36,13 @@ export class ApiService {
       map(posts => posts as Post[])
     );
   }
+  getSaveProduct(product: Product,category: number){
+    //const body = {dateStart: '2020-10-01T00:00:00Z', dateFinish: '2020-10-10T12:00:00Z'};
+    // {dateStart: '', dateFinish: '', type: '%', custom: '%', winner: '%', minSum: 0, maxSum: 999999999999}
+    return this.http.post('http://localhost:8082/demo/saveProduct/'+category, product).pipe(
+      map(posts => posts as Product[])
+    );
+  }
   getAllTypes(){
       return this.http.get('http://localhost:8082/demo/TypeTender').pipe(
         map(types => types as Type[])
@@ -51,9 +58,19 @@ export class ApiService {
       map(winners => winners as Winner[])
     );
   }
-  getReportQuarter(){
-    return this.http.get('http://localhost:8081/demo/quarter').pipe(
+  getReportQuarter(category: number){
+    return this.http.get('http://localhost:8082/demo/quarterTender/'+category).pipe(
       map(reportQuarter => reportQuarter as ReportQuarter[])
+    );
+  }
+  getReportVendorQuarter(category: number){
+    return this.http.get('http://localhost:8082/demo/quarterVendor/'+category).pipe(
+      map(reportQuarter => reportQuarter as ReportVendorQuarter[])
+    );
+  }
+  getReportNoVendorQuarter(category: number){
+    return this.http.get('http://localhost:8082/demo/quarterNoVendor/'+category).pipe(
+      map(reportQuarter => reportQuarter as ReportVendorQuarter[])
     );
   }
   addTender(uploadData: any){
@@ -96,9 +113,20 @@ export class ApiService {
     return this.http.get('http://localhost:8082/demo/TenderWithoutOrders').pipe(
       map(posts => posts as Post[]));
   }
-  getVendorName(){
+  getTendernoDocumentation(){
+    return this.http.get('http://localhost:8082/demo/TendernoDocumentation').pipe(
+      map(posts => posts as Post[]));
+  }
+  getVendor(){
+
     return this.http.get('http://localhost:8082/demo/Vendor/').pipe(
       map(vendors => vendors as Vendor[])
+    );
+  }
+  SaveTender(json: Post){
+    console.log(json);
+    return this.http.post('http://localhost:8082/demo/saveTender', json).pipe(
+      map(status => status as string)
     );
   }
 }

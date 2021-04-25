@@ -43,7 +43,7 @@ export class AutocompletTypeComponent implements OnInit {
   private _filter(type: string): Type[] {
     const filterValue = type.toLowerCase();
 
-    return this.options.filter(option => option.type.toLowerCase().indexOf(filterValue) === 0);
+    return this.options.filter(option => option.type.toLowerCase().includes(filterValue));
   }
   getType(): any{
     return this.myControl.value != null ? this.myControl.value.id : '%';

@@ -10,7 +10,7 @@ import {MatDialog} from "@angular/material/dialog";
 @Component({
   selector: 'app-page-tender-without-orders',
   templateUrl: './page-tender-without-orders.component.html',
-  styleUrls: ['./page-tender-without-orders.component.css']
+  styleUrls: ['./page-tender-without-orders.component.scss']
 })
 export class PageTenderWithoutOrdersComponent implements OnInit {
 
@@ -39,5 +39,19 @@ export class PageTenderWithoutOrdersComponent implements OnInit {
       this.dialog.open(ErrorDialogComponent, {data: e.message});
     }
   }
+  noDocumentation(){
+    try {
+      this.api.getTendernoDocumentation().subscribe(posts => {
+          this.dataSource = new MatTableDataSource<Post>(posts) ;
 
+
+        },
+        err => {
+          this.dialog.open(ErrorDialogTenderComponent, { data: err.message});
+        });
+    }
+    catch (e) {
+      this.dialog.open(ErrorDialogComponent, {data: e.message});
+    }
+  }
 }

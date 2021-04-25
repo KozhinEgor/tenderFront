@@ -1,0 +1,47 @@
+.mat-grid-tile{
+  padding: 5px;
+  height: fit-content;
+}
+
+.mat-column-quarter{
+  width: 80px;
+  text-align: center;
+}
+.mat-column-year{
+  width: 80px;
+  text-align: center;
+}
+.mat-column-count{
+  width: 80px;
+  text-align: center;
+}
+.mat-column-sum{
+  width: 160px;
+  text-align: center;
+}
+.vendor{
+  width: 700px;
+  .mat-row:nth-child(odd){
+    background-color: #e0e0e0;
+  }
+  .mat-cell, .mat-header-cell {
+    font-size: 14px;
+    min-height: 48px;
+    text-align: center;
+    border-right: 1px solid black;
+  }
+
+}
+.tableContainer {
+  display: flex;
+  flex-wrap: wrap;
+  width: 97%;
+  padding: 5px;
+  margin: 1.5rem auto;
+
+  height: fit-content;
+}
+
+
+
+

@@ -85,10 +85,10 @@ export class TenderDialogComponent implements OnInit {
 
   product: Product  = null;
   Category: ProductCategory = null;
-  channel = null;
+  channel = -1;
   nameCategory: string;
   vendor = null;
-  frequency = null;
+  frequency = -1;
   vxi = null;
   portable = null;
   usb = null;
@@ -106,10 +106,10 @@ export class TenderDialogComponent implements OnInit {
     this.vendorCodeAutocomplete.myControl.setValue('');
     this.product = null;
     this.Category = null;
-    this.channel = null;
+    this.channel = -1;
     this.nameCategory = null;
     this.vendor = null;
-    this.frequency = null;
+    this.frequency = -1;
     this.vxi = null;
     this.portable = null;
     this.usb = null;
@@ -123,7 +123,7 @@ export class TenderDialogComponent implements OnInit {
       try {
         if (this.product.vendor_code === 'no_vendor_code' || this.Category.id === 7) {
           console.log(this.vendor);
-          this.comment = (this.vendor === 'No vendor' || this.vendor === null ? ''  : this.vendor + ' ') + (this.portable ? 'портативный ' : '') + (this.usb ? 'USB ' : '') + (this.vxi ? 'VXI ' : '') + (this.frequency?  String(this.frequency) +  'ГГц ' : '') + (this.channel? String(this.channel)+  'кан. ' : '') + this.comment ;
+          this.comment = (this.vendor === 'No vendor' || this.vendor === null ? ''  : this.vendor + ' ') + (this.portable ? 'портативный ' : '') + (this.usb ? 'USB ' : '') + (this.vxi ? 'VXI ' : '') + (this.frequency !== -1 && this.frequency?  String(this.frequency) +  'ГГц ' : '') + (this.channel!== -1 &&this.channel? String(this.channel)+  'кан. ' : '') + this.comment ;
         }
         this.ordersDB.push({
           id: null,
@@ -167,6 +167,7 @@ export class TenderDialogComponent implements OnInit {
       if(!result ){
         var index = null;
         for( var i = 0; i < this.ordersDB.length; i++){
+          console.log(this.ordersDB[i].id_product, '',  this.ordersDB[i].product_category)
           if(this.ordersDB[i].id_product === 7 && this.ordersDB[i].product_category === 7){
             index = i;
           }
@@ -256,7 +257,8 @@ export class TenderDialogComponent implements OnInit {
       this.vxi = this.product.vxi;
       this.portable = this.product.portable;
       this.usb = this.product.usb;
-      this.frequency = this.product.frequency !== 0 ? this.product.frequency : '';
+      this.frequency = this.product.frequency === null ? -1: this.product.frequency;
+      this.channel = this.product.channel === null?  -1  : this.product.channel;
       this.flag = true;
     }
   }
@@ -291,14 +293,27 @@ export class TenderDialogComponent implements OnInit {
         }
 
     }
-    this.api.addOrders( this.ordersDB).subscribe(data => console.log(data),
+    let message: string = '';
+    this.api.addOrders( this.ordersDB).subscribe(data => data,
       err => {if(err.status === 200){
-        this.dialog.open(ErrorDialogTenderComponent, { data: 'Сохранил'});
+
       }
       else {
         this.dialog.open(ErrorDialogTenderComponent, { data: err.message});
+
+
       }
       });
+    this.api.SaveTender(this.data).subscribe(data => data,
+      err => {if(err.status === 200){
+        this.dialog.open(ErrorDialogTenderComponent, { data: 'Сохранил'});
+
+      }
+      else {
+        this.dialog.open(ErrorDialogTenderComponent, { data: message + err.message});
+      }
+      });
+
 
   }
   ngOnInit() {
@@ -309,7 +324,13 @@ export class TenderDialogComponent implements OnInit {
       this.ordersDB = order.ordersDB;
     });
   }
-
+  setprice(){
+    var sum = 0;
+    for( var i = 0; i < this.ordersDB.length; i++){
+      sum = sum + (this.ordersDB[i].number*this.ordersDB[i].price);
+    }
+    this.data.price = sum;
+  }
   constructor(
     public dialogRef: MatDialogRef<TenderDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: Post, private api: ApiService, public dialog: MatDialog) {}

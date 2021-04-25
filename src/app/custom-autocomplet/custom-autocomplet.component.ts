@@ -37,7 +37,7 @@ export class CustomAutocompletComponent implements OnInit {
   private _filter(custom: string): Custom[] {
     const filterValue = custom.toLowerCase();
 
-    return this.options.filter(option => option.name.toLowerCase().indexOf(filterValue) === 0);
+    return this.options.filter(option => option.name.toLowerCase().includes(filterValue));
   }
   getCustom(): string{
     return this.myControl.value != null ? this.myControl.value.id : '%';
