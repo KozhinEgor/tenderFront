@@ -18,7 +18,11 @@
   </div>
   <hr>
   <div class = "row">
-    <div class="block_column"><span>Цена - {{data.price| currency : data.currency:'symbol': '1.2-2':'ru'}}</span></div>
+    <div class="block_column"><span>Цена - <mat-form-field class="example-form-field">
+  <mat-label>Цена</mat-label>
+  <input matInput type="text" [(ngModel)]="data.price">
+</mat-form-field>
+      </span></div>
     <div class="block_column"><span>Валюта - {{data.currency}}</span></div>
     <div class="block_column"><span>Курс - {{data.rate}}</span></div>
     <div class="block_column"><span>Полня стоимость - {{data.full_sum  | currency : data.currency:'symbol': '1.2-2':'ru'}}</span></div>

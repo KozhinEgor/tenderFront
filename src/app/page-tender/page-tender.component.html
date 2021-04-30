@@ -1,1 +1,9 @@
-<H3>Страница с поиском тендеров по продуктам</H3>
+<div class="ChoseContainer mat-elevation-z8">
+  <app-data-range ></app-data-range>
+  <app-product-category-autocomplet (Change)="onChange($event)" class="vendor_code"></app-product-category-autocomplet>
+  <app-vendor-code-autocompleat (Change)="onChangeVendorCode($event)"></app-vendor-code-autocompleat>
+  <button mat-flat-button color="primary" (click)="showTables()" class="show_table">Показать таблицу</button>
+
+
+</div>
+<app-tender-table [displayedColumns]="displayedColumns" [dataSource]="dataSource"></app-tender-table>

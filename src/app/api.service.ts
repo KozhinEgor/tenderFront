@@ -11,7 +11,7 @@ import {
   ProductCategory,
   Product,
   Vendor,
-  OrdersDB, OrdersReceived, ReportVendorQuarter
+  OrdersDB, OrdersReceived, ReportVendorQuarter, TenderonProduct
 } from './classes';
 
 @Injectable({
@@ -40,7 +40,7 @@ export class ApiService {
     //const body = {dateStart: '2020-10-01T00:00:00Z', dateFinish: '2020-10-10T12:00:00Z'};
     // {dateStart: '', dateFinish: '', type: '%', custom: '%', winner: '%', minSum: 0, maxSum: 999999999999}
     return this.http.post('http://localhost:8082/demo/saveProduct/'+category, product).pipe(
-      map(posts => posts as Product[])
+      map(product => product as Product[])
     );
   }
   getAllTypes(){
@@ -127,6 +127,16 @@ export class ApiService {
     console.log(json);
     return this.http.post('http://localhost:8082/demo/saveTender', json).pipe(
       map(status => status as string)
+    );
+  }
+  getFooter(ids: number[]){
+    return this.http.post('http://localhost:8082/demo/getFooter', ids).pipe(
+      map(status => status as string)
+    );
+  }
+  getTenderOnProduct(tenderProduct: TenderonProduct){
+    return this.http.post('http://localhost:8082/demo/TenderOnProduct/',tenderProduct).pipe(
+      map(posts => posts as Post[])
     );
   }
 }

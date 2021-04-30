@@ -80,15 +80,15 @@ export interface ProductCategory{
   category_en: string;
 }
 export interface Product{
-  id: number | null;
-  vendor_id: number| null;
-  vendor_code: string| null;
-  frequency: number| null;
-  usb: boolean| null;
-  vxi: boolean| null;
-  portable: boolean| null;
-  vendor: string| null;
-  channel: number| null;
+  id: number ;
+  vendor_id: number;
+  vendor_code: string;
+  frequency: number;
+  usb: boolean;
+  vxi: boolean;
+  portable: boolean;
+  vendor: string;
+  channel: number;
 }
 export interface Vendor{
   id: number;
@@ -98,4 +98,10 @@ export interface Vendor{
 export interface ReportVendorQuarter{
   vendor: string;
   quarter: string;
+}
+export interface TenderonProduct{
+  dateStart: string;
+  dateFinish: string;
+  productCategory: number;
+  product: string;
 }

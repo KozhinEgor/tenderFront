@@ -37,23 +37,23 @@
         <input matInput placeholder="Id" type="number" [(ngModel)]="product.id">
       </mat-form-field>
 
-      <app-vendor-autocomplet (Change)="onChangeVendor($event)" *ngIf="product.vendor != null" class="vendor Childmargin"></app-vendor-autocomplet>
+      <app-vendor-autocomplet (Change)="onChangeVendor($event)" *ngIf="columns.indexOf('vendor') != -1" class="vendor Childmargin"></app-vendor-autocomplet>
 
-      <mat-form-field appearance="outline" *ngIf="product.vendor_code != null" class="vendor" class="Childmargin">
+      <mat-form-field appearance="outline" *ngIf="columns.indexOf('vendor_code') != -1" class="vendor" class="Childmargin">
       <mat-label>Артикул</mat-label>
       <input matInput placeholder="Артикул" type="text" [(ngModel)]="product.vendor_code">
       </mat-form-field>
 
     </div>
     <div class="row">
-      <mat-checkbox class="Childmargin" color="primary" *ngIf="product.vxi != null" [(ngModel)]="product.vxi" >VXI</mat-checkbox>
-      <mat-checkbox class="Childmargin" color="primary" *ngIf="product.usb != null" [(ngModel)]="product.usb">USB</mat-checkbox>
-      <mat-checkbox class="Childmargin" color="primary" *ngIf="product.portable != null" [(ngModel)]="product.portable">Портативный</mat-checkbox>
-      <mat-form-field appearance="outline" *ngIf="product.frequency != -1" class="Childmargin">
+      <mat-checkbox class="Childmargin" color="primary" *ngIf="columns.indexOf('vxi') != -1" [(ngModel)]="product.vxi" >VXI</mat-checkbox>
+      <mat-checkbox class="Childmargin" color="primary" *ngIf="columns.indexOf('usb') != -1" [(ngModel)]="product.usb">USB</mat-checkbox>
+      <mat-checkbox class="Childmargin" color="primary" *ngIf="columns.indexOf('portable') != -1" [(ngModel)]="product.portable">Портативный</mat-checkbox>
+      <mat-form-field appearance="outline" *ngIf="columns.indexOf('frequency') != -1" class="Childmargin">
         <mat-label>Частота/Полоса пропускания</mat-label>
         <input matInput placeholder="Частота/Полоса пропускания" type="number" [(ngModel)]="product.frequency" >
       </mat-form-field>
-      <mat-form-field appearance="outline" *ngIf="product.channel != -1" class="Childmargin">
+      <mat-form-field appearance="outline" *ngIf="columns.indexOf('channel') != -1" class="Childmargin">
         <mat-label>Каналы</mat-label>
         <input matInput placeholder="Число каналов" type="number" [(ngModel)]="product.channel" >
       </mat-form-field>

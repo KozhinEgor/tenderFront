@@ -68,7 +68,11 @@
       </div>
     </td>
   </ng-container>
-
+  <ng-container matColumnDef="footer">
+    <td mat-footer-cell *matFooterCellDef [attr.colspan]="displayedColumns.length">
+      С ценой было: {{getTotalCount()}} тендеров, на сумму {{getTotalCost() | currency : 'RUB':'symbol': '1.2-2':'ru'}}
+    </td>
+  </ng-container>
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let element; columns: displayedColumns;"
       class="example-element-row"
@@ -76,7 +80,7 @@
       (click)="expandedElement = expandedElement === element ? null : element">
   </tr>
   <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
-
+  <tr mat-footer-row *matFooterRowDef="['footer']" class="example-second-footer-row" style="width: 100%"></tr>
 
 </table>
 <mat-paginator [pageSizeOptions]="[10, 15, 20]" showFirstLastButtons></mat-paginator>

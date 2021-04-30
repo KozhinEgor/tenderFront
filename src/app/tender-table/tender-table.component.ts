@@ -33,9 +33,9 @@ export class TenderTableComponent implements OnInit,OnChanges {
   @Input() dataSource = new MatTableDataSource<Post>();
   expandedElement: Post | null;
 
-  constructor(public dialog: MatDialog) {
-  }
+  constructor(public dialog: MatDialog, private api: ApiService){
 
+  }
   showTender() {
     this.dialog.open(TenderDialogComponent, { width: '80%', height: '80%', data:  this.expandedElement});
   }
@@ -43,7 +43,19 @@ export class TenderTableComponent implements OnInit,OnChanges {
   ngOnInit(): void {
 
   }
-
+  getTotalCost() {
+    return this.dataSource.data.map(t =>t.sum).reduce((a,b) =>
+       a+b, 0);
+  }
+  getTotalCount(){
+    let count = 0;
+    for(let i = 0;i<this.dataSource.data.length;i++){
+      if(this.dataSource.data[i].sum !== 0 ){
+        count= count +1;
+      }
+    }
+    return count;
+  }
   ngOnChanges(): void {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
@@ -264,6 +276,15 @@ export class TenderDialogComponent implements OnInit {
   }
   Save(){
     this.data.product = '';
+    var sum = 0;
+    for( var i = 0; i < this.ordersDB.length; i++){
+      sum = sum + (this.ordersDB[i].number*this.ordersDB[i].price);
+    }
+    if(sum !== 0){
+      this.data.price = sum;
+      this.data.sum = this.data.price * this.data.rate;
+    }
+
     if(this.ordersDB.length === 0){
 
 
@@ -330,6 +351,7 @@ export class TenderDialogComponent implements OnInit {
       sum = sum + (this.ordersDB[i].number*this.ordersDB[i].price);
     }
     this.data.price = sum;
+    this.data.sum = this.data.price * this.data.rate;
   }
   constructor(
     public dialogRef: MatDialogRef<TenderDialogComponent>,

@@ -14,7 +14,7 @@ import {VendorAutocompletComponent} from "../vendor-autocomplet/vendor-autocompl
 })
 export class PageProductComponent implements OnInit {
   @ViewChild(MatSort) sort: MatSort;
-
+  @ViewChild(VendorAutocompletComponent) vendorAutocompletComponent:VendorAutocompletComponent
 
   Category: ProductCategory = null;
   product:Product = {
@@ -36,7 +36,6 @@ export class PageProductComponent implements OnInit {
 
   }
   default(){
-    console.log('default')
     this.product = { id: null,
                     vendor_id:null,
                     vendor_code:this.columns.includes("vendor_code")? '' : null,
@@ -45,8 +44,8 @@ export class PageProductComponent implements OnInit {
                     vxi:this.columns.includes("vxi")? false : null,
                     portable:this.columns.includes("portable")? false : null,
                     vendor:this.columns.includes("vendor")? '' : null,
-                    channel:this.columns.includes("channel")? null : -1};
-
+                    channel:this.columns.includes("channel")? 0 : -1};
+    this.vendorAutocompletComponent.myControl.setValue('');
   }
   showTables(){
     if(this.Category !== null) {
@@ -60,11 +59,12 @@ export class PageProductComponent implements OnInit {
           }
 
         }
-        this.default();
+
         this.dataSource = new MatTableDataSource(product);
         this.dataSource.sort = this.sort
+        this.default();
       });
-      console.log(this.product);
+
     }
   }
   onChange(t: any) {
@@ -83,7 +83,7 @@ export class PageProductComponent implements OnInit {
   }
   editProduct(product: Product){
     this.product = product;
-
+    this.vendorAutocompletComponent.myControl.setValue({name:product.vendor, id:product.vendor_id, second_name:'-'});
     /*
     this.product.id = product.id;
     this.product.channel = product.channel === null? -1:product.channel;
