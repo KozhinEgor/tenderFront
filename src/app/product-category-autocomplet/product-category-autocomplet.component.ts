@@ -50,7 +50,4 @@ export class ProductCategoryAutocompletComponent implements OnInit {
 
     return this.options.filter(option => option.category.toLowerCase().indexOf(filterValue) === 0);
   }
-  getProduct(): any{
-
-  }
 }

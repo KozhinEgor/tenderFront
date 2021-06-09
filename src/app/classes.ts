@@ -10,6 +10,7 @@ export interface Post {
   sum: number;
   date_start: Date;
   date_finish: Date;
+  date_tranding: Date;
   full_sum: number;
   win_sum: number;
   typetender: string;
@@ -17,17 +18,21 @@ export interface Post {
   customer: string;
   inn: string;
   product: string;
+  dublicate: boolean;
+  country:string;
 }
 export interface Type{
   id: number;
   type: string;
 }
-export interface Custom{
+export interface Customer {
   id: number;
   name: string;
   inn: string;
+  country: string;
 }
 export interface Winner{
+  id: number;
   name: string;
   inn: string;
   ogrn: string;
@@ -35,11 +40,21 @@ export interface Winner{
 export interface ReceivedJson{
   dateStart: string;
   dateFinish: string;
-  type: string;
-  custom: string;
-  winner: string;
+  dublicate: boolean;
+  typeExclude: boolean;
+  type: Type[];
+  customExclude: boolean;
+  custom: Customer[];
+  innCustomer: string;
+  country: number;
+  winnerExclude: boolean;
+  winner: Winner[];
   minSum: number;
   maxSum: number;
+  ids: number[];
+  bicotender: number[];
+  numberShow: boolean;
+  product: ProductReceived[];
 }
 export interface ReportQuarter{
   product: string;
@@ -99,9 +114,23 @@ export interface ReportVendorQuarter{
   vendor: string;
   quarter: string;
 }
+export interface ReportCriteria{
+  category:number;
+  dateStart: string;
+  dateFinish: string;
+}
 export interface TenderonProduct{
   dateStart: string;
   dateFinish: string;
   productCategory: number;
   product: string;
+}
+export interface Country {
+  id: number;
+  name: string;
+}
+export interface ProductReceived{
+  category: ProductCategory;
+  vendor: Vendor;
+  vendor_code: Product;
 }

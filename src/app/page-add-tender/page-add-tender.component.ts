@@ -40,7 +40,6 @@ export class PageAddTenderComponent implements OnInit {
         this.api.addTender(uploadData).subscribe(posts => {
         this.dataSource = new MatTableDataSource<Post>(posts) ;
 
-
       },
   err => {
         this.dialog.open(ErrorDialogTenderComponent, { data: err.message});

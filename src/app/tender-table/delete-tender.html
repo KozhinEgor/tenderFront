@@ -1,0 +1,9 @@
+<mat-dialog-content>
+  Вы хотите удалить
+  {{data.id}} {{data.name_tender}} от {{data.customer}}
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button  [matDialogClose]="true" cdkFocusInitial>Удалить</button>
+  <button mat-button  [matDialogClose]="false" cdkFocusInitial>Закрыть</button>
+</mat-dialog-actions>

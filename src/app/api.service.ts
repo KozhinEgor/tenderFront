@@ -1,29 +1,30 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
+import {environment} from "../environments/environment";
 import {
   Post,
   Type,
   ReceivedJson,
-  Custom,
+  Customer,
   Winner,
   ReportQuarter,
   ProductCategory,
   Product,
   Vendor,
-  OrdersDB, OrdersReceived, ReportVendorQuarter, TenderonProduct
+  OrdersDB, OrdersReceived, ReportVendorQuarter, TenderonProduct, Country
 } from './classes';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-
+private host = environment.apiUrl;
   constructor(private http: HttpClient) {}
 
   getPosts() {
     // http://localhost:8081/demo/getAll
-    return this.http.get('http://localhost:8082/demo/Tender').pipe(
+    return this.http.get(this.host+'/demo/Tender').pipe(
       map(posts => posts as Post[])
     );
     // tslint:disable-next-line:max-line-length
@@ -32,110 +33,134 @@ export class ApiService {
   getPostWithParametrs(json: ReceivedJson){
     //const body = {dateStart: '2020-10-01T00:00:00Z', dateFinish: '2020-10-10T12:00:00Z'};
     // {dateStart: '', dateFinish: '', type: '%', custom: '%', winner: '%', minSum: 0, maxSum: 999999999999}
-    return this.http.post('http://localhost:8082/demo/Tender', json).pipe(
+    return this.http.post(this.host+'/demo/Tender', json).pipe(
       map(posts => posts as Post[])
+    );
+  }
+  getFile(json: ReceivedJson){
+    return this.http.post(this.host+'/demo/File',json,{responseType: 'blob'}
+      );
+  }
+  deleteTender(tender: number){
+    console.log(tender);
+    return this.http.get(this.host+'/demo/DeleteTender/'+tender).pipe(
+      map(string => string as string)
     );
   }
   getSaveProduct(product: Product,category: number){
     //const body = {dateStart: '2020-10-01T00:00:00Z', dateFinish: '2020-10-10T12:00:00Z'};
     // {dateStart: '', dateFinish: '', type: '%', custom: '%', winner: '%', minSum: 0, maxSum: 999999999999}
-    return this.http.post('http://localhost:8082/demo/saveProduct/'+category, product).pipe(
+    return this.http.post(this.host+'/demo/saveProduct/'+category, product).pipe(
       map(product => product as Product[])
     );
   }
   getAllTypes(){
-      return this.http.get('http://localhost:8082/demo/TypeTender').pipe(
+      return this.http.get(this.host+'/demo/TypeTender').pipe(
         map(types => types as Type[])
       );
     }
+  getContry(){
+    return this.http.get(this.host+'/demo/Country').pipe(
+      map(Contry => Contry as Country[])
+    );
+  }
   getAllCustom(){
-    return this.http.get('http://localhost:8082/demo/Customer').pipe(
-      map(customs => customs as Custom[])
+    return this.http.get(this.host+'/demo/Customer').pipe(
+      map(customs => customs as Customer[])
+    );
+  }
+  InsertCustomer(customer: Customer){
+    return this.http.post(this.host +'/demo/insertCustomer', customer).pipe(
+      map(status => status as string)
     );
   }
   getAllWinner(){
-    return this.http.get('http://localhost:8082/demo/Winner').pipe(
+    return this.http.get(this.host+'/demo/Winner').pipe(
       map(winners => winners as Winner[])
     );
   }
+  InsertWinner(winner: Winner){
+    return this.http.post(this.host +'/demo/insertWinner', winner).pipe(
+      map(status => status as string)
+    );
+  }
   getReportQuarter(category: number){
-    return this.http.get('http://localhost:8082/demo/quarterTender/'+category).pipe(
+    return this.http.get(this.host+'/demo/quarterTender/'+category).pipe(
       map(reportQuarter => reportQuarter as ReportQuarter[])
     );
   }
   getReportVendorQuarter(category: number){
-    return this.http.get('http://localhost:8082/demo/quarterVendor/'+category).pipe(
+    return this.http.get(this.host+'/demo/quarterVendor/'+category).pipe(
       map(reportQuarter => reportQuarter as ReportVendorQuarter[])
     );
   }
   getReportNoVendorQuarter(category: number){
-    return this.http.get('http://localhost:8082/demo/quarterNoVendor/'+category).pipe(
+    return this.http.get(this.host+'/demo/quarterNoVendor/'+category).pipe(
       map(reportQuarter => reportQuarter as ReportVendorQuarter[])
     );
   }
   addTender(uploadData: any){
-    return this.http.post('http://localhost:8082/demo/addTender', uploadData).pipe(
+    return this.http.post(this.host+'/demo/addTender', uploadData).pipe(
       map(posts => posts as Post[])
     );
   }
   getAllProductCategory(){
-    return this.http.get('http://localhost:8082/demo/ProductCategory/').pipe(
+    return this.http.get(this.host+'/demo/ProductCategory/').pipe(
       map(productCategories => productCategories as ProductCategory[])
     );
   }
   getVendorCode(productCategory: number){
-    return this.http.get('http://localhost:8082/demo/VendorCode/' + productCategory).pipe(
+    return this.http.get(this.host+'/demo/VendorCode/' + productCategory).pipe(
       map(product => product as Product[])
     );
   }
   getVendorCodeById(productCategory: number, id_product: number){
-    return this.http.get('http://localhost:8082/demo/VendorCodeById/' + productCategory + '/' + id_product).pipe(
+    return this.http.get(this.host+'/demo/VendorCodeById/' + productCategory + '/' + id_product).pipe(
       map(product => product as Product)
     );
   }
   getOrdersByTender(tender: number){
-    return this.http.get('http://localhost:8082/demo/OrdersByTender/' + tender).pipe(
+    return this.http.get(this.host+'/demo/OrdersByTender/' + tender).pipe(
       map(order => order as OrdersReceived)
     );
   }
   addOrders(json: OrdersDB[]){
-    console.log(json);
-    return this.http.post('http://localhost:8082/demo/addOrders', json).pipe(
+    return this.http.post(this.host+'/demo/addOrders', json).pipe(
       map(status => status as string)
     );
   }
   getCountTenderWithoutOrders(){
-    return this.http.get('http://localhost:8082/demo/CountTenderWithoutOrders').pipe(
+    return this.http.get(this.host+'/demo/CountTenderWithoutOrders').pipe(
       map(count => count as number)
     );
   }
   getTenderWithoutOrders(){
-    return this.http.get('http://localhost:8082/demo/TenderWithoutOrders').pipe(
+    return this.http.get(this.host+'/demo/TenderWithoutOrders').pipe(
       map(posts => posts as Post[]));
   }
   getTendernoDocumentation(){
-    return this.http.get('http://localhost:8082/demo/TendernoDocumentation').pipe(
+    return this.http.get(this.host+'/demo/TendernoDocumentation').pipe(
       map(posts => posts as Post[]));
   }
   getVendor(){
 
-    return this.http.get('http://localhost:8082/demo/Vendor/').pipe(
+    return this.http.get(this.host+'/demo/Vendor/').pipe(
       map(vendors => vendors as Vendor[])
     );
   }
   SaveTender(json: Post){
     console.log(json);
-    return this.http.post('http://localhost:8082/demo/saveTender', json).pipe(
+    return this.http.post(this.host+'/demo/saveTender', json).pipe(
       map(status => status as string)
     );
   }
   getFooter(ids: number[]){
-    return this.http.post('http://localhost:8082/demo/getFooter', ids).pipe(
+    return this.http.post(this.host+'/demo/getFooter', ids).pipe(
       map(status => status as string)
     );
   }
   getTenderOnProduct(tenderProduct: TenderonProduct){
-    return this.http.post('http://localhost:8082/demo/TenderOnProduct/',tenderProduct).pipe(
+    return this.http.post(this.host+'/demo/TenderOnProduct/',tenderProduct).pipe(
       map(posts => posts as Post[])
     );
   }

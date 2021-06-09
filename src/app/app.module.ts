@@ -51,9 +51,17 @@ import { PageReportComponent } from './page-report/page-report.component';
 import { ProductCategoryAutocompletComponent } from './product-category-autocomplet/product-category-autocomplet.component';
 import { VendorCodeAutocompleatComponent } from './vendor-code-autocompleat/vendor-code-autocompleat.component';
 import {MatCheckboxModule} from '@angular/material/checkbox';
-import { TenderTableComponent, TenderDialogComponent, DeleteProductComponent, ErrorDialogTenderComponent } from './tender-table/tender-table.component';
+import {
+  TenderTableComponent,
+  TenderDialogComponent,
+  DeleteProductComponent,
+  ErrorDialogTenderComponent,
+  AddDialogTenderComponent, DeleteTenderComponent
+} from './tender-table/tender-table.component';
 import { PageTenderWithoutOrdersComponent } from './page-tender-without-orders/page-tender-without-orders.component';
 import { VendorAutocompletComponent } from './vendor-autocomplet/vendor-autocomplet.component';
+import { ContryAutocompletComponent } from './contry-autocomplet/contry-autocomplet.component';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 
 
 
@@ -94,7 +102,10 @@ const routes = [
     TenderTableComponent,
     ErrorDialogTenderComponent,
     PageTenderWithoutOrdersComponent,
-    VendorAutocompletComponent
+    AddDialogTenderComponent,
+    VendorAutocompletComponent,
+    DeleteTenderComponent,
+    ContryAutocompletComponent
   ],
   imports: [
     AppRoutingModule,
@@ -120,6 +131,7 @@ const routes = [
     MatProgressBarModule,
     MatSidenavModule,
     MatSortModule,
+    MatSlideToggleModule,
     MatProgressSpinnerModule,
     MatTableModule,
     MatToolbarModule,

@@ -1,6 +1,6 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormControl} from "@angular/forms";
-import {Custom} from "../classes";
+import {Customer} from "../classes";
 import {Observable} from "rxjs";
 import {ApiService} from "../api.service";
 import {map, startWith} from "rxjs/operators";
@@ -12,12 +12,40 @@ import {map, startWith} from "rxjs/operators";
 })
 export class CustomAutocompletComponent implements OnInit {
   @Input() value = '';
+  @Output() Change = new EventEmitter<number>();
   myControl = new FormControl();
-  options: Custom[] = [];
-  filteredOptions: Observable<Custom[]> | undefined;
+  options: Customer[] = [];
+  filteredOptions: Observable<Customer[]> | undefined;
   constructor(private api: ApiService) {
   }
   ngOnInit() {
+   this.update();
+    this.myControl.setValue({name: this.value});
+  }
+  public changeValue(category: string): void{
+    this.myControl.setValue(this._filter(category));
+  }
+  displayFn(custom: Customer): string {
+    return custom && custom.name ? custom.name : '';
+  }
+
+  private _filter(custom: string): Customer[] {
+    const filterValue = custom.toLowerCase();
+
+    return this.options.filter(option => option.name.toLowerCase().includes(filterValue));
+  }
+  getCustom(): string{
+    return this.myControl.value != null ? this.myControl.value.id : '%';
+  }
+  setCustomer(name: String){
+
+    for( let cust of this.options){
+      if(cust.name === name){
+        this.myControl.setValue(cust);
+      }
+    }
+  }
+  update(){
     this.api.getAllCustom().subscribe( customs => {
       this.options = customs;
       this.filteredOptions = this.myControl.valueChanges
@@ -27,20 +55,8 @@ export class CustomAutocompletComponent implements OnInit {
           map(custom => custom ? this._filter(custom) : this.options.slice())
         );
     });
-    this.myControl.setValue({name: this.value});
   }
-
-  displayFn(custom: Custom): string {
-    return custom && custom.name ? custom.name : '';
+  select(): void {
+    this.myControl.setValue('');
   }
-
-  private _filter(custom: string): Custom[] {
-    const filterValue = custom.toLowerCase();
-
-    return this.options.filter(option => option.name.toLowerCase().includes(filterValue));
-  }
-  getCustom(): string{
-    return this.myControl.value != null ? this.myControl.value.id : '%';
-  }
-
 }

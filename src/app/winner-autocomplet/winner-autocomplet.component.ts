@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {FormControl} from "@angular/forms";
 import {Winner} from "../classes";
 import {Observable} from "rxjs";
@@ -11,25 +11,23 @@ import {map, startWith} from "rxjs/operators";
   styleUrls: ['./winner-autocomplet.component.scss']
 })
 export class WinnerAutocompletComponent implements OnInit {
-
+  @Output() Change = new EventEmitter<number>();
   myControl = new FormControl();
   options: Winner[] = [];
   filteredOptions: Observable<Winner[]> | undefined;
   constructor(private api: ApiService) {
   }
   ngOnInit() {
-    this.api.getAllWinner().subscribe( winners => {
-      this.options = winners;
-      this.filteredOptions = this.myControl.valueChanges
-        .pipe(
-          startWith(''),
-          map(value => typeof value === 'string' ? value : value.name),
-          map(winner => winner ? this._filter(winner) : this.options.slice())
-        );
-    });
-
+    this.update()
   }
+  setWinner(name: string){
 
+    for( let win of this.options){
+      if(win.name === name){
+        this.myControl.setValue(win);
+      }
+    }
+  }
   displayFn(winner: Winner): string {
     return winner && winner.name ? winner.name : '';
   }
@@ -42,6 +40,21 @@ export class WinnerAutocompletComponent implements OnInit {
   getWinner(): string{
     return this.myControl.value != null ? this.myControl.value.id : '%';
   }
-
-
+  public changeValue(category: string): void{
+    this.myControl.setValue(this._filter(category));
+  }
+  public update(){
+    this.api.getAllWinner().subscribe( winners => {
+      this.options = winners;
+      this.filteredOptions = this.myControl.valueChanges
+        .pipe(
+          startWith(''),
+          map(value => typeof value === 'string' ? value : value.name),
+          map(winner => winner ? this._filter(winner) : this.options.slice())
+        );
+    });
+  }
+  select(): void {
+    this.myControl.setValue('');
+  }
 }

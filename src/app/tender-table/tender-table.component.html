@@ -6,11 +6,11 @@
   </ng-container>
   <ng-container matColumnDef="nameTender">
     <th mat-header-cell *matHeaderCellDef>Название тендера</th>
-    <td mat-cell *matCellDef="let post"> {{ post.name_tender }} </td>
+    <td mat-cell *matCellDef="let post" [bgColor]="post.dublicate == true ?'#F44336': '#fff'"> {{ post.name_tender }} </td>
   </ng-container>
   <ng-container matColumnDef="customer">
     <th mat-header-cell *matHeaderCellDef>Заказчик</th>
-    <td mat-cell *matCellDef="let post"> {{ post.customer }} </td>
+    <td mat-cell *matCellDef="let post" [bgColor]="post.inn == 0 ?'#FFD740': '#fff'"> {{ post.customer }} </td>
   </ng-container>
   <ng-container matColumnDef="typetender">
     <th mat-header-cell *matHeaderCellDef >Тип тендера</th>
@@ -58,6 +58,7 @@
           <div class="block_column"><span>Бикотендер - <a href="{{ element.bico_tender }}" target="_blank">текст ссылки</a></span></div>
           <div class="block_column"><span>Номер тендера - {{element.number_tender}}</span></div>
           <div class="block_column"><span>Цена - {{element.price| currency : element.currency:'symbol': '1.2-2':'ru'}}</span></div>
+          <div class="block_column"><span>Дата торгов - {{ element.date_tranding | date:'dd.MM.yyyy HH:mm:ss': "UTC"}}</span></div>
           <div class="block_column"><span>Валюта - {{element.currency}}</span></div>
           <div class="block_column"><span>Курс - {{element.rate}}</span></div>
           <div class="block_column"><span>Полня стоимость - {{element.full_sum  | currency : element.currency:'symbol': '1.2-2':'ru'}}</span></div>

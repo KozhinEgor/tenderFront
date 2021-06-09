@@ -41,13 +41,16 @@ export class VendorAutocompletComponent implements OnInit {
   displayFn(vendor: Vendor): string {
     return vendor && vendor.name ? vendor.name : '';
   }
-
+  setVendor(name: string){
+    for(let o of this.options){
+      if(o.name === name){
+        this.myControl.setValue(o);
+      }
+    }
+  }
   private _filter(name: string): Vendor[] {
     const filterValue = name.toLowerCase();
 
     return this.options.filter(option => option.name.toLowerCase().includes(filterValue));
-  }
-  getProduct(): any{
-    return this.myControl.value != null ? this.myControl.value.id : '%';
   }
 }

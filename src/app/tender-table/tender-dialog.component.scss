@@ -45,7 +45,13 @@
   justify-content: space-around;
   align-items: center;
 }
-
+.rowChange{
+  display: flex;
+  align-items: center;
+  border-radius: 5px;
+  margin-bottom: 1px;
+  border: 1px solid darkgrey;
+}
 table{
   width: 90%;
 }

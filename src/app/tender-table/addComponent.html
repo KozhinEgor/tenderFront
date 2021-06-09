@@ -1,0 +1,23 @@
+<div mat-dialog-content>
+  <mat-form-field style="width: 30%; padding-bottom: 0px"  >
+    <mat-label>ID</mat-label>
+    <input matInput   placeholder="Placeholder" [disabled]="data.id == null" [(ngModel)]="data.id" maxlength="11">
+  </mat-form-field>
+<mat-form-field style="width: 30%; padding-bottom: 0px"  >
+  <mat-label>ИНН</mat-label>
+  <input matInput   placeholder="Placeholder" [(ngModel)]="data.inn" maxlength="11">
+</mat-form-field>
+<mat-form-field style="width: 30%; padding-bottom: 0px"  disabled="true">
+  <mat-label>Название</mat-label>
+  <input matInput   placeholder="Placeholder" [(ngModel)]="data.name">
+</mat-form-field>
+  <app-contry-autocomplet *ngIf="data.type === 'customer'" (Change)="onChangeContry($event)"></app-contry-autocomplet>
+<mat-form-field style="width: 30%; padding-bottom: 0px"   *ngIf="data.type === 'winner'">
+  <mat-label>ОГРН</mat-label>
+  <input matInput placeholder="Placeholder" [(ngModel)]="data.ogrn" maxlength="13">
+</mat-form-field>
+
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="save()">Сохранить</button>
+</div>

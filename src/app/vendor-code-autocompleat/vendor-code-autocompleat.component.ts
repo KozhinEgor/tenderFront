@@ -19,18 +19,31 @@ export class VendorCodeAutocompleatComponent implements OnInit {
   myControl = new FormControl();
   options: Product[] = [];
   filteredOptions: Observable<Product[]> | undefined;
+  vendor: string;
   constructor(private api: ApiService) {
   }
   public start(productCategory: number){
+    this.vendor = null;
     this.api.getVendorCode(productCategory).subscribe( product => {
       this.options = product;
       this.filteredOptions = this.myControl.valueChanges
         .pipe(
           startWith(''),
           map(value => typeof value === 'string' ? value : value.vendor_code),
-          map(productVendorCode => productVendorCode ? this._filter(productVendorCode) : this.options.slice())
-        );
-    });
+          map(productVendorCode => {
+            if(productVendorCode){
+
+            return this._filter(productVendorCode)
+          }
+            else if(this.vendor){
+              return this._filterVendor(this.vendor);
+            }
+
+          else{return this.options.slice();}
+
+
+          }));
+    })
   }
 
   ngOnInit() {
@@ -44,6 +57,14 @@ export class VendorCodeAutocompleatComponent implements OnInit {
     const filterValue = vendorCode.toLowerCase();
 
     return this.options.filter(option => option.vendor_code.toLowerCase().includes(filterValue));
+  }
+  public ChangeVendor(vendor: string){
+    this.vendor = vendor;
+    this.myControl.setValue(this.myControl.value? this.myControl.value:'');
+  }
+  public _filterVendor(vendor: string): Product[]{
+    const filterVendor = vendor.toLowerCase();
+    return this.options.filter(option => option.vendor.toLowerCase().includes(filterVendor));
   }
   getProduct(): any{
     return this.myControl.value != null ? this.myControl.value.id : '%';

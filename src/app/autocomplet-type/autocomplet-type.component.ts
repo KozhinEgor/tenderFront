@@ -1,10 +1,11 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
 
 import {Post, Type} from '../classes';
 import {ApiService} from '../api.service';
+import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 
 export interface User {
   name: string;
@@ -18,10 +19,14 @@ export interface User {
 })
 export class AutocompletTypeComponent implements OnInit {
  @Input() value = '';
+  @Output() Change = new EventEmitter<number>();
   myControl = new FormControl();
   options: Type[] = [];
  filteredOptions: Observable<Type[]> | undefined;
   constructor(private api: ApiService) {
+  }
+  public changeValue(category: string): void{
+    this.myControl.setValue(this._filter(category));
   }
   ngOnInit() {
     this.api.getAllTypes().subscribe( types => {
@@ -48,4 +53,15 @@ export class AutocompletTypeComponent implements OnInit {
   getType(): any{
     return this.myControl.value != null ? this.myControl.value.id : '%';
 }
+  setType(name: string){
+    for( let type of this.options){
+      if(type.type === name){
+        this.myControl.setValue(type);
+        return type.id;
+      }
+    }
+  }
+  select(): void {
+    this.myControl.setValue('');
+  }
 }
