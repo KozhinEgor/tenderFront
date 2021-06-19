@@ -7,8 +7,8 @@ export interface Post {
   price: number;
   currency: string;
   rate: number;
-  sum: number;
   date_start: Date;
+  sum: number;
   date_finish: Date;
   date_tranding: Date;
   full_sum: number;

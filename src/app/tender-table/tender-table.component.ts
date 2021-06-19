@@ -123,7 +123,7 @@ export class AddDialogTenderComponent implements OnInit{
     if(this.data.type === 'customer'){
       console.log(this.data)
       if (this.data.inn && this.data.name && this.data.contry){
-        let customer: Customer = {id: this.data.id, inn: this.data.inn.toString(), name: this.data.name, country: this.contry.toString()};
+        let customer: Customer = {id: this.data.id, inn: this.data.inn.toString(), name: this.data.name, country: this.data.contry.toString()};
         this.api.InsertCustomer(customer).subscribe(data => data,
           err => {if(err.status === 200){
             this.dialog.open(ErrorDialogTenderComponent, { data:'Сохранил'});
@@ -145,8 +145,10 @@ export class AddDialogTenderComponent implements OnInit{
     this.contryAutocompletComponent.setContry(this.data.contry);
   }
   onChangeContry(t: any){
+
     if (t != null && typeof t !== 'string') {
-      this.contry = t.id;
+      this.data.contry = t.id;
+
     }
   }
   constructor(@Inject(MAT_DIALOG_DATA) public data: CustomerWinner, public dialog: MatDialog, private api: ApiService) {}
@@ -504,8 +506,9 @@ export class TenderDialogComponent implements OnInit {
     if (t != null && typeof t !== 'string') {
       this.data.customer = t.name;
       this.data.inn = t.inn;
-      this.data.country = t.contry;
-      this.contryAutocompletComponent.setContry(t.contry);
+      this.data.country = t.country;
+      console.log(t.country);
+      this.contryAutocompletComponent.setContry(t.country);
     }
     else{
       this.innWinner = null;

@@ -109,7 +109,7 @@ export class PageTenderDateComponent implements OnInit {
 
   add(event: MatChipInputEvent): void {
     let value = (event.value || '').trim();
-    let mas = value.split(/ |,|\./);
+    let mas = value.split(/ |,|\.|;|:|\\|\//);
 
 
     if (value) {
@@ -137,7 +137,7 @@ export class PageTenderDateComponent implements OnInit {
 
   addBicoNumber(event: MatChipInputEvent): void {
     let value = (event.value || '').trim();
-    let mas = value.split(/ |,|\./);
+    let mas = value.split(/ |,|\.|;|:|\\|\//);
 
     // Add our fruit
     if (value) {

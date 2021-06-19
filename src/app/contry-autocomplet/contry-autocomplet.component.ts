@@ -35,7 +35,7 @@ export class ContryAutocompletComponent implements OnInit {
         .pipe(
           startWith(''),
           map(value => typeof value === 'string' ? value : value.name),
-          map(contry => contry? this._filter(contry) : this.options.slice())
+          map(country => country? this._filter(country) : this.options.slice())
         );
     });
   }
@@ -52,7 +52,9 @@ export class ContryAutocompletComponent implements OnInit {
   setContry(name: string){
     for( let cont of this.options){
       if(cont.name === name){
+
         this.myControl.setValue(cont);
+        //console.log(this.myControl.value)
       }
     }
   }
