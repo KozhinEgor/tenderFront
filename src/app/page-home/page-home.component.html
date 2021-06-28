@@ -1,0 +1,10 @@
+<mat-list >
+<a mat-list-item routerLink="/" >Главная</a>
+<a mat-list-item routerLink="/product" >Продукты</a>
+<!--      <a mat-list-item routerLink="/tender"(click)="drawer.close()">Тендеры по продуктам</a>-->
+<a mat-list-item routerLink="/tender-date">Тендеры по датам</a>
+<a mat-list-item routerLink="/report">Отчеты</a>
+<a mat-list-item routerLink="/add-tender" *ngIf="user !==null && user.role !== 'ROLE_USER'"><mat-icon>add_circle_outline</mat-icon> Добавить тендеры</a>
+<a mat-list-item routerLink="/tender-without-orders">Тендеры без продуктов</a>
+<a mat-list-item routerLink="/users" *ngIf="user!==null && user.role === 'ROLE_ADMIN'">Пользователи</a>
+</mat-list>

@@ -1,9 +1,11 @@
 <mat-toolbar color="primary">
-  <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon" (click)="drawer.toggle(); getCount()">
+  <button *ngIf="user" mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon" (click)="drawer.toggle(); getCount()">
     <mat-icon>menu</mat-icon>
   </button>
   <span><a routerLink="/" class="nameApp" (click)="drawer.close()">My App</a></span>
   <span class="example-spacer"></span>
+
+  <a *ngIf="user" class="nav-item nav-link" (click)="logout()">Logout</a>
 </mat-toolbar>
 
 <mat-drawer-container class = "container" [hasBackdrop]="true">
@@ -11,11 +13,12 @@
     <mat-list >
       <a mat-list-item routerLink="/" (click)="drawer.close()">Главная</a>
       <a mat-list-item routerLink="/product" (click)="drawer.close()">Продукты</a>
-      <a mat-list-item routerLink="/tender"(click)="drawer.close()">Тендеры по продуктам</a>
+<!--      <a mat-list-item routerLink="/tender"(click)="drawer.close()">Тендеры по продуктам</a>-->
       <a mat-list-item routerLink="/tender-date"(click)="drawer.close()">Тендеры по датам</a>
       <a mat-list-item routerLink="/report"(click)="drawer.close()">Отчеты</a>
-      <a mat-list-item routerLink="/add-tender"(click)="drawer.close()"><mat-icon>add_circle_outline</mat-icon> Добавить тендеры</a>
+      <a mat-list-item routerLink="/add-tender"(click)="drawer.close()" *ngIf=" user !==null && user.role !== 'ROLE_USER'"><mat-icon>add_circle_outline</mat-icon> Добавить тендеры</a>
       <a mat-list-item routerLink="/tender-without-orders"(click)="drawer.close()"><span [matBadge] = CountTender >Тендеры без продуктов</span></a>
+      <a mat-list-item routerLink="/users"(click)="drawer.close()" *ngIf=" user !==null && user.role === 'ROLE_ADMIN'">Пользователи</a>
     </mat-list>
   </mat-drawer>
   <mat-drawer-content>

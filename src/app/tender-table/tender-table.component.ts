@@ -1,9 +1,9 @@
-import {Component, DoCheck, Inject, Input, OnChanges, OnInit, ViewChild} from '@angular/core';
+import {Component, Inject, Input, OnChanges, OnInit, ViewChild} from '@angular/core';
 import {animate, state, style, transition, trigger} from "@angular/animations";
 import {MatPaginator} from "@angular/material/paginator";
 import {MatSort} from "@angular/material/sort";
 import {MatTableDataSource} from "@angular/material/table";
-import {Orders, OrdersDB, Post, Product, ProductCategory, Winner, Customer} from "../classes";
+import {Customer, Orders, OrdersDB, Post, Product, ProductCategory, User, Winner} from "../classes";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {VendorCodeAutocompleatComponent} from "../vendor-code-autocompleat/vendor-code-autocompleat.component";
 import {ProductCategoryAutocompletComponent} from "../product-category-autocomplet/product-category-autocomplet.component";
@@ -12,8 +12,8 @@ import {FormControl} from "@angular/forms";
 import {CustomAutocompletComponent} from "../custom-autocomplet/custom-autocomplet.component";
 import {WinnerAutocompletComponent} from "../winner-autocomplet/winner-autocomplet.component";
 import {AutocompletTypeComponent} from "../autocomplet-type/autocomplet-type.component";
-import {map, startWith} from "rxjs/operators";
 import {ContryAutocompletComponent} from "../contry-autocomplet/contry-autocomplet.component";
+import {AuthenticationService} from "../service/authentication.service";
 
 
 export interface DialogData {
@@ -45,9 +45,9 @@ export class TenderTableComponent implements OnInit,OnChanges {
   @ViewChild(MatSort) sort: MatSort | null = null;
   @Input() dataSource = new MatTableDataSource<Post>();
   expandedElement: Post | null;
-
-  constructor(public dialog: MatDialog, private api: ApiService){
-
+user:User;
+  constructor(public dialog: MatDialog, private api: ApiService, private authenticationService:AuthenticationService){
+    this.user = this.authenticationService.userValue;
   }
   showTender() {
     this.dialog.open(TenderDialogComponent, { width: '80%', height: '90%', data:  this.expandedElement}).afterClosed().subscribe(result =>{
@@ -99,20 +99,15 @@ export class AddDialogTenderComponent implements OnInit{
   id: number = null;
   inn: number = null;
   name: string = null;
-  ogrn: number = null;
   contry: number = null;
   save(){
     if(this.data.type === 'winner'){
-      if (this.data.inn  && this.data.name   && this.data.ogrn  ){
-        let win: Winner = {id: this.data.id,inn : this.data.inn.toString(), name: this.data.name, ogrn: this.data.toString()}
-        this.api.InsertWinner(win).subscribe(data => data,
-          err => {if(err.status === 200){
-            this.dialog.open(ErrorDialogTenderComponent, { data:'Сохранил'});
+      if (this.data.inn  && this.data.name   ){
+        let win: Winner = {id: this.data.id,inn : this.data.inn.toString(), name: this.data.name}
+        this.api.InsertWinner(win).subscribe(data => {this.dialog.open(ErrorDialogTenderComponent, { data:'Сохранил'});},
+          err => {
+            this.dialog.open(ErrorDialogTenderComponent, {data: 'Ошибка не сохранил'});
 
-          }
-          else {
-            this.dialog.open(ErrorDialogTenderComponent, { data: err.message});
-          }
           });
       }
       else{
@@ -124,15 +119,10 @@ export class AddDialogTenderComponent implements OnInit{
       console.log(this.data)
       if (this.data.inn && this.data.name && this.data.contry){
         let customer: Customer = {id: this.data.id, inn: this.data.inn.toString(), name: this.data.name, country: this.data.contry.toString()};
-        this.api.InsertCustomer(customer).subscribe(data => data,
-          err => {if(err.status === 200){
-            this.dialog.open(ErrorDialogTenderComponent, { data:'Сохранил'});
-          }
-          else {
-            this.dialog.open(ErrorDialogTenderComponent, { data: err.message});
+        this.api.InsertCustomer(customer).subscribe(data => {this.dialog.open(ErrorDialogTenderComponent, { data:'Сохранил'});},
+          err => {
+            this.dialog.open(ErrorDialogTenderComponent, {data: 'Ошибка не сохранил'});
 
-
-          }
           });
       }
       else{
@@ -142,7 +132,8 @@ export class AddDialogTenderComponent implements OnInit{
 
   }
   ngOnInit(){
-    this.contryAutocompletComponent.setContry(this.data.contry);
+    if(this.data.type === 'customer'){this.contryAutocompletComponent.setContry(this.data.contry);}
+
   }
   onChangeContry(t: any){
 
@@ -151,8 +142,10 @@ export class AddDialogTenderComponent implements OnInit{
 
     }
   }
-  constructor(@Inject(MAT_DIALOG_DATA) public data: CustomerWinner, public dialog: MatDialog, private api: ApiService) {}
+  user: User;
+  constructor(@Inject(MAT_DIALOG_DATA) public data: CustomerWinner, public dialog: MatDialog, private api: ApiService) {
 
+  }
 }
 @Component({
   selector: 'delete-product',
@@ -445,21 +438,28 @@ export class TenderDialogComponent implements OnInit {
       country: null,
       inn: null}
     this.api.addOrders( this.ordersDB).subscribe(data => data,
-      err => {if(err.status === 200){
+      err => {
+        console.log(err);
+      if(err === 'OK'){
 
       }
       else {
+       //console.log(err);
         this.dialog.open(ErrorDialogTenderComponent, { data: err.message});
 
 
       }
       });
-    this.api.SaveTender(tender).subscribe(data => data,
-      err => {if(err.status === 200){
+    this.api.SaveTender(tender).subscribe(data => console.log(console.log(data)),
+      err => {
+      console.log(err);
+      if(err === 'OK'){
+        //console.log(err);
         this.dialog.open(ErrorDialogTenderComponent, { data: 'Сохранил'});
 
       }
       else {
+        //console.log(err.status);
         this.dialog.open(ErrorDialogTenderComponent, { data: message + err.message});
       }
       });
@@ -494,9 +494,11 @@ export class TenderDialogComponent implements OnInit {
     }
     }
   onChangeWinner(t: any) {
-    if (t != null && typeof t !== 'string') {
+    if (typeof t !== "string") {
       this.data.winner = t.name;
       this.innWinner = t.inn;
+      console.log(t.name);
+      //this.winnerAutocompletComponent.setWinner(t.name);
     }
     else{
       this.innWinner = null;
@@ -507,7 +509,6 @@ export class TenderDialogComponent implements OnInit {
       this.data.customer = t.name;
       this.data.inn = t.inn;
       this.data.country = t.country;
-      console.log(t.country);
       this.contryAutocompletComponent.setContry(t.country);
     }
     else{

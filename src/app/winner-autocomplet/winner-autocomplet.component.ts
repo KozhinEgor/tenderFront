@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormControl} from "@angular/forms";
 import {Winner} from "../classes";
 import {Observable} from "rxjs";
@@ -11,10 +11,12 @@ import {map, startWith} from "rxjs/operators";
   styleUrls: ['./winner-autocomplet.component.scss']
 })
 export class WinnerAutocompletComponent implements OnInit {
+  @Input() flag:boolean = true;
   @Output() Change = new EventEmitter<number>();
   myControl = new FormControl();
   options: Winner[] = [];
   filteredOptions: Observable<Winner[]> | undefined;
+
   constructor(private api: ApiService) {
   }
   ngOnInit() {
@@ -35,7 +37,7 @@ export class WinnerAutocompletComponent implements OnInit {
   private _filter(winner: string): Winner[] {
     const filterValue = winner.toLowerCase();
 
-    return this.options.filter(option => option.name.toLowerCase().indexOf(filterValue) === 0);
+    return this.options.filter(option => option.name.toLowerCase().includes(filterValue));
   }
   getWinner(): string{
     return this.myControl.value != null ? this.myControl.value.id : '%';
@@ -55,6 +57,11 @@ export class WinnerAutocompletComponent implements OnInit {
     });
   }
   select(): void {
-    this.myControl.setValue('');
+
+    if(this.flag){
+      console.log(this.flag);
+      this.myControl.setValue('');
+    }
+
   }
 }

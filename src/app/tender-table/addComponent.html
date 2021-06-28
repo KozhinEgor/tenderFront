@@ -12,10 +12,6 @@
   <input matInput   placeholder="Placeholder" [(ngModel)]="data.name">
 </mat-form-field>
   <app-contry-autocomplet *ngIf="data.type === 'customer'" (Change)="onChangeContry($event)"></app-contry-autocomplet>
-<mat-form-field style="width: 30%; padding-bottom: 0px"   *ngIf="data.type === 'winner'">
-  <mat-label>ОГРН</mat-label>
-  <input matInput placeholder="Placeholder" [(ngModel)]="data.ogrn" maxlength="13">
-</mat-form-field>
 
 </div>
 <div mat-dialog-actions align="end">

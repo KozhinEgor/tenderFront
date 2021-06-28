@@ -62,7 +62,7 @@
           <div class="block_column"><span>Валюта - {{element.currency}}</span></div>
           <div class="block_column"><span>Курс - {{element.rate}}</span></div>
           <div class="block_column"><span>Полня стоимость - {{element.full_sum  | currency : element.currency:'symbol': '1.2-2':'ru'}}</span></div>
-          <button mat-icon-button color="primary" aria-label="Изменить тендер" (click)="showTender()">
+          <button *ngIf="user != null && user.role !== 'ROLE_USER'" mat-icon-button color="primary" aria-label="Изменить тендер" (click)="showTender()">
             <mat-icon>edit</mat-icon>
           </button>
         </div>

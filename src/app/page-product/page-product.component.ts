@@ -1,11 +1,12 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ApiService} from "../api.service";
-import {Orders, Product, ProductCategory} from "../classes";
+import {Orders, Product, ProductCategory, User} from "../classes";
 import {map, startWith} from "rxjs/operators";
 import {MatTableDataSource} from "@angular/material/table";
 import {MatSort} from "@angular/material/sort";
 import {ProductCategoryAutocompletComponent} from "../product-category-autocomplet/product-category-autocomplet.component";
 import {VendorAutocompletComponent} from "../vendor-autocomplet/vendor-autocomplet.component";
+import {AuthenticationService} from "../service/authentication.service";
 
 @Component({
   selector: 'app-page-product',
@@ -30,7 +31,10 @@ export class PageProductComponent implements OnInit {
   };
   dataSource = new MatTableDataSource<Product>();
   columns: string[] = [];
-  constructor(private api: ApiService) { }
+  user:User;
+  constructor(private api: ApiService, private authenticationService: AuthenticationService) {
+  this.user = this.authenticationService.userValue;
+}
 
   ngOnInit(): void {
 

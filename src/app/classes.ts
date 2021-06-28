@@ -35,7 +35,6 @@ export interface Winner{
   id: number;
   name: string;
   inn: string;
-  ogrn: string;
 }
 export interface ReceivedJson{
   dateStart: string;
@@ -133,4 +132,13 @@ export interface ProductReceived{
   category: ProductCategory;
   vendor: Vendor;
   vendor_code: Product;
+}
+export interface User{
+  token?: string;
+  role: string;
+  username: string;
+  activationCode: string;
+}
+export enum Role{
+  ROLE_ADMIN,ROLE_USER,ROLE_OPERATOR
 }

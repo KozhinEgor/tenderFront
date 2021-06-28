@@ -315,7 +315,7 @@ export class PageTenderDateComponent implements OnInit {
       numberShow: this.numberShow,
       product: this.product
     }
-
+  console.log(json);
     this.api.getPostWithParametrs(json).subscribe(posts => {
 
       if(posts.length === 0){

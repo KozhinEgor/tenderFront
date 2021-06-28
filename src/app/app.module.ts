@@ -36,7 +36,7 @@ import {MatSortModule} from '@angular/material/sort';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatTableModule } from '@angular/material/table';
 import {MatTabsModule} from '@angular/material/tabs';
-import {HttpClientModule } from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 import { PageHomeComponent } from './page-home/page-home.component';
 import { PageProductComponent } from './page-product/page-product.component';
@@ -62,19 +62,29 @@ import { PageTenderWithoutOrdersComponent } from './page-tender-without-orders/p
 import { VendorAutocompletComponent } from './vendor-autocomplet/vendor-autocomplet.component';
 import { ContryAutocompletComponent } from './contry-autocomplet/contry-autocomplet.component';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import { PageLoginComponent } from './page-login/page-login.component';
+import {AuthGuard} from "./_helper/auth.guard";
+import {JwtInterceptor} from "./_helper/jwt.interceptor";
+import { PageRegistrationComponent } from './page-registration/page-registration.component';
+import {ErrorInterceptor} from "./_helper/ErrorInterceptor";
+import { PageUsersComponent } from './page-users/page-users.component';
+import {MatSelectModule} from "@angular/material/select";
 
 
 
 
 const routes = [
-  {path: '', component: PageHomeComponent},
-  {path: 'product', component: PageProductComponent},
-  {path: 'tender', component: PageTenderComponent },
-  {path: 'tender-date', component: PageTenderDateComponent},
-  {path: 'report', component: PageReportComponent},
-  {path: 'add-tender', component: PageAddTenderComponent},
-  {path: 'tender-without-orders', component: PageTenderWithoutOrdersComponent}
-
+  {path:'login', component: PageLoginComponent},
+  {path:'registration', component: PageRegistrationComponent},
+  {path: 'home', component: PageHomeComponent, canActivate: [AuthGuard]},
+  {path: 'users', component: PageUsersComponent, canActivate: [AuthGuard]},
+  {path: 'product', component: PageProductComponent, canActivate: [AuthGuard]},
+  {path: 'tender', component: PageTenderComponent, canActivate: [AuthGuard] },
+  {path: 'tender-date', component: PageTenderDateComponent, canActivate: [AuthGuard]},
+  {path: 'report', component: PageReportComponent, canActivate: [AuthGuard]},
+  {path: 'add-tender', component: PageAddTenderComponent, canActivate: [AuthGuard]},
+  {path: 'tender-without-orders', component: PageTenderWithoutOrdersComponent, canActivate: [AuthGuard]},
+  {path: '**', redirectTo:'home'}
 ];
 
 
@@ -105,7 +115,10 @@ const routes = [
     AddDialogTenderComponent,
     VendorAutocompletComponent,
     DeleteTenderComponent,
-    ContryAutocompletComponent
+    ContryAutocompletComponent,
+    PageLoginComponent,
+    PageRegistrationComponent,
+    PageUsersComponent
   ],
   imports: [
     AppRoutingModule,
@@ -138,9 +151,9 @@ const routes = [
     MatTabsModule,
     RouterModule.forRoot(routes),
     GoogleChartsModule,
-    HttpClientModule
+    HttpClientModule, MatSelectModule
   ],
-  providers: [{provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true}}, {provide: MAT_DATE_LOCALE, useValue: 'ru-RU'}],
+  providers: [{provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true}}, {provide: MAT_DATE_LOCALE, useValue: 'ru-RU'},{ provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }, { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

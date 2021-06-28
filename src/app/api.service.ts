@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
 import {environment} from "../environments/environment";
@@ -12,7 +12,7 @@ import {
   ProductCategory,
   Product,
   Vendor,
-  OrdersDB, OrdersReceived, ReportVendorQuarter, TenderonProduct, Country
+  OrdersDB, OrdersReceived, ReportVendorQuarter, TenderonProduct, Country, User
 } from './classes';
 
 @Injectable({
@@ -54,6 +54,22 @@ private host = environment.apiUrl;
       map(product => product as Product[])
     );
   }
+  getUsers(){
+    return this.http.get(this.host+'/demo/AllUsers').pipe(
+      map(user => user as User[])
+    );
+  }
+  createUser(user: User){
+
+    console.log(user);
+     return this.http.post(this.host+'/registration', user).pipe(
+      map(string => console.log(string))
+    );
+  }
+  setPasswordUser(user: any){
+    return this.http.post(this.host+'/setPassword', user);
+  }
+
   getAllTypes(){
       return this.http.get(this.host+'/demo/TypeTender').pipe(
         map(types => types as Type[])
@@ -125,9 +141,7 @@ private host = environment.apiUrl;
     );
   }
   addOrders(json: OrdersDB[]){
-    return this.http.post(this.host+'/demo/addOrders', json).pipe(
-      map(status => status as string)
-    );
+    return this.http.post(this.host+'/demo/addOrders', json)
   }
   getCountTenderWithoutOrders(){
     return this.http.get(this.host+'/demo/CountTenderWithoutOrders').pipe(
@@ -150,9 +164,7 @@ private host = environment.apiUrl;
   }
   SaveTender(json: Post){
     console.log(json);
-    return this.http.post(this.host+'/demo/saveTender', json).pipe(
-      map(status => status as string)
-    );
+    return this.http.post(this.host+'/demo/saveTender', json)
   }
   getFooter(ids: number[]){
     return this.http.post(this.host+'/demo/getFooter', ids).pipe(

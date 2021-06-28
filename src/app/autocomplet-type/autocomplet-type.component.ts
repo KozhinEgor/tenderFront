@@ -7,10 +7,7 @@ import {Post, Type} from '../classes';
 import {ApiService} from '../api.service';
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 
-export interface User {
-  name: string;
-  id: number;
-}
+
 
 @Component({
   selector: 'app-autocomplet-type',

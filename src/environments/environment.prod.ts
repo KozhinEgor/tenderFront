@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl : "www.kozhin.tech/api"
+  apiUrl : "www.rfmwtestmarket.ru/api"
 };

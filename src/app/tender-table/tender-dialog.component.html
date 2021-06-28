@@ -239,7 +239,7 @@
         <button mat-icon-button color="primary" aria-label="Создать нового победителя" (click)="AddWinner()">
           <mat-icon>add</mat-icon>
         </button>
-        <app-winner-autocomplet (Change)="onChangeWinner($event)"> </app-winner-autocomplet>
+        <app-winner-autocomplet (Change)="onChangeWinner($event)" [flag]="false"> </app-winner-autocomplet>
         <mat-form-field style="width: 30%; padding-bottom: 0px"  disabled="true">
           <mat-label>ИНН</mat-label>
           <input matInput disabled="true"  placeholder="Placeholder" [(ngModel)]="innWinner">

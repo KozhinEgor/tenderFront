@@ -1,10 +1,11 @@
 import {Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 
 import {VendorCodeAutocompleatComponent} from '../vendor-code-autocompleat/vendor-code-autocompleat.component';
-import {Orders, OrdersDB, Post, Product, ProductCategory, Vendor} from '../classes';
+import {Orders, OrdersDB, Post, Product, ProductCategory, User, Vendor} from '../classes';
 import {MatTableDataSource} from "@angular/material/table";
 import {SelectionModel} from "@angular/cdk/collections";
 import {ProductCategoryAutocompletComponent} from "../product-category-autocomplet/product-category-autocomplet.component";
+import {AuthenticationService} from "../service/authentication.service";
 
 
 
@@ -15,7 +16,11 @@ import {ProductCategoryAutocompletComponent} from "../product-category-autocompl
   encapsulation: ViewEncapsulation.None
 })
 export class PageHomeComponent implements OnInit {
-  constructor() {}
+  user:User
+  constructor( private authenticationService: AuthenticationService) {
+    this.user = this.authenticationService.userValue;
+  }
   ngOnInit(): void {
+
   }
 }
