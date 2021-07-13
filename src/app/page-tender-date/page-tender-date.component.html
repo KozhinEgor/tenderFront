@@ -16,13 +16,15 @@
           </mat-chip-list>
         </mat-panel-description>
       </mat-expansion-panel-header>
-      <fieldset>
+<!--      Date-->
+      <fieldset >
         <legend>Даты и Дубликаты</legend>
         <app-data-range ></app-data-range>
         <section>
           <mat-slide-toggle color="primary" [(ngModel)]="dublicate" >Показывать дубликаты!</mat-slide-toggle>
         </section>
       </fieldset>
+<!--      Type-->
       <fieldset>
         <legend> Тип</legend>
           <mat-chip-list  aria-label="Выбранные типы">
@@ -37,6 +39,7 @@
           <mat-slide-toggle color="primary" [(ngModel)]="TypeExclude" >Исключить выбранные типы!</mat-slide-toggle>
         </section>
       </fieldset>
+<!--      Customer-->
       <fieldset>
         <legend>Заказчик</legend>
         <mat-chip-list  aria-label="Выбранные типы">
@@ -57,6 +60,7 @@
           <mat-slide-toggle color="primary" [(ngModel)]="CustomExclude" >Исключить выбранных заказчиков!</mat-slide-toggle>
         </section>
       </fieldset>
+<!--      Winner-->
       <fieldset >
         <legend>Победитель</legend>
         <mat-chip-list  aria-label="Выбранные типы">
@@ -71,6 +75,7 @@
           <mat-slide-toggle color="primary" [(ngModel)]="WinnersExclude" >Исключить выбранных победителей!</mat-slide-toggle>
         </section>
       </fieldset>
+<!--      Number-->
       <fieldset>
         <legend>Поиск по номерам</legend>
         <mat-form-field class="example-chip-list">
@@ -107,6 +112,7 @@
           <mat-slide-toggle color="primary" [(ngModel)]="numberShow" >Исключить номера!</mat-slide-toggle>
         </section>
       </fieldset>
+<!--      Search price-->
       <fieldset>
         <legend>Поиск по цене</legend>
         <mat-form-field appearance="outline" class = "MinSum">
@@ -120,17 +126,18 @@
           <mat-error>Вышли за пределы 0 - 9999 999 999 999</mat-error>
         </mat-form-field>
       </fieldset>
+<!--      Product-->
       <fieldset>
         <legend>Продукты</legend>
         <mat-chip-list  aria-label="Выбранные продукты">
           <mat-chip *ngFor="let prod of product" [selectable]="selectable"
                     [removable]="removable" (removed)="removeProduct(prod)">
-            {{prod.category.category}} {{prod.vendor?prod.vendor.name:''}} {{prod.vendor_code ?prod.vendor_code.vendor_code : ''}}
+            {{prod.category?prod.category.category:''}} {{prod.vendor?prod.vendor.name:''}} {{prod.vendor_code ?prod.vendor_code.vendor_code : ''}}
             <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
           </mat-chip>
         </mat-chip-list>
         <app-product-category-autocomplet (Change)="ChangeCategory($event)"></app-product-category-autocomplet>
-        <app-vendor-autocomplet *ngIf="category && category.id != 7" (Change)="ChangeVendor($event)"></app-vendor-autocomplet>
+        <app-vendor-autocomplet (Change)="ChangeVendor($event)"></app-vendor-autocomplet>
         <app-vendor-code-autocompleat (Change)="ChangeVendorCode($event)"></app-vendor-code-autocompleat>
         <button mat-mini-fab color="primary" (click)="AddProduct()">
           <mat-icon>add</mat-icon>

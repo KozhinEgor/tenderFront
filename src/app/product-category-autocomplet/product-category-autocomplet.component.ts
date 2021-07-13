@@ -1,12 +1,11 @@
-import {Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {FormControl} from "@angular/forms";
-import {ProductCategory, Type} from "../classes";
+import {ProductCategory} from "../classes";
 import {Observable} from "rxjs";
 import {ApiService} from "../api.service";
 import {map, startWith} from "rxjs/operators";
-import {MatAutocomplete} from "@angular/material/autocomplete";
-import {isElementScrolledOutsideView} from "@angular/cdk/overlay/position/scroll-clip";
-
+import {MatDialog} from "@angular/material/dialog";
+import {ErrorDialogComponent} from "../error-dialog/error-dialog.component";
 
 
 @Component({
@@ -21,12 +20,13 @@ export class ProductCategoryAutocompletComponent implements OnInit {
   myControl = new FormControl();
   options: ProductCategory[] = [];
   filteredOptions: Observable<ProductCategory[]> | undefined;
-  constructor(private api: ApiService) {
+  name: string = null;
+  constructor(private api: ApiService, private dialog:MatDialog) {
   }
   ngOnInit() {
-    this.myControl.setValue('') ;
-   console.log(this.myControl);
-    this.options = [];
+  this.request();
+  }
+  request(){
     this.api.getAllProductCategory().subscribe( productCategories => {
       this.options = productCategories;
       this.filteredOptions = this.myControl.valueChanges
@@ -35,15 +35,33 @@ export class ProductCategoryAutocompletComponent implements OnInit {
           map(value => typeof value === 'string' ? value : value.category),
           map(productCategory => productCategory ? this._filter(productCategory) : this.options.slice())
         );
-    });
+      if(this.name !== null){
+        this.setCategory(this.name);
+        this.name = null;
+      }
+    },
+      error => {
+        if(error === 'Unknown Error'){this.dialog.open(ErrorDialogComponent, {data: "Ошибка загрузки \"категорий товаров\" : Обратитесь к администратору"});}
+        else{this.dialog.open(ErrorDialogComponent, {data: "Ошибка загрузки \"категорий товаров\": " + error});}
+
+      });
+
+
   }
   public start(): void{
   }
   displayFn(productCategory: ProductCategory): string {
     return productCategory && productCategory.category ? productCategory.category : '';
   }
-  public changeValue(category: string): void{
-    this.myControl.setValue(this._filter(category));
+  setCategory(name: string){
+    this.name = name;
+      for( let cont of this.options){
+        if(cont.category == name){
+          this.myControl.setValue(cont);
+        }
+      }
+
+
   }
   public _filter(category: string): ProductCategory[] {
     const filterValue = category.toLowerCase();

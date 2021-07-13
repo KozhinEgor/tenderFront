@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
+import {Component, OnInit} from '@angular/core';
+import {FormControl, Validators} from "@angular/forms";
 import {ApiService} from "../api.service";
-import {ErrorDialogTenderComponent} from "../tender-table/tender-table.component";
 import {Router} from "@angular/router";
 import {HttpErrorResponse} from "@angular/common/http";
 
@@ -38,8 +37,7 @@ export class PageRegistrationComponent implements OnInit {
 
       this.api.setPasswordUser({username:this.email.value, activationCode:this.code.trim() ,password:this.password}).subscribe(
         data =>{this.router.navigate(['/login'])},
-        (error:HttpErrorResponse) => { this.error = "Ошибка!\n" +
-              "Проверьте все значения, если все введено верно обратитесь к администратору";
+        (error:HttpErrorResponse) => { this.error = "Ошибка! Проверьте все значения, если все введено верно обратитесь к администратору";
         // if(error.status === 200){
         //   this.router.navigate(['/login']);
         // }
@@ -50,8 +48,7 @@ export class PageRegistrationComponent implements OnInit {
         })
     }
     else {
-      this.error = "Ошибка!\n" +
-        "Проверьте все значения, если все введено верно обратитесь к администратору";
+      this.error = "Ошибка! Проверьте все значения, если все введено верно обратитесь к администратору";
     }
   }
 }

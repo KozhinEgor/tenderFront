@@ -4,6 +4,8 @@ import {Winner} from "../classes";
 import {Observable} from "rxjs";
 import {ApiService} from "../api.service";
 import {map, startWith} from "rxjs/operators";
+import {MatDialog} from "@angular/material/dialog";
+import {ErrorDialogComponent} from "../error-dialog/error-dialog.component";
 
 @Component({
   selector: 'app-winner-autocomplet',
@@ -17,7 +19,7 @@ export class WinnerAutocompletComponent implements OnInit {
   options: Winner[] = [];
   filteredOptions: Observable<Winner[]> | undefined;
 
-  constructor(private api: ApiService) {
+  constructor(private api: ApiService, private dialog:MatDialog) {
   }
   ngOnInit() {
     this.update()
@@ -54,7 +56,12 @@ export class WinnerAutocompletComponent implements OnInit {
           map(value => typeof value === 'string' ? value : value.name),
           map(winner => winner ? this._filter(winner) : this.options.slice())
         );
-    });
+    },
+      error => {
+        if(error === 'Unknown Error'){this.dialog.open(ErrorDialogComponent, {data: "Ошибка загрузки \"победителей\": Обратитесь к администратору" });}
+        else{this.dialog.open(ErrorDialogComponent, {data: "Ошибка загрузки \"победителей\": " + error});}
+
+      });
   }
   select(): void {
 

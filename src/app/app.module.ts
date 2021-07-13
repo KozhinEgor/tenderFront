@@ -39,7 +39,11 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 import { PageHomeComponent } from './page-home/page-home.component';
-import { PageProductComponent } from './page-product/page-product.component';
+import {
+  ChangeCategoryComponent,
+  CreateCategoryComponent,
+  PageProductComponent
+} from './page-product/page-product.component';
 import { PageTenderComponent } from './page-tender/page-tender.component';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
@@ -55,7 +59,6 @@ import {
   TenderTableComponent,
   TenderDialogComponent,
   DeleteProductComponent,
-  ErrorDialogTenderComponent,
   AddDialogTenderComponent, DeleteTenderComponent
 } from './tender-table/tender-table.component';
 import { PageTenderWithoutOrdersComponent } from './page-tender-without-orders/page-tender-without-orders.component';
@@ -102,6 +105,7 @@ const routes = [
     PageTenderDateComponent,
     PageHomeComponent,
     PageProductComponent,
+    CreateCategoryComponent,
     PageTenderComponent,
     PageAddTenderComponent,
     PageReportComponent,
@@ -110,9 +114,9 @@ const routes = [
     VendorCodeAutocompleatComponent,
     DeleteProductComponent,
     TenderTableComponent,
-    ErrorDialogTenderComponent,
     PageTenderWithoutOrdersComponent,
     AddDialogTenderComponent,
+    ChangeCategoryComponent,
     VendorAutocompletComponent,
     DeleteTenderComponent,
     ContryAutocompletComponent,

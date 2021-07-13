@@ -1,12 +1,6 @@
-import {Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
-
-import {VendorCodeAutocompleatComponent} from '../vendor-code-autocompleat/vendor-code-autocompleat.component';
-import {Orders, OrdersDB, Post, Product, ProductCategory, User, Vendor} from '../classes';
-import {MatTableDataSource} from "@angular/material/table";
-import {SelectionModel} from "@angular/cdk/collections";
-import {ProductCategoryAutocompletComponent} from "../product-category-autocomplet/product-category-autocomplet.component";
+import {Component, OnInit, ViewEncapsulation} from '@angular/core';
+import {User} from '../classes';
 import {AuthenticationService} from "../service/authentication.service";
-
 
 
 @Component({

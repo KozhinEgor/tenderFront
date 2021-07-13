@@ -1,9 +1,11 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {FormControl} from "@angular/forms";
 import {Product} from "../classes";
 import {Observable} from "rxjs";
 import {ApiService} from "../api.service";
 import {map, startWith} from "rxjs/operators";
+import {MatDialog} from "@angular/material/dialog";
+import {ErrorDialogComponent} from "../error-dialog/error-dialog.component";
 
 @Component({
   selector: 'app-vendor-code-autocompleat',
@@ -20,30 +22,36 @@ export class VendorCodeAutocompleatComponent implements OnInit {
   options: Product[] = [];
   filteredOptions: Observable<Product[]> | undefined;
   vendor: string;
-  constructor(private api: ApiService) {
+  constructor(private api: ApiService, private dialog:MatDialog) {
   }
   public start(productCategory: number){
     this.vendor = null;
     this.api.getVendorCode(productCategory).subscribe( product => {
       this.options = product;
-      this.filteredOptions = this.myControl.valueChanges
-        .pipe(
-          startWith(''),
-          map(value => typeof value === 'string' ? value : value.vendor_code),
-          map(productVendorCode => {
-            if(productVendorCode){
+      if(product != null){
+        this.filteredOptions = this.myControl.valueChanges
+          .pipe(
+            startWith(''),
+            map(value => typeof value === 'string' ? value : value.vendor_code),
+            map(productVendorCode => {
+                if(productVendorCode){
+                  return this._filter(productVendorCode)
+                }
+                else if(this.vendor){
+                  return this._filterVendor(this.vendor);
+                }
+                else{return this.options.slice();}
+              }
+            )
+          );
+      }
 
-            return this._filter(productVendorCode)
-          }
-            else if(this.vendor){
-              return this._filterVendor(this.vendor);
-            }
+    },
+      error => {
+        if(error === 'Unknown Error'){this.dialog.open(ErrorDialogComponent, {data: "Ошибка загрузки \"артикулов\": Обратитесь к администратору"});}
+        else{this.dialog.open(ErrorDialogComponent, {data: "Ошибка загрузки \"артикулов\": " + error});}
 
-          else{return this.options.slice();}
-
-
-          }));
-    })
+      })
   }
 
   ngOnInit() {

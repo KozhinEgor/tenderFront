@@ -40,6 +40,7 @@ export interface ReceivedJson{
   dateStart: string;
   dateFinish: string;
   dublicate: boolean;
+  quarter: boolean;
   typeExclude: boolean;
   type: Type[];
   customExclude: boolean;
@@ -103,6 +104,7 @@ export interface Product{
   portable: boolean;
   vendor: string;
   channel: number;
+  port:number;
 }
 export interface Vendor{
   id: number;
@@ -141,4 +143,24 @@ export interface User{
 }
 export enum Role{
   ROLE_ADMIN,ROLE_USER,ROLE_OPERATOR
+}
+export interface CreateTable{
+  vendor: boolean;
+  frequency: boolean;
+  usb: boolean;
+  vxi: boolean;
+  portable: boolean;
+  channel: boolean;
+  port:boolean;
+  name: string;
+  name_en: string;
+}
+export  interface StringAnswer{
+  name:string;
+}
+export interface ChangeCategory{
+  category:number;
+  vendor_code:number;
+  newCategory:number;
+  newVendor_code:number;
 }

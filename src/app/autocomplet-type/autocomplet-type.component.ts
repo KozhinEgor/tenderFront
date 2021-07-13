@@ -3,10 +3,10 @@ import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
 
-import {Post, Type} from '../classes';
+import {Type} from '../classes';
 import {ApiService} from '../api.service';
-import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
-
+import {MatDialog} from "@angular/material/dialog";
+import {ErrorDialogComponent} from "../error-dialog/error-dialog.component";
 
 
 @Component({
@@ -20,7 +20,7 @@ export class AutocompletTypeComponent implements OnInit {
   myControl = new FormControl();
   options: Type[] = [];
  filteredOptions: Observable<Type[]> | undefined;
-  constructor(private api: ApiService) {
+  constructor(private api: ApiService, private dialog:MatDialog) {
   }
   public changeValue(category: string): void{
     this.myControl.setValue(this._filter(category));
@@ -34,7 +34,12 @@ export class AutocompletTypeComponent implements OnInit {
           map(value => typeof value === 'string' ? value : value.type),
           map(type => type ? this._filter(type) : this.options.slice())
         );
-    });
+    },
+      error => {
+      if(error === 'Unknown Error'){this.dialog.open(ErrorDialogComponent, {data: "Ошибка загрузки \"типов тендеров\": Обратитесь к администратору"});}
+      else {this.dialog.open(ErrorDialogComponent, {data: "Ошибка загрузки \"типов тендеров\": " + error});}
+
+      });
     this.myControl.setValue({name: this.value});
   }
 

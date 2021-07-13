@@ -1,0 +1,52 @@
+<h1>Создание категории продуктов</h1>
+<mat-dialog-content>
+
+  <mat-list>
+    <mat-list-item>
+      <mat-form-field  style="width: 80%; padding-bottom: 0px" >
+        <input matInput   placeholder="Название" [(ngModel)]="createTable.name">
+      </mat-form-field>
+    </mat-list-item>
+    <mat-list-item>
+      <mat-form-field  style="width: 80%; padding-bottom: 0px" >
+        <input matInput type="text"  style="text-transform: lowercase"  placeholder="Название на английском" [(ngModel)]="createTable.name_en" onkeyup="this.value=this.value.replace(/[^a-z _]/gi, ''); " >
+      </mat-form-field>
+    </mat-list-item>
+    <mat-list-item>
+      <mat-checkbox class="example-margin" [(ngModel)]="createTable.vendor">Вендор</mat-checkbox>
+    </mat-list-item>
+    <mat-list-item>
+      <mat-checkbox class="example-margin" [(ngModel)]="createTable.frequency">Частота/Полоса пропуская</mat-checkbox>
+    </mat-list-item>
+    <mat-list-item>
+      <mat-checkbox class="example-margin" [(ngModel)]="createTable.channel">Каналы</mat-checkbox>
+    </mat-list-item>
+    <mat-list-item>
+      <mat-checkbox class="example-margin" [(ngModel)]="createTable.port">Порты</mat-checkbox>
+    </mat-list-item>
+    <mat-list-item>
+      <mat-checkbox class="example-margin" [(ngModel)]="createTable.usb">USB</mat-checkbox>
+    </mat-list-item>
+    <mat-list-item>
+      <mat-checkbox class="example-margin" [(ngModel)]="createTable.vxi">VXI</mat-checkbox>
+    </mat-list-item>
+    <mat-list-item>
+      <mat-checkbox class="example-margin" [(ngModel)]="createTable.portable">Портативный</mat-checkbox>
+    </mat-list-item>
+
+  </mat-list>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" >
+
+  <button mat-button (click)="Create()">Создать</button>
+  <button mat-button [matDialogClose]="name">Закрыть</button>
+</mat-dialog-actions>
+
+
+
+
+
+
+
+

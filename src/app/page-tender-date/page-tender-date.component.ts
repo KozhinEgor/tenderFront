@@ -1,30 +1,26 @@
-import {AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {MatSort} from '@angular/material/sort';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
-import { ApiService } from '../api.service';
+import {MatPaginator} from '@angular/material/paginator';
+import {MatTableDataSource} from '@angular/material/table';
+import {ApiService} from '../api.service';
 import {DataRangeComponent} from '../data-range/data-range.component';
-import { saveAs } from 'file-saver';
+import {saveAs} from 'file-saver';
 
 import {
   Customer,
-  Orders,
-  OrdersDB,
   Post,
   Product,
   ProductCategory,
   ProductReceived,
   ReceivedJson,
-  Type, Vendor,
+  Type,
+  Vendor,
   Winner
 } from '../classes';
-import { registerLocaleData } from '@angular/common';
-import localeRu from '@angular/common/locales/ru';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {AutocompletTypeComponent} from '../autocomplet-type/autocomplet-type.component';
+import {FormControl, Validators} from '@angular/forms';
 import {CustomAutocompletComponent} from '../custom-autocomplet/custom-autocomplet.component';
 import {WinnerAutocompletComponent} from '../winner-autocomplet/winner-autocomplet.component';
-import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
+import {MatDialog} from '@angular/material/dialog';
 import {animate, state, style, transition, trigger} from "@angular/animations";
 import {VendorCodeAutocompleatComponent} from "../vendor-code-autocompleat/vendor-code-autocompleat.component";
 import {ProductCategoryAutocompletComponent} from "../product-category-autocomplet/product-category-autocomplet.component";
@@ -35,14 +31,9 @@ import {ContryAutocompletComponent} from "../contry-autocomplet/contry-autocompl
 import {VendorAutocompletComponent} from "../vendor-autocomplet/vendor-autocomplet.component";
 
 
-
-
 export interface group {
   name: string;
   nameru: string;
-}
-export interface DialogData {
-  error: string;
 }
 
 @Component({
@@ -115,7 +106,7 @@ export class PageTenderDateComponent implements OnInit {
     if (value) {
       for (let i of mas) {
         i = i.replace(/\D/g, '');
-        console.log(i);
+
         this.ids.push(Number(i));
       }
 
@@ -143,7 +134,7 @@ export class PageTenderDateComponent implements OnInit {
     if (value) {
       for (let i of mas) {
         i = i.replace(/\D/g, '');
-        console.log(i);
+
         this.number_bico.push(Number(i));
       }
 
@@ -237,55 +228,69 @@ export class PageTenderDateComponent implements OnInit {
     this.number_bico = [];
     this.numberShow = false;
     this.product = [];
-    this.category = null;
-    this.vendor = null;
-    this.vendor_code = null;
+
     this.contryAutocompletComponent.myControl.setValue('');
     this.dataRange.range.setValue({dateStart:null,dateFinish:null});
     this.productCategoryAutocompletComponent.myControl.setValue('');
-    if(this.vendorAutocompletComponent){
-      this.vendorAutocompletComponent.myControl.setValue('');
-    }
+    this.vendorAutocompletComponent.myControl.setValue('');
     this.vendorCodeAutocompleatComponent.myControl.setValue('')
   }
-  category: ProductCategory;
-  vendor: Vendor;
-  vendor_code: Product;
+  category: ProductCategory = null;
+  vendor: Vendor = null;
+  vendor_code: Product = null;
   product: ProductReceived[] = [];
   ChangeCategory(category : any){
     if (category != null && typeof category !== 'string') {
-      this.category = category;
+
+
+        if(this.productCategoryAutocompletComponent.myControl.value.id === 7 ){
+          this.vendorAutocompletComponent.myControl.disable();
+        }
+        else {
+          this.vendorAutocompletComponent.myControl.enable();
+          this.vendorAutocompletComponent.start(category.id);
+      }
       this.vendorCodeAutocompleatComponent.start(category.id);
+    }
+    else if(category === ''){
+      category
+      this.vendorCodeAutocompleatComponent.start(0);
     }
   }
   ChangeVendor(vendor:any){
     if(vendor != null && typeof vendor !=="string"){
-      this.vendor = vendor;
       this.vendorCodeAutocompleatComponent.ChangeVendor(vendor.name);
+    }
+    else if (vendor === ''){
+      this.vendorCodeAutocompleatComponent.ChangeVendor(null);
     }
   }
   ChangeVendorCode(vendor_code: any){
     if (vendor_code != null && typeof vendor_code !== 'string') {
-      if(!this.vendor && this.category.id !== 7){
+      if(!this.vendorAutocompletComponent.myControl.value && this.productCategoryAutocompletComponent.myControl.value.id !== 7){
         this.vendorAutocompletComponent.setVendor(vendor_code.vendor);
       }
 
-      this.vendor_code = vendor_code;
+
     }
   }
   AddProduct(){
-    if(this.product){
-      this.product.push({category: this.category, vendor: this.vendor, vendor_code:this.vendor_code});
-      this.productCategoryAutocompletComponent.myControl.setValue('');
-      if(this.vendorAutocompletComponent){
-        this.vendorAutocompletComponent.myControl.setValue('');
-      }
+    if((this.productCategoryAutocompletComponent.myControl.value !== null && this.productCategoryAutocompletComponent.myControl.value !== '')
+      || (this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== '')
+      || (this.vendorCodeAutocompleatComponent.myControl.value !== null && this.vendorCodeAutocompleatComponent.myControl.value !== '')){
+      if(this.product){
+        this.product.push({category: this.productCategoryAutocompletComponent.myControl.value== ''?null:this.productCategoryAutocompletComponent.myControl.value, vendor: this.vendorAutocompletComponent.myControl.value == ''?null:this.vendorAutocompletComponent.myControl.value, vendor_code:this.vendorCodeAutocompleatComponent.myControl.value== ''?null:this.vendorCodeAutocompleatComponent.myControl.value});
 
-      this.vendorCodeAutocompleatComponent.myControl.setValue('');
-      this.category = null;
-      this.vendor = null;
-      this.vendor_code = null;
+        this.productCategoryAutocompletComponent.myControl.setValue('');
+        if(this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== ''){
+
+          this.vendorAutocompletComponent.myControl.setValue(null);
+        }
+        this.vendorCodeAutocompleatComponent.myControl.setValue('');
+
+      }
     }
+
 
   }
   removeProduct(product: ProductReceived){
@@ -296,10 +301,18 @@ export class PageTenderDateComponent implements OnInit {
     }
   }
   showTables(): void{
+    if((this.productCategoryAutocompletComponent.myControl.value !== null && this.productCategoryAutocompletComponent.myControl.value !== '')
+      || (this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== '')
+      || (this.vendorCodeAutocompleatComponent.myControl.value !== null && this.vendorCodeAutocompleatComponent.myControl.value !== '')){
+      this.AddProduct();
+    }
+    //this.AddProduct();
+
     const json: ReceivedJson = {
       dateStart: this.dataRange.getDateStart(),
       dateFinish: this.dataRange.getDateFinish(),
       dublicate: this.dublicate,
+      quarter: null,
       typeExclude: this.TypeExclude,
       type: this.types,
       customExclude: this.CustomExclude,
@@ -315,23 +328,28 @@ export class PageTenderDateComponent implements OnInit {
       numberShow: this.numberShow,
       product: this.product
     }
-  console.log(json);
+    console.log(json);
     this.api.getPostWithParametrs(json).subscribe(posts => {
 
       if(posts.length === 0){
+        this.dataSource = new MatTableDataSource<Post>(posts)
         this.dialog.open(ErrorDialogComponent, { data: 'Найдено 0 тендеров'});
       }
       else{this.dataSource = new MatTableDataSource<Post>(posts) ;
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;}
 
-    });
+    },
+      error => {
+      this.dialog.open(ErrorDialogComponent,{data: 'Ошибка' + error});
+      });
   }
   getFile(){
     const json: ReceivedJson = {
       dateStart: this.dataRange.getDateStart(),
       dateFinish: this.dataRange.getDateFinish(),
       dublicate: this.dublicate,
+      quarter: null,
       typeExclude: this.TypeExclude,
       type: this.types,
       customExclude: this.CustomExclude,
@@ -351,6 +369,9 @@ export class PageTenderDateComponent implements OnInit {
     this.api.getFile(json).subscribe(
       blob => {
         saveAs(blob, "Tender.xlsx");
+      },
+      error => {
+        this.dialog.open(ErrorDialogComponent,{data:"Ошибка" + error});
       }
       // (response) => {
       //  var name = response.headers.get("content-disposition");

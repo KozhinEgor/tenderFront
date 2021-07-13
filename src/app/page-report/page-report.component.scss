@@ -42,6 +42,52 @@
   height: fit-content;
 }
 
+.ChoseContainer{
+  display: flex;
+  flex-wrap: wrap;
+  width: 97%;
+  padding: 5px;
+  margin: 1.5rem auto;
 
+  height: fit-content;
+  .mat-expansion-panel-header{
+    padding: 0px;
+  }
+  .mat-accordion{
+    width: 100%;
+  }
+  .mat-expansion-panel-header{
+    height: fit-content;
+  }
+  .mat-chip-list{
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .mat-chip{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 10px;
+  }
+  .show{
+    margin: 10px 10px 10px 20px;
+  }
+  .default{
+    margin: 10px 10px 10px 20px;
+  }
+  .saveFile{
+    margin: 10px 10px 10px auto;
+  }
+  fieldset{
+    border: 1px solid darkgrey;
+    border-radius: 5px;
+    display: inline;
+  }
+  .MinSum{
+    margin: 5px;
+  }
+  .MaxSum{
+    margin: 5px;
+  }
+}
 
 

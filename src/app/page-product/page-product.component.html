@@ -1,66 +1,90 @@
 <div class="ChoseContainer mat-elevation-z8">
 
-  <app-product-category-autocomplet (Change)="onChange($event)" class="vendor_code"></app-product-category-autocomplet>
-  <button mat-flat-button color="primary" (click)="showTables()" class="show_table">Показать таблицу</button>
+  <app-product-category-autocomplet (Change)="onChange($event)"></app-product-category-autocomplet>
 
-  <mat-form-field class="filter">
-    <mat-label>Filter</mat-label>
-    <input matInput (keyup)="applyFilter($event)" placeholder="Поиск" #input>
-  </mat-form-field>
-
+  <button mat-raised-button color="basic" (click)="showProductNoUses()" class="show_table">Не использующиеся продукты</button>
+  <button mat-raised-button color="basic" (click)="createCategory()" class="show_table">
+    <mat-icon>add_circle_outline</mat-icon>
+    Создать категорию
+  </button>
+  <button mat-raised-button color="basic" disabled = true (click)="ChageCategory()" class="show_table">
+    <mat-icon>swap_horiz</mat-icon>
+    Переместить продукт
+  </button>
+  <button mat-raised-button color="primary" (click)="Clean()" class="show_table">Сбросить значения</button>
+  <button mat-raised-button color="primary" (click)="File()" class="show_table">Загрузить в файл</button>
 
 </div>
 <div class ="bodyContainer mat-elevation-z8">
-<div class="tableContainer" *ngIf="columns.length != 0">
+    <div class="tableContainer" *ngIf="columns.length != 0">
 
-  <table mat-table matSort  [dataSource]="dataSource" >
+      <table mat-table matSort  [dataSource]="dataSource" >
 
-    <ng-container [matColumnDef]="column" *ngFor="let column of columns.slice(0,columns.length-1) ">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{column}} </th>
-      <td mat-cell *matCellDef="let element" > {{element[column]}} </td>
-    </ng-container>
-    <ng-container matColumnDef="edit" *ngIf="user != null && user.role !== 'ROLE_USER'">
-      <th mat-header-cell *matHeaderCellDef > edit</th>
-      <td mat-cell *matCellDef="let element" >
-        <button mat-icon-button color="primary" (click)="editProduct(element)">
-          <mat-icon>edit</mat-icon>
-        </button> </td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="columns sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns;"></tr>
-  </table>
+        <ng-container [matColumnDef]="column" *ngFor="let column of columns.slice(0,columns.length-1) ">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> {{column}} </th>
+          <td mat-cell *matCellDef="let element" > {{element[column]}} </td>
+        </ng-container>
+        <ng-container matColumnDef="edit" *ngIf="user != null && user.role !== 'ROLE_USER'">
+          <th mat-header-cell *matHeaderCellDef > edit</th>
+          <td mat-cell *matCellDef="let element" >
+            <button mat-icon-button color="primary" (click)="editProduct(element)">
+              <mat-icon>edit</mat-icon>
+            </button> </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columns sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+      </table>
+    </div>
+
+    <div class="Filter" *ngIf="columns.length != 0 ">
+      <div>
+        <mat-form-field class="filter">
+          <mat-label>Поиск</mat-label>
+          <input matInput (keyup)="applyFilter($event)" placeholder="Поиск" #input>
+        </mat-form-field>
+      </div>
+
+      <button mat-flat-button color="warn" (click)="DeleteProduct()" class="show_table" *ngIf="noUses == true && user != null && user.role !== 'ROLE_USER'">Удалить продукты<br> которые не используются</button>
+    </div>
+
+    <div class="EditContainer" *ngIf="user != null && user.role !== 'ROLE_USER' && columns.length != 0 ">
+      <div class="row">
+        <mat-form-field appearance="outline" *ngIf="product.id != null" class="Childmargin id">
+          <mat-label>Id</mat-label>
+          <input matInput placeholder="Id" type="number" [(ngModel)]="product.id">
+        </mat-form-field>
+
+        <app-vendor-autocomplet (Change)="onChangeVendor($event)" *ngIf="columns.indexOf('vendor') != -1" class="vendor Childmargin"></app-vendor-autocomplet>
+
+        <mat-form-field appearance="outline" *ngIf="columns.indexOf('vendor_code') != -1" class="vendor" class="Childmargin">
+          <mat-label>Артикул</mat-label>
+          <input matInput placeholder="Артикул" type="text" [(ngModel)]="product.vendor_code">
+        </mat-form-field>
+
+      </div>
+      <div class="row">
+        <mat-checkbox class="Childmargin" color="primary" *ngIf="columns.indexOf('vxi') != -1" [(ngModel)]="product.vxi" >VXI</mat-checkbox>
+        <mat-checkbox class="Childmargin" color="primary" *ngIf="columns.indexOf('usb') != -1" [(ngModel)]="product.usb">USB</mat-checkbox>
+        <mat-checkbox class="Childmargin" color="primary" *ngIf="columns.indexOf('portable') != -1" [(ngModel)]="product.portable">Портативный</mat-checkbox>
+        <mat-form-field appearance="outline" *ngIf="columns.indexOf('frequency') != -1" class="Childmargin">
+          <mat-label>Частота/Полоса пропускания</mat-label>
+          <input matInput placeholder="Частота/Полоса пропускания" type="number" [(ngModel)]="product.frequency" >
+        </mat-form-field>
+        <mat-form-field appearance="outline" *ngIf="columns.indexOf('channel') != -1" class="Childmargin">
+          <mat-label>Каналы</mat-label>
+          <input matInput placeholder="Число каналов" type="number" [(ngModel)]="product.channel" >
+        </mat-form-field>
+        <mat-form-field appearance="outline" *ngIf="columns.indexOf('port') != -1" class="Childmargin">
+          <mat-label>Порты</mat-label>
+          <input matInput placeholder="Число портов" type="number" [(ngModel)]="product.port" >
+        </mat-form-field>
+      </div>
+      <div class="row">
+        <button mat-flat-button color="primary" (click)="default()" style="position: center">Сбросить</button>
+        <button mat-flat-button color="primary" (click)="saveProduct()" style="position: center">Сохранить</button>
+      </div>
+    </div>
 </div>
-  <div class="EditContainer" *ngIf="user != null && user.role !== 'ROLE_USER' && columns.length != 0 ">
-    <div class="row">
-      <mat-form-field appearance="outline" *ngIf="product.id != null" class="Childmargin id">
-        <mat-label>Id</mat-label>
-        <input matInput placeholder="Id" type="number" [(ngModel)]="product.id">
-      </mat-form-field>
 
-      <app-vendor-autocomplet (Change)="onChangeVendor($event)" *ngIf="columns.indexOf('vendor') != -1" class="vendor Childmargin"></app-vendor-autocomplet>
 
-      <mat-form-field appearance="outline" *ngIf="columns.indexOf('vendor_code') != -1" class="vendor" class="Childmargin">
-      <mat-label>Артикул</mat-label>
-      <input matInput placeholder="Артикул" type="text" [(ngModel)]="product.vendor_code">
-      </mat-form-field>
 
-    </div>
-    <div class="row">
-      <mat-checkbox class="Childmargin" color="primary" *ngIf="columns.indexOf('vxi') != -1" [(ngModel)]="product.vxi" >VXI</mat-checkbox>
-      <mat-checkbox class="Childmargin" color="primary" *ngIf="columns.indexOf('usb') != -1" [(ngModel)]="product.usb">USB</mat-checkbox>
-      <mat-checkbox class="Childmargin" color="primary" *ngIf="columns.indexOf('portable') != -1" [(ngModel)]="product.portable">Портативный</mat-checkbox>
-      <mat-form-field appearance="outline" *ngIf="columns.indexOf('frequency') != -1" class="Childmargin">
-        <mat-label>Частота/Полоса пропускания</mat-label>
-        <input matInput placeholder="Частота/Полоса пропускания" type="number" [(ngModel)]="product.frequency" >
-      </mat-form-field>
-      <mat-form-field appearance="outline" *ngIf="columns.indexOf('channel') != -1" class="Childmargin">
-        <mat-label>Каналы</mat-label>
-        <input matInput placeholder="Число каналов" type="number" [(ngModel)]="product.channel" >
-      </mat-form-field>
-    </div>
-    <div class="row">
-      <button mat-flat-button color="primary" (click)="default()" style="position: center">Сбросить</button>
-      <button mat-flat-button color="primary" (click)="saveProduct()" style="position: center">Сохранить</button>
-    </div>
-  </div>
-</div>

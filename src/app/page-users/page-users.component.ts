@@ -1,8 +1,8 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ApiService} from "../api.service";
 import {MatTableDataSource} from "@angular/material/table";
-import {Product, Role, User} from "../classes";
-import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
+import {Role, User} from "../classes";
+import {FormBuilder, FormControl, Validators} from "@angular/forms";
 import {ErrorDialogComponent} from "../error-dialog/error-dialog.component";
 import {MatDialog} from "@angular/material/dialog";
 
@@ -22,6 +22,9 @@ export class PageUsersComponent implements OnInit {
   getUser(){
     this.api.getUsers().subscribe(user=>{
         this.dataSource = new MatTableDataSource(user);
+      },
+      error => {
+      this.dialog.open(ErrorDialogComponent, {data:'Ошибка '+ error});
       }
     )
   }
@@ -54,9 +57,11 @@ export class PageUsersComponent implements OnInit {
       let user:User = {username:this.email.value, role: this.role, activationCode:null, token: null}
 
       this.api.createUser(user).subscribe(data => this.getUser(),
-        error => {this.dialog.open(ErrorDialogComponent,{data:'Если не появился пользователь, значит ошибка в отправке сообщения на почту'});
-          this.getUser();
-      });
+        error => {
+        this.dialog.open(ErrorDialogComponent,{data:'Ошибка ' + error});
+        this.getUser();
+      }
+        );
 
       this.email.setValue('');
       this.role = '';

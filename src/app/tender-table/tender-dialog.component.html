@@ -74,6 +74,10 @@
           <mat-label>Каналы</mat-label>
           <input matInput placeholder="Число каналов" type="number" [(ngModel)]="channel" >
         </mat-form-field>
+        <mat-form-field appearance="outline" *ngIf="port != -1">
+          <mat-label>Порты</mat-label>
+          <input matInput placeholder="Число портов" type="number" [(ngModel)]="port" >
+        </mat-form-field>
       </div>
 
       <div class="row" >

@@ -4,6 +4,8 @@ import {Customer} from "../classes";
 import {Observable} from "rxjs";
 import {ApiService} from "../api.service";
 import {map, startWith} from "rxjs/operators";
+import {MatDialog} from "@angular/material/dialog";
+import {ErrorDialogComponent} from "../error-dialog/error-dialog.component";
 
 @Component({
   selector: 'app-custom-autocomplet',
@@ -16,7 +18,7 @@ export class CustomAutocompletComponent implements OnInit {
   myControl = new FormControl();
   options: Customer[] = [];
   filteredOptions: Observable<Customer[]> | undefined;
-  constructor(private api: ApiService) {
+  constructor(private api: ApiService, private dialog:MatDialog) {
   }
   ngOnInit() {
    this.update();
@@ -54,7 +56,12 @@ export class CustomAutocompletComponent implements OnInit {
           map(value => typeof value === 'string' ? value : value.name),
           map(custom => custom ? this._filter(custom) : this.options.slice())
         );
-    });
+    },
+      error => {
+        if(error === 'Unknown Error'){this.dialog.open(ErrorDialogComponent, {data: "Ошибка загрузки \"заказчиков\": Обратитесь к администратору"});}
+        else{this.dialog.open(ErrorDialogComponent, {data: "Ошибка загрузки \"заказчиков\": " + error});}
+
+      });
   }
   select(): void {
     this.myControl.setValue('');

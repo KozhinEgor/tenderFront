@@ -1,9 +1,11 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {Product, Vendor} from "../classes";
+import {Vendor} from "../classes";
 import {FormControl} from "@angular/forms";
 import {Observable} from "rxjs";
 import {ApiService} from "../api.service";
 import {map, startWith} from "rxjs/operators";
+import {ErrorDialogComponent} from "../error-dialog/error-dialog.component";
+import {MatDialog} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-vendor-autocomplet',
@@ -19,28 +21,33 @@ export class VendorAutocompletComponent implements OnInit {
   myControl = new FormControl();
   options: Vendor[] = [];
   filteredOptions: Observable<Vendor[]> | undefined;
-  constructor(private api: ApiService) {
+  constructor(private api: ApiService, private dialog:MatDialog) {
   }
-  public start(){
+  public start(category:number){
+    this.api.getVendor(category).subscribe( vendors => {
+        this.options = vendors;
+        this.filteredOptions = this.myControl.valueChanges
+          .pipe(
+            startWith(''),
 
+            map(vendor => vendor ? this._filter(vendor) : this.options.slice())
+          );
+      },
+      error => {
+        if(error === 'Unknown Error'){this.dialog.open(ErrorDialogComponent, {data: "Ошибка загрузки \"вендоров\": Обратитесь к администратору" });}
+        else{this.dialog.open(ErrorDialogComponent, {data: "Ошибка загрузки \"вендоров\": " + error});}
+
+      });
   }
 
   ngOnInit() {
-    this.api.getVendor().subscribe( vendors => {
-
-      this.options = vendors;
-      this.filteredOptions = this.myControl.valueChanges
-        .pipe(
-          startWith(''),
-          map(value => typeof value === 'string' ? value : value.name),
-          map(vendor => vendor ? this._filter(vendor) : this.options.slice())
-        );
-    });
+    this.start(0);
   }
 
   displayFn(vendor: Vendor): string {
     return vendor && vendor.name ? vendor.name : '';
   }
+
   setVendor(name: string){
     for(let o of this.options){
       if(o.name === name){

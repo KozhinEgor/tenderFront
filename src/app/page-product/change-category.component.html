@@ -1,0 +1,13 @@
+<h1>Переместить продукт</h1>
+<mat-dialog-content>
+  <app-product-category-autocomplet (Change)="onChangeCategory($event)" ></app-product-category-autocomplet>
+  <app-vendor-code-autocompleat></app-vendor-code-autocompleat>
+  <app-product-category-autocomplet (Change)="onChangeNewCategory($event)" #newCategory></app-product-category-autocomplet>
+  <app-vendor-code-autocompleat #newVendorCodeAutocomplete></app-vendor-code-autocompleat>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" >
+
+  <button mat-button (click)="Change()">Создать</button>
+  <button mat-button mat-dialog-close="true">Закрыть</button>
+</mat-dialog-actions>

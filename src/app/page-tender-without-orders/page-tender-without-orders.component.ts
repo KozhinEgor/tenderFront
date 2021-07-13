@@ -1,8 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {MatTableDataSource} from "@angular/material/table";
 import {Post} from "../classes";
-import {group} from "../page-tender-date/page-tender-date.component";
-import {ErrorDialogTenderComponent} from "../tender-table/tender-table.component";
 import {ErrorDialogComponent} from "../error-dialog/error-dialog.component";
 import {ApiService} from "../api.service";
 import {MatDialog} from "@angular/material/dialog";
@@ -32,11 +30,11 @@ export class PageTenderWithoutOrdersComponent implements OnInit {
 
         },
         err => {
-          this.dialog.open(ErrorDialogTenderComponent, { data: err.message});
+          this.dialog.open(ErrorDialogComponent, { data: "Ошибка " + err});
         });
     }
     catch (e) {
-      this.dialog.open(ErrorDialogComponent, {data: e.message});
+      this.dialog.open(ErrorDialogComponent, {data: "Ошибка " + e.message});
     }
   }
   noDocumentation(){
@@ -47,11 +45,11 @@ export class PageTenderWithoutOrdersComponent implements OnInit {
 
         },
         err => {
-          this.dialog.open(ErrorDialogTenderComponent, { data: err.message});
+          this.dialog.open(ErrorDialogComponent, { data:"Ошибка " + err});
         });
     }
     catch (e) {
-      this.dialog.open(ErrorDialogComponent, {data: e.message});
+      this.dialog.open(ErrorDialogComponent, {data: "Ошибка " + e.message});
     }
   }
 }

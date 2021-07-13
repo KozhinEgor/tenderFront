@@ -1,18 +1,153 @@
-<!--
-<div class="mat-action-row">
-  <google-chart *ngIf = "!load" #chart
-                                          [type]="type"
-                                          [data]="reportdata"
-                                          [columns]="columnNames"
-                                          [options]="options"
-                                          [width]="width"
-                                          [height]="height">
-</google-chart>
--->
+<div class="ChoseContainer mat-elevation-z8">
+  <mat-accordion class="prevent-click">
+    <mat-expansion-panel (opened)="panelOpenState = true"
+                         (closed)="panelOpenState = false"  hideToggle>
+      <mat-expansion-panel-header>
+        <h1 style="margin: auto">Условия поиска</h1>
+
+      </mat-expansion-panel-header>
+      <!--      Date-->
+      <fieldset >
+        <legend>Даты и Дубликаты</legend>
+        <app-data-range ></app-data-range>
+        <section>
+          <mat-slide-toggle color="primary" [(ngModel)]="quarter" >Экономический квартал!</mat-slide-toggle>
+        </section>
+        <section>
+          <mat-slide-toggle color="primary" [(ngModel)]="dublicate" >Показывать дубликаты!</mat-slide-toggle>
+        </section>
+      </fieldset>
+      <!--      Type-->
+      <fieldset>
+        <legend> Тип</legend>
+        <mat-chip-list  aria-label="Выбранные типы">
+          <mat-chip *ngFor="let type of types" [selectable]="selectable"
+                    [removable]="removable" (removed)="removeType(type)">
+            {{type.type}}
+            <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+          </mat-chip>
+        </mat-chip-list>
+        <app-autocomplet-type (Change)="ChangeType($event)"> </app-autocomplet-type>
+        <section>
+          <mat-slide-toggle color="primary" [(ngModel)]="TypeExclude" >Исключить выбранные типы!</mat-slide-toggle>
+        </section>
+      </fieldset>
+      <!--      Customer-->
+      <fieldset>
+        <legend>Заказчик</legend>
+        <mat-chip-list  aria-label="Выбранные типы">
+          <mat-chip *ngFor="let customer of customers" [selectable]="selectable"
+                    [removable]="removable" (removed)="removeCustom(customer)">
+            {{customer.name}}
+            <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+          </mat-chip>
+        </mat-chip-list>
+        <app-custom-autocomplet (Change)="ChangeCustom($event)"></app-custom-autocomplet>
+        <mat-form-field appearance="outline">
+          <mat-label>ИНН</mat-label>
+          <input matInput [(ngModel)]="innCustomer" type="text" onkeyup="this.value=this.value.replace(/[^0-9 %]/gi, '');"  >
+          <mat-error></mat-error>
+        </mat-form-field>
+        <app-contry-autocomplet (Change)="ChangeCountry($event)"></app-contry-autocomplet>
+        <section>
+          <mat-slide-toggle color="primary" [(ngModel)]="CustomExclude" >Исключить выбранных заказчиков!</mat-slide-toggle>
+        </section>
+      </fieldset>
+      <!--      Winner-->
+      <fieldset >
+        <legend>Победитель</legend>
+        <mat-chip-list  aria-label="Выбранные типы">
+          <mat-chip *ngFor="let winner of winners" [selectable]="selectable"
+                    [removable]="removable" (removed)="removeWinner(winner)">
+            {{winner.name}}
+            <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+          </mat-chip>
+        </mat-chip-list>
+        <app-winner-autocomplet (Change)="ChangeWinner($event)" ></app-winner-autocomplet>
+        <section>
+          <mat-slide-toggle color="primary" [(ngModel)]="WinnersExclude" >Исключить выбранных победителей!</mat-slide-toggle>
+        </section>
+      </fieldset>
+      <!--      Number-->
+      <fieldset>
+        <legend>Поиск по номерам</legend>
+        <mat-form-field class="example-chip-list">
+          <mat-label>Id</mat-label>
+          <mat-chip-list #chipList aria-label="Выбранные ID">
+            <mat-chip *ngFor="let id of ids" [selectable]="selectable"
+                      [removable]="removable" (removed)="remove(id)">
+              {{id}}
+              <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+            </mat-chip>
+            <input placeholder="Id..."
+                   [matChipInputFor]="chipList"
+                   [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                   [matChipInputAddOnBlur]="addOnBlur"
+                   (matChipInputTokenEnd)="add($event)" >
+          </mat-chip-list>
+        </mat-form-field>
+        <mat-form-field class="example-chip-list">
+          <mat-label>Номера Бикотендера</mat-label>
+          <mat-chip-list #chipListBico aria-label="Выбранные Номера Бикотендера">
+            <mat-chip *ngFor="let number of number_bico" [selectable]="selectable"
+                      [removable]="removable" (removed)="removeBicoNumber(number)">
+              {{number}}
+              <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+            </mat-chip>
+            <input placeholder="Номер бикотендера..."
+                   [matChipInputFor]="chipListBico"
+                   [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                   [matChipInputAddOnBlur]="addOnBlur"
+                   (matChipInputTokenEnd)="addBicoNumber($event)" >
+          </mat-chip-list>
+        </mat-form-field>
+        <section>
+          <mat-slide-toggle color="primary" [(ngModel)]="numberShow" >Исключить номера!</mat-slide-toggle>
+        </section>
+      </fieldset>
+      <!--      Search price-->
+      <fieldset>
+        <legend>Поиск по цене</legend>
+        <mat-form-field appearance="outline" class = "MinSum">
+          <mat-label>Минимальная сумма</mat-label>
+          <input matInput  [formControl]="minSum"  type="number" >
+          <mat-error>Вышли за пределы 0 - 999 999 999 999</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class = "MaxSum">
+          <mat-label>Максимальная сумма</mat-label>
+          <input matInput [formControl]="maxSum" type="number" >
+          <mat-error>Вышли за пределы 0 - 9999 999 999 999</mat-error>
+        </mat-form-field>
+      </fieldset>
+
+      <!--      Product-->
+      <fieldset>
+        <legend>Продукты</legend>
+        <mat-chip-list  aria-label="Выбранные продукты">
+          <mat-chip *ngFor="let prod of product" [selectable]="selectable"
+                    [removable]="removable" (removed)="removeProduct(prod)">
+            {{prod.category?prod.category.category:''}} {{prod.vendor?prod.vendor.name:''}} {{prod.vendor_code ?prod.vendor_code.vendor_code : ''}}
+            <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+          </mat-chip>
+        </mat-chip-list>
+        <app-product-category-autocomplet (Change)="ChangeCategory($event)"></app-product-category-autocomplet>
+        <app-vendor-autocomplet (Change)="ChangeVendor($event)"></app-vendor-autocomplet>
+        <app-vendor-code-autocompleat (Change)="ChangeVendorCode($event)"></app-vendor-code-autocompleat>
+        <button mat-mini-fab color="primary" (click)="AddProduct()">
+          <mat-icon>add</mat-icon>
+        </button>
+      </fieldset>
+    </mat-expansion-panel>
+  </mat-accordion>
+  <button class="saveFile" mat-stroked-button (click)="getFile()" disabled = true>Вывод в файл</button>
+  <button class="default" mat-stroked-button (click)="default()">Сбросить все значения</button>
+  <button class="show" mat-flat-button color="primary" (click)="showOrder()">Применить условия</button>
+</div>
+
 <mat-tab-group [selectedIndex]="selected.value"
-               (selectedIndexChange)="selected.setValue($event); loadReport()">
-  <mat-tab *ngFor="let tab of tabs; let index = index" [label]="tab">
-    <div class="tableContainer" *ngIf="!load">
+               (selectedIndexChange)="selected.setValue($event); loadReport()" *ngIf="show">
+  <mat-tab *ngFor="let tab of tabs; let index = index" [label]="tab.category">
+    <div class="tableContainer" *ngIf="!load && !vendorNUll && !noVendorNULL">
         <table mat-table matSort [dataSource]="dataSource" multiTemplateDataRows >
 
           <ng-container matColumnDef='quarter'>
@@ -38,7 +173,7 @@
         </table>
 
     </div>
-    <div class="tableContainer" *ngIf="!load">
+    <div class="tableContainer" *ngIf="!load && !vendorNUll && !noVendorNULL">
 
         <table mat-table  [dataSource]="data" class="mat-elevation-z8; vendor">
 
@@ -52,7 +187,7 @@
         </table>
 
     </div>
-    <div class="tableContainer" *ngIf="!load">
+    <div class="tableContainer" *ngIf="!load && !vendorNUll && !noVendorNULL">
 
       <table mat-table  [dataSource]="dataS" class="mat-elevation-z8; vendor">
 
@@ -66,6 +201,7 @@
       </table>
 
     </div>
+    <div *ngIf="!load && vendorNUll && noVendorNULL"> Нет продуктов с данными условиями в данной категории</div>
     <mat-progress-bar mode="query" style="margin:20% auto;"  *ngIf = "load"></mat-progress-bar>
   </mat-tab>
 </mat-tab-group>
