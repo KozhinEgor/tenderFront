@@ -11,7 +11,7 @@
   <mat-label>Название</mat-label>
   <input matInput   placeholder="Placeholder" [(ngModel)]="data.name">
 </mat-form-field>
-  <app-contry-autocomplet *ngIf="data.type === 'customer'" (Change)="onChangeContry($event)"></app-contry-autocomplet>
+  <app-contry-autocomplet (Change)="onChangeContry($event)"></app-contry-autocomplet>
 
 </div>
 <div mat-dialog-actions align="end">

@@ -25,16 +25,22 @@ export interface Type{
   id: number;
   type: string;
 }
-export interface Customer {
+// export interface Customer {
+//   id: number;
+//   name: string;
+//   inn: string;
+//   country: string;
+// }
+// export interface Winner{
+//   id: number;
+//   name: string;
+//   inn: string;
+// }
+export interface Company{
   id: number;
   name: string;
   inn: string;
   country: string;
-}
-export interface Winner{
-  id: number;
-  name: string;
-  inn: string;
 }
 export interface ReceivedJson{
   dateStart: string;
@@ -44,11 +50,11 @@ export interface ReceivedJson{
   typeExclude: boolean;
   type: Type[];
   customExclude: boolean;
-  custom: Customer[];
+  custom: Company[];
   innCustomer: string;
   country: number;
   winnerExclude: boolean;
-  winner: Winner[];
+  winner: Company[];
   minSum: number;
   maxSum: number;
   ids: number[];
@@ -163,4 +169,8 @@ export interface ChangeCategory{
   vendor_code:number;
   newCategory:number;
   newVendor_code:number;
+}
+export interface ChangeCompany{
+  company:number;
+  newCompany: number;
 }

@@ -3,7 +3,7 @@ import {animate, state, style, transition, trigger} from "@angular/animations";
 import {MatPaginator} from "@angular/material/paginator";
 import {MatSort} from "@angular/material/sort";
 import {MatTableDataSource} from "@angular/material/table";
-import {Customer, Orders, OrdersDB, Post, Product, ProductCategory, User, Winner} from "../classes";
+import {Company, Orders, OrdersDB, Post, Product, ProductCategory, User} from "../classes";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {VendorCodeAutocompleatComponent} from "../vendor-code-autocompleat/vendor-code-autocompleat.component";
 import {ProductCategoryAutocompletComponent} from "../product-category-autocomplet/product-category-autocomplet.component";
@@ -50,8 +50,13 @@ user:User;
   }
   showTender() {
     this.dialog.open(TenderDialogComponent, { width: '80%', height: '90%', data:  this.expandedElement}).afterClosed().subscribe(result =>{
-      if(result){
-        this.dataSource.data.splice(this.dataSource.data.indexOf(this.expandedElement), 1);
+      this.expandedElement = result;
+      if(result.id == null){
+        this.dataSource.data.splice(this.dataSource.data.indexOf(this.expandedElement), 1)
+
+        this.dataSource = new MatTableDataSource<Post>(this.dataSource.data);
+        this.dataSource.sort = this.dataSource.sort;
+        this.dataSource.paginator = this.dataSource.paginator
       }
     });
   }
@@ -72,6 +77,32 @@ user:User;
     }
     return count;
   }
+
+  getTotalCountFinish(){
+    let count = 0;
+    for(let i = 0;i<this.dataSource.data.length;i++){
+
+      if(this.dataSource.data[i].winner !== 'Нет победителя' && this.dataSource.data[i].winner !== 'Отмена'){
+        count= count + 1 ;
+      }
+
+
+    }
+    return count;
+  }
+  getTotalCostFinish() {
+    let count = 0;
+    for(let i = 0;i<this.dataSource.data.length;i++){
+
+        if(this.dataSource.data[i].winner !== 'Нет победителя' && this.dataSource.data[i].winner !== 'Отмена'){
+          count= count + this.dataSource.data[i].sum ;
+        }
+
+
+    }
+    return count;
+  }
+
   ngOnChanges(): void {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
@@ -94,8 +125,8 @@ export class AddDialogTenderComponent implements OnInit, AfterViewInit{
   country: number = null;
   save(){
     if(this.data.type === 'winner'){
-      if (this.data.inn  && this.data.name   ){
-        let win: Winner = {id: this.data.id,inn : this.data.inn.toString(), name: this.data.name}
+      if (this.data.inn && this.data.name && this.data.country){
+        let win: Company = {id: this.data.id, inn: this.data.inn.toString(), name: this.data.name, country: this.data.country.toString()};
         this.api.InsertWinner(win).subscribe(data => {this.dialog.open(ErrorDialogComponent, { data:'Сохранил'});},
           err => {
             this.dialog.open(ErrorDialogComponent, {data: 'Ошибка  не сохранил'+ err});
@@ -108,9 +139,8 @@ export class AddDialogTenderComponent implements OnInit, AfterViewInit{
     }
 
     if(this.data.type === 'customer'){
-      console.log(this.data)
       if (this.data.inn && this.data.name && this.data.country){
-        let customer: Customer = {id: this.data.id, inn: this.data.inn.toString(), name: this.data.name, country: this.data.country.toString()};
+        let customer: Company= {id: this.data.id, inn: this.data.inn.toString(), name: this.data.name, country: this.data.country.toString()};
         this.api.InsertCustomer(customer).subscribe(data => {this.dialog.open(ErrorDialogComponent, { data:'Сохранил'});},
           err => {
             this.dialog.open(ErrorDialogComponent, {data: 'Ошибка  не сохранил' + err});
@@ -428,13 +458,27 @@ export class TenderDialogComponent implements OnInit {
       dublicate: this.data.dublicate,
       country: null,
       inn: null}
-    this.api.addOrders( this.ordersDB).subscribe(data => this.data.product = data.name,
+      let prod:string = null;
+    let flag:boolean = false;
+    this.api.addOrders( this.ordersDB).subscribe(
+      data => {
+
+      prod = data.name;
+      if (flag){
+        this.data.product = data.name;
+        this.dialog.open(ErrorDialogComponent, { data: 'Сохранил'});
+      }
+        flag = true;},
       err => {
           this.dialog.open(ErrorDialogComponent, { data: "Ошибка "+ err});
       });
     this.api.SaveTender(tender).subscribe(data => {
-        this.dialog.open(ErrorDialogComponent, { data: 'Сохранил'});
+        if (flag){
+          this.dialog.open(ErrorDialogComponent, { data: 'Сохранил'});
+        }
         this.data = data;
+        this.data.product = prod;
+        flag = true;
     },
       err => {
         this.dialog.open(ErrorDialogComponent, { data: "Ошибка "+ err});
@@ -527,16 +571,13 @@ export class TenderDialogComponent implements OnInit {
   deleteTender(){
     this.dialog.open(DeleteTenderComponent,{data: this.data}).afterClosed().subscribe(result => {
       if(result) {
-        this.api.deleteTender(this.data.id).subscribe(data => data,
+        this.api.deleteTender(this.data.id).subscribe(data => {
+          this.dialog.open(ErrorDialogComponent, {data: 'Удалил'});
+        },
           err => {
-            if (err.status === 200) {
-              this.dialog.open(ErrorDialogComponent, {data: 'Удалил'});
-
-            } else {
-              this.dialog.open(ErrorDialogComponent, {data: err.message});
-            }
+              this.dialog.open(ErrorDialogComponent, {data: err});
           });
-        this.delete = true;
+        this.data.id = null;
       }
     }
     );

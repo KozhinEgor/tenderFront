@@ -72,6 +72,7 @@ import { PageRegistrationComponent } from './page-registration/page-registration
 import {ErrorInterceptor} from "./_helper/ErrorInterceptor";
 import { PageUsersComponent } from './page-users/page-users.component';
 import {MatSelectModule} from "@angular/material/select";
+import {ChangeCompanyComponent, PageCompanyComponent} from './page-company/page-company.component';
 
 
 
@@ -87,6 +88,7 @@ const routes = [
   {path: 'report', component: PageReportComponent, canActivate: [AuthGuard]},
   {path: 'add-tender', component: PageAddTenderComponent, canActivate: [AuthGuard]},
   {path: 'tender-without-orders', component: PageTenderWithoutOrdersComponent, canActivate: [AuthGuard]},
+  {path: 'company', component: PageCompanyComponent, canActivate: [AuthGuard]},
   {path: '**', redirectTo:'home'}
 ];
 
@@ -122,7 +124,9 @@ const routes = [
     ContryAutocompletComponent,
     PageLoginComponent,
     PageRegistrationComponent,
-    PageUsersComponent
+    PageUsersComponent,
+    PageCompanyComponent,
+    ChangeCompanyComponent
   ],
   imports: [
     AppRoutingModule,

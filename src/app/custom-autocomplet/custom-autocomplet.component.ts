@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormControl} from "@angular/forms";
-import {Customer} from "../classes";
+import {Company} from "../classes";
 import {Observable} from "rxjs";
 import {ApiService} from "../api.service";
 import {map, startWith} from "rxjs/operators";
@@ -16,8 +16,8 @@ export class CustomAutocompletComponent implements OnInit {
   @Input() value = '';
   @Output() Change = new EventEmitter<number>();
   myControl = new FormControl();
-  options: Customer[] = [];
-  filteredOptions: Observable<Customer[]> | undefined;
+  options: Company[] = [];
+  filteredOptions: Observable<Company[]> | undefined;
   constructor(private api: ApiService, private dialog:MatDialog) {
   }
   ngOnInit() {
@@ -27,11 +27,11 @@ export class CustomAutocompletComponent implements OnInit {
   public changeValue(category: string): void{
     this.myControl.setValue(this._filter(category));
   }
-  displayFn(custom: Customer): string {
+  displayFn(custom: Company): string {
     return custom && custom.name ? custom.name : '';
   }
 
-  private _filter(custom: string): Customer[] {
+  private _filter(custom: string): Company[] {
     const filterValue = custom.toLowerCase();
 
     return this.options.filter(option => option.name.toLowerCase().includes(filterValue));

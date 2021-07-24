@@ -7,15 +7,14 @@ import {DataRangeComponent} from '../data-range/data-range.component';
 import {saveAs} from 'file-saver';
 
 import {
-  Customer,
+  Company,
   Post,
   Product,
   ProductCategory,
   ProductReceived,
   ReceivedJson,
   Type,
-  Vendor,
-  Winner
+  Vendor
 } from '../classes';
 import {FormControl, Validators} from '@angular/forms';
 import {CustomAutocompletComponent} from '../custom-autocomplet/custom-autocomplet.component';
@@ -56,9 +55,11 @@ export class PageTenderDateComponent implements OnInit {
   // @ViewChild(AutocompletTypeComponent)
   // private autocompletType: AutocompletTypeComponent| undefined;
   @ViewChild(CustomAutocompletComponent)
-  private customAutocomplet: CustomAutocompletComponent | undefined;
+  private customAutocomplet: CustomAutocompletComponent;
+
   @ViewChild(WinnerAutocompletComponent)
-  private winnerAutocomplet: WinnerAutocompletComponent | undefined;
+  private winnerAutocomplet: WinnerAutocompletComponent;
+
   @ViewChild(ContryAutocompletComponent)
   private contryAutocompletComponent:ContryAutocompletComponent
   @ViewChild(DataRangeComponent)
@@ -168,32 +169,34 @@ export class PageTenderDateComponent implements OnInit {
     }
   }
 
-  customers: Customer[] = [];
+  customers: Company[] = [];
   CustomExclude: boolean = false;
 
   ChangeCustom(customer: any) {
     if (typeof customer !== "string") {
       this.customers.push(customer);
+      this.customAutocomplet.myControl.setValue('');
     }
   }
 
-  removeCustom(customer: Customer) {
+  removeCustom(customer: Company) {
     const index = this.customers.indexOf(customer);
     if (index >= 0) {
       this.customers.splice(index, 1);
     }
   }
 
-  winners: Winner[] = [];
+  winners: Company[] = [];
   WinnersExclude: boolean = false;
 
   ChangeWinner(winner: any) {
     if (typeof winner !== "string") {
       this.winners.push(winner);
+      this.winnerAutocomplet.myControl.setValue('');
     }
   }
 
-  removeWinner(winner: Winner) {
+  removeWinner(winner: Company) {
     const index = this.winners.indexOf(winner);
     if (index >= 0) {
       this.winners.splice(index, 1);
@@ -207,11 +210,13 @@ export class PageTenderDateComponent implements OnInit {
     }
   }
   country: number;
+
   ChangeCountry(country: any) {
   if(typeof country !=="string"){
     this.country = country.id;
   }
   }
+
   default(){
     this.dublicate = true;
     this.TypeExclude = false;
@@ -235,10 +240,12 @@ export class PageTenderDateComponent implements OnInit {
     this.vendorAutocompletComponent.myControl.setValue('');
     this.vendorCodeAutocompleatComponent.myControl.setValue('')
   }
+
   category: ProductCategory = null;
   vendor: Vendor = null;
   vendor_code: Product = null;
   product: ProductReceived[] = [];
+
   ChangeCategory(category : any){
     if (category != null && typeof category !== 'string') {
 
@@ -257,6 +264,7 @@ export class PageTenderDateComponent implements OnInit {
       this.vendorCodeAutocompleatComponent.start(0);
     }
   }
+
   ChangeVendor(vendor:any){
     if(vendor != null && typeof vendor !=="string"){
       this.vendorCodeAutocompleatComponent.ChangeVendor(vendor.name);
@@ -265,6 +273,7 @@ export class PageTenderDateComponent implements OnInit {
       this.vendorCodeAutocompleatComponent.ChangeVendor(null);
     }
   }
+
   ChangeVendorCode(vendor_code: any){
     if (vendor_code != null && typeof vendor_code !== 'string') {
       if(!this.vendorAutocompletComponent.myControl.value && this.productCategoryAutocompletComponent.myControl.value.id !== 7){
@@ -274,6 +283,7 @@ export class PageTenderDateComponent implements OnInit {
 
     }
   }
+
   AddProduct(){
     if((this.productCategoryAutocompletComponent.myControl.value !== null && this.productCategoryAutocompletComponent.myControl.value !== '')
       || (this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== '')
@@ -293,6 +303,7 @@ export class PageTenderDateComponent implements OnInit {
 
 
   }
+
   removeProduct(product: ProductReceived){
     const index = this.product.indexOf(product);
 
@@ -300,6 +311,7 @@ export class PageTenderDateComponent implements OnInit {
       this.product.splice(index, 1);
     }
   }
+
   showTables(): void{
     if((this.productCategoryAutocompletComponent.myControl.value !== null && this.productCategoryAutocompletComponent.myControl.value !== '')
       || (this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== '')
@@ -344,6 +356,7 @@ export class PageTenderDateComponent implements OnInit {
       this.dialog.open(ErrorDialogComponent,{data: 'Ошибка' + error});
       });
   }
+
   getFile(){
     const json: ReceivedJson = {
       dateStart: this.dataRange.getDateStart(),
@@ -373,25 +386,13 @@ export class PageTenderDateComponent implements OnInit {
       error => {
         this.dialog.open(ErrorDialogComponent,{data:"Ошибка" + error});
       }
-      // (response) => {
-      //  var name = response.headers.get("content-disposition");
-      // name = name.slice(name.indexOf("=")+1,name.indexOf(".xlsx"));
-      //   this.downLoadFile(response, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", name)}
     )
   }
-  downLoadFile(data: any, type: string, name: string) {
-    let blob = new Blob([data], { type: type});
-    let url = window.URL.createObjectURL(blob);
-     let pwa = window.open(url);
-     if (!pwa || pwa.closed || typeof pwa.closed == 'undefined') {
-      alert( 'Please disable your Pop-up blocker and try again.');
-     }
-  }
-
 
   ngOnInit(): void {
 
   }
+
   toggleOffer(offer: any): void {
     const index = this.ChoseColums.indexOf(offer);
     if (index >= 0) {
@@ -406,19 +407,12 @@ export class PageTenderDateComponent implements OnInit {
     }
     this.displayedColumns = this.displayedColumns;
   }
+
   isSelected(offer: any): boolean {
     const index = this.ChoseColums.indexOf(offer);
 
     return index >= 0;
   }
-  /*Winner(): void{
-    if ( this.checkedWinner){
-      this.displayedColumns = this.ColumsWithWin;
-    }
-    else {
-      this.displayedColumns = this.ColumsWithoutWin;
-    }
-  }
-*/
+
 }
 

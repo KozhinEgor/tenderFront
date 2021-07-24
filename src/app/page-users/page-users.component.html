@@ -4,15 +4,15 @@
     <table mat-table matSort  [dataSource]="dataSource" >
 
       <ng-container matColumnDef="username">
-        <th mat-header-cell *matHeaderCellDef> Username. </th>
+        <th mat-header-cell *matHeaderCellDef> Почта пользователя </th>
         <td mat-cell *matCellDef="let element"> {{element.username}} </td>
       </ng-container>
       <ng-container matColumnDef="role">
-        <th mat-header-cell *matHeaderCellDef> Role. </th>
+        <th mat-header-cell *matHeaderCellDef> Роль </th>
         <td mat-cell *matCellDef="let element"> {{element.role}} </td>
       </ng-container>
       <ng-container matColumnDef="code">
-        <th mat-header-cell *matHeaderCellDef> Code. </th>
+        <th mat-header-cell *matHeaderCellDef> Код для активации аккаунта </th>
         <td mat-cell *matCellDef="let element"> {{element.activationCode}} </td>
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="columns sticky: true"></tr>
@@ -25,19 +25,18 @@
   <div class="EditContainer">
     <div class="row">
       <mat-form-field appearance="fill">
-        <mat-label>Enter your email</mat-label>
+        <mat-label>Введите email пользователя</mat-label>
         <input matInput placeholder="pat@example.com" [formControl]="email" required>
         <mat-error *ngIf="email.invalid">{{getErrorMessage()}}</mat-error>
       </mat-form-field>
     </div>
     <mat-form-field appearance="fill">
-      <mat-label>Select me</mat-label>
+      <mat-label>Выберите роль</mat-label>
       <select matNativeControl [(ngModel)]="role">
         <option value="" selected></option>
         <option value="ROLE_ADMIN">ROLE_ADMIN</option>
         <option value="ROLE_OPERATOR">ROLE_OPERATOR</option>
         <option value="ROLE_USER">ROLE_USER</option>
-
       </select>
     </mat-form-field>
     <div class="row">

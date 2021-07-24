@@ -4,7 +4,7 @@
   <button *ngIf="myControl.value !==''"   matSuffix mat-icon-button style="color: darkgrey" aria-label="Clear" (click)="myControl.setValue('')">
     <mat-icon>close</mat-icon>
   </button>
-  <mat-autocomplete #auto="matAutocomplete"  [displayWith]="displayFn" autoActiveFirstOption panelWidth ="auto">
+  <mat-autocomplete #auto="matAutocomplete"  [displayWith]="displayFn" autoActiveFirstOption panelWidth ="max-width:1000px">
 
     <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
       {{option.category}}

@@ -53,8 +53,8 @@
       <div class="example-element-detail"
            [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
         <div class="example-element-description">
-          <div class="block_column">ИНН - {{element.inn}}</div>
-          <div class="block_column"><span>Госзакупки -  <a href="{{ element.gos_zakupki }}" target="_blank">текст ссылки</a></span></div>
+          <div class="block_column">ИН - {{element.inn}}</div>
+          <div class="block_column"><span>Источник -  <a href="{{ element.gos_zakupki }}" target="_blank">текст ссылки</a></span></div>
           <div class="block_column"><span>Бикотендер - <a href="{{ element.bico_tender }}" target="_blank">текст ссылки</a></span></div>
           <div class="block_column"><span>Номер тендера - {{element.number_tender}}</span></div>
           <div class="block_column"><span>Цена - {{element.price| currency : element.currency:'symbol': '1.2-2':'ru'}}</span></div>
@@ -74,6 +74,11 @@
       С ценой было: {{getTotalCount()}} тендеров, на сумму {{getTotalCost() | currency : 'RUB':'symbol': '1.2-2':'ru'}}
     </td>
   </ng-container>
+  <ng-container matColumnDef="footerFinish">
+    <td mat-footer-cell *matFooterCellDef [attr.colspan]="displayedColumns.length">
+      С победителем было: {{getTotalCountFinish()}} тендеров, на сумму {{getTotalCostFinish() | currency : 'RUB':'symbol': '1.2-2':'ru'}}
+    </td>
+  </ng-container>
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let element; columns: displayedColumns;"
       class="example-element-row"
@@ -82,7 +87,7 @@
   </tr>
   <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
   <tr mat-footer-row *matFooterRowDef="['footer']" class="example-second-footer-row" style="width: 100%"></tr>
-
+  <tr mat-footer-row *matFooterRowDef="['footerFinish']" class="example-second-footer-row" style="width: 100%"></tr>
 </table>
 <mat-paginator [pageSizeOptions]="[10, 15, 20]" showFirstLastButtons></mat-paginator>
 </div>

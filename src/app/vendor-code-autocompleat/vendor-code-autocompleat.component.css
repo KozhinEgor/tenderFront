@@ -2,4 +2,10 @@
   min-width: 100px;
   max-width: 150px;
 }
+.name{
+  padding-bottom: 5px;
+  padding-top: 5px;
+  white-space: normal !important;
+  line-height: 1.5;
+}
 

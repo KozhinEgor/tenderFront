@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormControl} from "@angular/forms";
-import {Winner} from "../classes";
+import {Company} from "../classes";
 import {Observable} from "rxjs";
 import {ApiService} from "../api.service";
 import {map, startWith} from "rxjs/operators";
@@ -16,8 +16,8 @@ export class WinnerAutocompletComponent implements OnInit {
   @Input() flag:boolean = true;
   @Output() Change = new EventEmitter<number>();
   myControl = new FormControl();
-  options: Winner[] = [];
-  filteredOptions: Observable<Winner[]> | undefined;
+  options: Company[] = [];
+  filteredOptions: Observable<Company[]> | undefined;
 
   constructor(private api: ApiService, private dialog:MatDialog) {
   }
@@ -32,11 +32,11 @@ export class WinnerAutocompletComponent implements OnInit {
       }
     }
   }
-  displayFn(winner: Winner): string {
+  displayFn(winner: Company): string {
     return winner && winner.name ? winner.name : '';
   }
 
-  private _filter(winner: string): Winner[] {
+  private _filter(winner: string): Company[] {
     const filterValue = winner.toLowerCase();
 
     return this.options.filter(option => option.name.toLowerCase().includes(filterValue));

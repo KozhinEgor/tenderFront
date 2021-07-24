@@ -2,21 +2,20 @@
 <mat-dialog-content style="display: flex; align-items: center">
   <div class="changeDiv">
     <div>
-      <app-product-category-autocomplet (Change)="onChangeCategory($event)" ></app-product-category-autocomplet>
-    </div>
-    <div>
-      <app-vendor-code-autocompleat></app-vendor-code-autocompleat>
+      <app-custom-autocomplet (Change)="onChangeCustomer($event)" *ngIf="data === 0"></app-custom-autocomplet>
+      <app-winner-autocomplet (Change)="onChangeWinner($event)" *ngIf="data === 1"></app-winner-autocomplet>
+
     </div>
 
+
   </div>
- <mat-icon>double_arrow</mat-icon>
+  <mat-icon>double_arrow</mat-icon>
   <div class="changeDiv">
     <div style="margin: auto">
-      <app-product-category-autocomplet (Change)="onChangeNewCategory($event)" #newCategory></app-product-category-autocomplet>
+      <app-custom-autocomplet (Change)="onChangeCustomer($event)" #newCustomer *ngIf="data === 0"></app-custom-autocomplet>
+      <app-winner-autocomplet (Change)="onChangeWinner($event)" #newWinner *ngIf="data === 1"></app-winner-autocomplet>
     </div>
-    <div>
-      <app-vendor-code-autocompleat #newVendorCodeAutocomplete ></app-vendor-code-autocompleat>
-    </div>
+
 
   </div>
 

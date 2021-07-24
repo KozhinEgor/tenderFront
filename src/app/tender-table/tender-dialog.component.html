@@ -1,4 +1,4 @@
-<mat-dialog-content>
+<mat-dialog-content >
   <mat-tab-group mat-align-tabs="center"  [selectedIndex]="selected.value" (selectedIndexChange)="selected.setValue($event); changeTab()">
     <mat-tab label="Основная информация и продукты">
       <div class = "rowHeader">
@@ -156,28 +156,28 @@
 
         <span style="padding-right: 10px;padding-left: 10px">ID:</span>
         <mat-form-field style="width: 90%; padding-bottom: 0px" >
-          <input matInput [disabled]="true" placeholder="Placeholder" [(ngModel)]="data.id">
+          <input matInput [disabled]="true" placeholder="Id" [(ngModel)]="data.id">
         </mat-form-field>
         <span style="padding-right: 10px;padding-left: 10px">Номер:</span>
         <mat-form-field style="width: 90%; padding-bottom: 0px" >
-          <input matInput [disabled]="true" placeholder="Placeholder" [(ngModel)]="data.number_tender">
+          <input matInput [disabled]="true" placeholder="номер тендера" [(ngModel)]="data.number_tender">
         </mat-form-field>
         <span style="padding-right: 10px;padding-left: 10px">Название:</span>
         <mat-form-field style="width: 90%; padding-bottom: 0px" >
           <mat-label>Название:</mat-label>
-          <textarea matInput placeholder="Placeholder" [(ngModel)]="data.name_tender"></textarea>
+          <textarea matInput placeholder="Название тендера" [(ngModel)]="data.name_tender"></textarea>
         </mat-form-field>
         <app-autocomplet-type (Change)="onchangeType($event)"></app-autocomplet-type>
       </div>
       <div class = "rowChange">
         <span >Ccылки</span>
-        <span style="padding-right: 10px;padding-left: 10px">Bicotender:</span>
+        <span style="padding-right: 10px;padding-left: 10px"><a href="{{ data.bico_tender }}">Bicotender:,</a></span>
         <mat-form-field style="width: 90%; padding-bottom: 0px" >
-          <input matInput  placeholder="Placeholder" [(ngModel)]="data.bico_tender">
+          <input matInput  placeholder="Ccskrf тендера на Бикотендере" [(ngModel)]="data.bico_tender">
         </mat-form-field>
-        <span style="padding-right: 10px;padding-left: 10px">Источник:</span>
+        <span style="padding-right: 10px;padding-left: 10px"><a href="{{ data.gos_zakupki }}" target="_blank">Источник:</a></span>
         <mat-form-field style="width: 90%; padding-bottom: 0px" >
-          <input matInput  placeholder="Placeholder" [(ngModel)]="data.gos_zakupki">
+          <input matInput  placeholder="Источник" [(ngModel)]="data.gos_zakupki">
         </mat-form-field>
       </div>
       <div class = "rowChange">
@@ -229,10 +229,10 @@
         <button mat-icon-button color="primary" aria-label="Создать нового победителя" (click)="AddCustomer()">
           <mat-icon>add</mat-icon>
         </button>
-        <app-custom-autocomplet (Change)="onchangeCustomer($event)"></app-custom-autocomplet>
-        <app-contry-autocomplet disabled="false" ></app-contry-autocomplet>
-        <mat-form-field disabled = "true" style="width: 30%; padding-bottom: 0px" >
-          <input matInput   placeholder="Placeholder" [(ngModel)]="data.inn">
+        <app-custom-autocomplet (Change)="onchangeCustomer($event)" ></app-custom-autocomplet>
+        <app-contry-autocomplet disabled="true" ></app-contry-autocomplet>
+        <mat-form-field  style="width: 30%; padding-bottom: 0px" >
+          <input matInput   placeholder="ИН заказчика" [(ngModel)]="data.inn" disabled="true">
         </mat-form-field>
         <button mat-icon-button color="primary" aria-label="Изменить победителя" (click)="ChangeCustomer()">
           <mat-icon>edit</mat-icon>
@@ -246,7 +246,7 @@
         <app-winner-autocomplet (Change)="onChangeWinner($event)" [flag]="false"> </app-winner-autocomplet>
         <mat-form-field style="width: 30%; padding-bottom: 0px"  disabled="true">
           <mat-label>ИНН</mat-label>
-          <input matInput disabled="true"  placeholder="Placeholder" [(ngModel)]="innWinner">
+          <input matInput disabled="true"  placeholder="ИН Победителя" [(ngModel)]="innWinner">
         </mat-form-field>
         <mat-form-field style="width: 30%; padding-bottom: 0px" >
           <mat-label>Сумма победителя</mat-label>
@@ -262,6 +262,6 @@
 </mat-dialog-content>
 <mat-dialog-actions align="end" >
   <button mat-button (click)="setprice()">Посчитать цену</button>
-  <button mat-button (click)="Save()">Сохранить</button>
-  <button mat-button [mat-dialog-close] = delete>Закрыть</button>
+  <button mat-button (click)="Save()" [disabled]="data.id == null">Сохранить</button>
+  <button mat-button [mat-dialog-close] = "data">Закрыть</button>
 </mat-dialog-actions>

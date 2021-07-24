@@ -6,13 +6,20 @@ import {
   Post,
   Type,
   ReceivedJson,
-  Customer,
-  Winner,
+  Company,
   ReportQuarter,
   ProductCategory,
   Product,
   Vendor,
-  OrdersDB, OrdersReceived, ReportVendorQuarter, TenderonProduct, Country, User, CreateTable, StringAnswer
+  OrdersDB,
+  OrdersReceived,
+  ReportVendorQuarter,
+  TenderonProduct,
+  Country,
+  User,
+  CreateTable,
+  StringAnswer,
+  ChangeCategory, ChangeCompany
 } from './classes';
 
 
@@ -50,7 +57,7 @@ private host = environment.apiUrl;
   deleteTender(tender: number){
     console.log(tender);
     return this.http.get(this.host+'/demo/DeleteTender/'+tender).pipe(
-      map(string => string as string)
+      map(string => string as StringAnswer)
     );
   }
   getSaveProduct(product: Product,category: number){
@@ -88,22 +95,60 @@ private host = environment.apiUrl;
   }
   getAllCustom(){
     return this.http.get(this.host+'/demo/Customer').pipe(
-      map(customs => customs as Customer[])
+      map(customs => customs as Company[])
     );
   }
-  InsertCustomer(customer: Customer){
+  getAllCustomNoUses(){
+    return this.http.get(this.host+'/demo/CustomerNoUses').pipe(
+      map(customs => customs as Company[])
+    );
+  }
+  DeleteCustomerNoUses(){
+    return this.http.get(this.host+'/demo/DeleteCustomerNoUses').pipe(
+      map(customs => customs as Company[])
+    );
+  }
+  InsertCustomer(customer: Company){
     return this.http.post(this.host +'/demo/insertCustomer', customer).pipe(
       map(status => status as string)
     );
   }
-  getAllWinner(){
-    return this.http.get(this.host+'/demo/Winner').pipe(
-      map(winners => winners as Winner[])
+  ChangeCustomer(json: ChangeCompany){
+    return this.http.post(this.host +'/demo/ChangeCustomer', json).pipe(
+      map(status => status as StringAnswer)
     );
   }
-  InsertWinner(winner: Winner){
+  CustomerFile(){
+    return this.http.get(this.host+'/demo/CustomerFile',{responseType: 'blob'}
+    );
+  }
+  getAllWinner(){
+    return this.http.get(this.host+'/demo/Winner').pipe(
+      map(winners => winners as Company[])
+    );
+  }
+  getAllWinnerNoUses() {
+    return this.http.get(this.host + '/demo/WinnerNoUses').pipe(
+      map(winners => winners as Company[])
+    );
+  }
+    InsertWinner(winner: Company){
     return this.http.post(this.host +'/demo/insertWinner', winner).pipe(
       map(status => status as string)
+    );
+  }
+  DeleteWinnerNoUses(){
+    return this.http.get(this.host + '/demo/DeleteWinnerNoUses').pipe(
+      map(winners => winners as Company[])
+    );
+  }
+  ChangeWinner(json:ChangeCompany){
+    return this.http.post(this.host +'/demo/ChangeWinner', json).pipe(
+      map(status => status as StringAnswer)
+    );
+  }
+  WinnerFile(){
+    return this.http.get(this.host+'/demo/WinnerFile',{responseType: 'blob'}
     );
   }
   getReportQuarter(category: number, json:ReceivedJson){
@@ -120,6 +165,9 @@ private host = environment.apiUrl;
     return this.http.post(this.host+'/demo/quarterNoVendor/'+category,json).pipe(
       map(reportQuarter => reportQuarter as ReportVendorQuarter[])
     );
+  }
+  fileQuarter(json:ReceivedJson){
+    return this.http.post(this.host+'/demo/FileReport',json, {responseType: 'blob'})
   }
   addTender(uploadData: any){
     return this.http.post(this.host+'/demo/addTender', uploadData).pipe(
@@ -195,8 +243,13 @@ private host = environment.apiUrl;
     );
   }
   CreateTable(createTable:CreateTable){
-    console.log(createTable );
+
     return this.http.post(this.host+'/demo/CreateTable',createTable).pipe(
+      map(data => data as StringAnswer)
+    )
+  }
+  ChangeCategory(json:ChangeCategory){
+    return this.http.post(this.host+'/demo/ChangeCategory',json).pipe(
       map(data => data as StringAnswer)
     )
   }

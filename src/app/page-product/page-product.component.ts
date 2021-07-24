@@ -57,7 +57,7 @@ export class PageProductComponent implements OnInit {
                     vendor:this.columns.includes("vendor")? '' : null,
                     channel:this.columns.includes("channel")? 0 : -1,
                     port:this.columns.includes("port")? 0 : -1};
-    //this.vendorAutocompletComponent.myControl.setValue('');
+    this.vendorAutocompletComponent.myControl.setValue('');
   }
   showTables(){
     if(this.category.myControl.value !== null) {
@@ -91,7 +91,6 @@ export class PageProductComponent implements OnInit {
     }
   }
   showProductNoUses(){
-    console.log(this.category.myControl.value);
     if(this.category.myControl.value !== null && this.category.myControl.value !== '') {
       this.noUses = true;
       this.api.getVendorCodeNoUses(this.category.myControl.value.id).subscribe(product => {
@@ -274,6 +273,7 @@ export class CreateCategoryComponent {
 @Component({
   selector: 'change-category',
   templateUrl: './change-category.component.html',
+  styleUrls: ['./page-product.component.scss']
 })
 export class ChangeCategoryComponent{
   @ViewChild(ProductCategoryAutocompletComponent)
@@ -303,17 +303,24 @@ export class ChangeCategoryComponent{
   Change(){
     if(this.category.myControl.value !== null && this.category.myControl.value !== ''
       && this.newCategory.myControl.value !== null  && this.newCategory.myControl.value !== ''
-      && this.vendorCodeAutocomplete.myControl.value !== null && this.vendorCodeAutocomplete.myControl.value !== ''){
+      && this.vendorCodeAutocomplete.myControl.value !== null && this.vendorCodeAutocomplete.myControl.value !== ''
+      && this.newVendorCodeAutocomplete.myControl.value !== null && this.newVendorCodeAutocomplete.myControl.value !== ''){
+
       let json:ChangeCategory = {
         category:this.category.myControl.value.id,
         vendor_code:this.vendorCodeAutocomplete.myControl.value.id,
         newCategory:this.newCategory.myControl.value.id,
-        newVendor_code:(this.newVendorCodeAutocomplete.myControl.value !== null && this.newVendorCodeAutocomplete.myControl.value !== '')?this.newVendorCodeAutocomplete.myControl.value.id: null
+        newVendor_code:this.newVendorCodeAutocomplete.myControl.value.id
       }
-      console.log(json);
+      this.api.ChangeCategory(json).subscribe( data=> {
+        this.dialog.open(ErrorDialogComponent,{data:data.name})
+      },
+        error => {
+          this.dialog.open(ErrorDialogComponent,{data: "Ошибка" + error});
+        });
     }
    else{
-     this.dialog.open(ErrorDialogComponent,{data: "Не заполнили продукт который хотите переместить"})
+     this.dialog.open(ErrorDialogComponent,{data: "Не заполнены все поля"});
     }
   }
 }

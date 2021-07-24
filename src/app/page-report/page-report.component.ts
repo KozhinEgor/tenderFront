@@ -1,15 +1,14 @@
 import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {MatTableDataSource} from '@angular/material/table';
 import {
-  Customer,
+  Company,
   Post,
   Product,
   ProductCategory, ProductReceived, ReceivedJson,
   ReportQuarter,
   ReportVendorQuarter,
   Type,
-  Vendor,
-  Winner
+  Vendor
 } from '../classes';
 import {ApiService} from '../api.service';
 import {FormControl, Validators} from "@angular/forms";
@@ -25,6 +24,7 @@ import {COMMA, ENTER, SPACE} from "@angular/cdk/keycodes";
 import {MatChipInputEvent} from "@angular/material/chips";
 import {MatDialog} from "@angular/material/dialog";
 import {ErrorDialogComponent} from "../error-dialog/error-dialog.component";
+import {saveAs} from 'file-saver';
 
 export interface Quarter_count{
   [key: string]: number;
@@ -159,32 +159,34 @@ export class PageReportComponent implements OnInit{
     }
   }
 
-  customers: Customer[] = [];
+  customers: Company[] = [];
   CustomExclude: boolean = false;
 
   ChangeCustom(customer: any) {
     if (typeof customer !== "string") {
       this.customers.push(customer);
+      this.customAutocomplet.myControl.setValue('');
     }
   }
 
-  removeCustom(customer: Customer) {
+  removeCustom(customer: Company) {
     const index = this.customers.indexOf(customer);
     if (index >= 0) {
       this.customers.splice(index, 1);
     }
   }
 
-  winners: Winner[] = [];
+  winners: Company[] = [];
   WinnersExclude: boolean = false;
 
   ChangeWinner(winner: any) {
     if (typeof winner !== "string") {
       this.winners.push(winner);
+      this.winnerAutocomplet.myControl.setValue('');
     }
   }
 
-  removeWinner(winner: Winner) {
+  removeWinner(winner: Company) {
     const index = this.winners.indexOf(winner);
     if (index >= 0) {
       this.winners.splice(index, 1);
@@ -319,22 +321,24 @@ export class PageReportComponent implements OnInit{
       }
       else {
         this.dialog.open(ErrorDialogComponent,{data:"Для ваших условий поиска не найдено тендеров"})
-      }},
+      }
+        this.load = false;},
       error => {this.dialog.open(ErrorDialogComponent,{data: "Ошибка" + error})}
       );
     this.api.getReportVendorQuarter(this.tabs[this.selected.value].id, this.receivedJson).subscribe(posts => {
-
         this.vendorNUll = false;
         if(posts.length > 0){
           this.data = new MatTableDataSource<ReportVendorQuarter>(posts);
         }
         else {
           this.vendorNUll = true;
-        }},
+        }
+        this.load = false;},
       error => {this.dialog.open(ErrorDialogComponent,{data: "Ошибка" + error})}
       );
 
     this.api.getReportNoVendorQuarter(this.tabs[this.selected.value].id, this.receivedJson).subscribe(posts => {
+
       this.noVendorNULL =false;
       if(posts.length > 0){
           this.dataS = new MatTableDataSource<ReportVendorQuarter>(posts);
@@ -384,11 +388,17 @@ export class PageReportComponent implements OnInit{
 
   receivedJson:ReceivedJson = null;
   getFile(){
+    this.dialog.open(ErrorDialogComponent,{data:"Фомирую файл!!! Дождитесь загрузки!!!!"});
+    if((this.productCategoryAutocompletComponent.myControl.value !== null && this.productCategoryAutocompletComponent.myControl.value !== '')
+      || (this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== '')
+      || (this.vendorCodeAutocompleatComponent.myControl.value !== null && this.vendorCodeAutocompleatComponent.myControl.value !== '')){
+      this.AddProduct();
+    }
     this.receivedJson = {
       dateStart: this.dataRange.getDateStart(),
       dateFinish: this.dataRange.getDateFinish(),
       dublicate: this.dublicate,
-      quarter:  this.quarter,
+      quarter: this.quarter,
       typeExclude: this.TypeExclude,
       type: this.types,
       customExclude: this.CustomExclude,
@@ -404,6 +414,12 @@ export class PageReportComponent implements OnInit{
       numberShow: this.numberShow,
       product: this.product
     }
+    this.api.fileQuarter(this.receivedJson).subscribe(blob => {
+        saveAs(blob, "Report.xlsx");
+      },
+      error => {
+        this.dialog.open(ErrorDialogComponent,{data:"Ошибка" + error});
+      });
   }
 
   show:boolean = false;
