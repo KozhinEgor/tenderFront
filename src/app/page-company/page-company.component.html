@@ -72,7 +72,7 @@
         <div class="row">
           <button mat-raised-button color="basic" (click)="showCompanyNoUses()" class="show_table" *ngIf="noUses == false">Неиспользуемые компании</button>
           <button mat-raised-button color="basic" (click)="getCompany()" class="show_table" *ngIf="noUses == true">Используемые компании</button>
-          <button mat-flat-button color="warn" (click)="DeleteCompany()" class="show_table" *ngIf="noUses == true && user != null && user.role !== 'ROLE_USER'" s>Удалить компании которые не используются</button>
+          <button mat-flat-button color="warn" (click)="DeleteCompany()" class="show_table" *ngIf="noUses == true && user != null && user.role !== 'ROLE_USER'" >Удалить компании которые не используются</button>
         </div>
         <div class="row">
           <button mat-raised-button color="basic" (click)="ChageCompany()" class="show_table">
@@ -106,7 +106,7 @@
         <div class="row">
           <mat-form-field style=" padding-bottom: 0px"  disabled="true">
             <mat-label>Название</mat-label>
-            <input matInput   placeholder="Название" [(ngModel)]="name">
+            <textarea matInput   placeholder="Название" [(ngModel)]="name"></textarea>
           </mat-form-field>
         </div>
 

@@ -28,6 +28,7 @@ import {MatChipInputEvent} from "@angular/material/chips";
 import {COMMA, ENTER, SPACE} from "@angular/cdk/keycodes";
 import {ContryAutocompletComponent} from "../contry-autocomplet/contry-autocomplet.component";
 import {VendorAutocompletComponent} from "../vendor-autocomplet/vendor-autocomplet.component";
+import {of} from "rxjs";
 
 
 export interface group {
@@ -78,18 +79,20 @@ export class PageTenderDateComponent implements OnInit {
   innCustomer: string = '';
   ChoseColums: group[] = [];
   displayedColumns: string[] = [];
-
-  AllColums: group[] = [{name: 'id', nameru: 'ID'}, {name: 'nameTender', nameru: 'Название тендера'}, {
-    name: 'customer',
-    nameru: 'Заказчик'
-  }, {name: 'typetender', nameru: 'Тип тендера'},
-
-    {name: 'sum', nameru: 'Сумма'}, {name: 'dateStart', nameru: 'Дата начала'},
-    {name: 'dateFinish', nameru: 'Дата окончания'}, {name: 'product', nameru: 'Продукты'}, {
-      name: 'winner',
-      nameru: 'Победитель'
-    }, {name: 'winSum', nameru: 'Выиграшная сумма'}];
-
+  displayedColumnsTender: string[] = [];
+  displayedColumnsAdjacentTender: string[] = [];
+  adjacent_tender: boolean = false;
+  AllColums: group[] = [{name: 'id', nameru: 'ID'},
+    {name: 'nameTender', nameru: 'Название тендера'},
+    {name: 'customer',    nameru: 'Заказчик'},
+    {name: 'typetender', nameru: 'Тип тендера'},
+    {name: 'sum', nameru: 'Сумма'},
+    {name: 'dateStart', nameru: 'Дата начала'},
+    {name: 'dateFinish', nameru: 'Дата окончания'},
+    {name: 'product', nameru: 'Продукты'},
+    {name: 'winner',nameru: 'Победитель'},
+    {name: 'winSum', nameru: 'Сумма победителя'}];
+Colums: group[];
   visible = true;
   selectable = true;
   removable = true;
@@ -98,7 +101,28 @@ export class PageTenderDateComponent implements OnInit {
   readonly separatorKeysCodes = [ENTER, COMMA, SPACE] as const;
   ids: number[] = [];
   numberShow = false;
-
+  changeColumn(){
+    // this.adjacent_tender = !this.adjacent_tender;
+    if(this.adjacent_tender){
+      this.Colums = this.AllColums.slice(0,6);
+      if(this.isSelected(this.AllColums[7])){
+        this.toggleOffer(this.AllColums[7])
+      }
+      if(this.isSelected(this.AllColums[8])){
+        this.toggleOffer(this.AllColums[8])
+      }
+      if(this.isSelected(this.AllColums[9])){
+        this.toggleOffer(this.AllColums[9])
+      }
+    }
+    else{
+      this.Colums = this.AllColums;
+      if(!this.isSelected(this.AllColums[7])){
+        this.toggleOffer(this.AllColums[7])
+      }
+    }
+    return this.adjacent_tender;
+  }
   add(event: MatChipInputEvent): void {
     let value = (event.value || '').trim();
     let mas = value.split(/ |,|\.|;|:|\\|\//);
@@ -106,9 +130,12 @@ export class PageTenderDateComponent implements OnInit {
 
     if (value) {
       for (let i of mas) {
-        i = i.replace(/\D/g, '');
+        if(i !== ''){
+          i = i.replace(/\D/g, '');
 
-        this.ids.push(Number(i));
+          this.ids.push(Number(i));
+        }
+
       }
 
     }
@@ -134,9 +161,12 @@ export class PageTenderDateComponent implements OnInit {
     // Add our fruit
     if (value) {
       for (let i of mas) {
-        i = i.replace(/\D/g, '');
+        if(i !== ''){
+          i = i.replace(/\D/g, '');
 
-        this.number_bico.push(Number(i));
+          this.number_bico.push(Number(i));
+        }
+
       }
 
     }
@@ -208,6 +238,7 @@ export class PageTenderDateComponent implements OnInit {
       this.ChoseColums.push(this.AllColums[index]);
       this.displayedColumns.push(this.AllColums[index].name);
     }
+    this.Colums = this.AllColums;
   }
   country: number;
 
@@ -233,7 +264,8 @@ export class PageTenderDateComponent implements OnInit {
     this.number_bico = [];
     this.numberShow = false;
     this.product = [];
-
+    this.adjacent_tender = false;
+    this.Colums = this.AllColums;
     this.contryAutocompletComponent.myControl.setValue('');
     this.dataRange.range.setValue({dateStart:null,dateFinish:null});
     this.productCategoryAutocompletComponent.myControl.setValue('');
@@ -341,20 +373,39 @@ export class PageTenderDateComponent implements OnInit {
       product: this.product
     }
     console.log(json);
-    this.api.getPostWithParametrs(json).subscribe(posts => {
+    if(this.adjacent_tender){
 
-      if(posts.length === 0){
-        this.dataSource = new MatTableDataSource<Post>(posts)
-        this.dialog.open(ErrorDialogComponent, { data: 'Найдено 0 тендеров'});
-      }
-      else{this.dataSource = new MatTableDataSource<Post>(posts) ;
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;}
+      this.api.getAdjacentTenderWithParametrs(json).subscribe(posts => {
 
-    },
-      error => {
-      this.dialog.open(ErrorDialogComponent,{data: 'Ошибка' + error});
-      });
+          if(posts.length === 0){
+            this.dataSource = new MatTableDataSource<Post>(posts)
+            this.dialog.open(ErrorDialogComponent, { data: 'Найдено 0 тендеров'});
+          }
+          else{this.dataSource = new MatTableDataSource<Post>(posts) ;
+            this.dataSource.paginator = this.paginator;
+            this.dataSource.sort = this.sort;}
+
+        },
+        error => {
+          this.dialog.open(ErrorDialogComponent,{data: 'Ошибка' + error});
+        });
+    }
+    else {
+      this.api.getPostWithParametrs(json).subscribe(posts => {
+
+          if(posts.length === 0){
+            this.dataSource = new MatTableDataSource<Post>(posts)
+            this.dialog.open(ErrorDialogComponent, { data: 'Найдено 0 тендеров'});
+          }
+          else{this.dataSource = new MatTableDataSource<Post>(posts) ;
+            this.dataSource.paginator = this.paginator;
+            this.dataSource.sort = this.sort;}
+
+        },
+        error => {
+          this.dialog.open(ErrorDialogComponent,{data: 'Ошибка' + error});
+        });
+    }
   }
 
   getFile(){
@@ -409,6 +460,7 @@ export class PageTenderDateComponent implements OnInit {
   }
 
   isSelected(offer: any): boolean {
+
     const index = this.ChoseColums.indexOf(offer);
 
     return index >= 0;

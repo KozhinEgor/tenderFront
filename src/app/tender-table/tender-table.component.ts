@@ -43,20 +43,41 @@ export class TenderTableComponent implements OnInit,OnChanges {
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
   @ViewChild(MatSort) sort: MatSort | null = null;
   @Input() dataSource = new MatTableDataSource<Post>();
+  @Input()  adjacent_tender: boolean;
   expandedElement: Post | null;
 user:User;
   constructor(public dialog: MatDialog, private api: ApiService, private authenticationService:AuthenticationService){
     this.user = this.authenticationService.userValue;
   }
   showTender() {
-    this.dialog.open(TenderDialogComponent, { width: '80%', height: '90%', data:  this.expandedElement}).afterClosed().subscribe(result =>{
-      this.expandedElement = result;
+    this.dialog.open(TenderDialogComponent, { width: '80%', height: '90%', data:{adjacent_tender: this.adjacent_tender, id_tender: this.expandedElement.id}}).afterClosed().subscribe(result =>{
+      this.expandedElement.price = result.price;
+      this.expandedElement.product = result.product;
+      this.expandedElement.win_sum=result.win_sum;
+      this.expandedElement.full_sum=result.full_sum;
+      this.expandedElement.sum=result.sum;
+      this.expandedElement.currency=result.currency;
+      this.expandedElement.rate=result.rate;
+      this.expandedElement.customer=result.customer;
+      this.expandedElement.name_tender=result.name_tender;
+      this.expandedElement.dublicate=result.dublicate;
+      this.expandedElement.typetender=result.typetender;
+      this.expandedElement.inn=result.inn;
+      this.expandedElement.winner=result.winner;
+      this.expandedElement.date_tranding=result.date_tranding;
+      this.expandedElement.gos_zakupki=result.gos_zakupki;
+      this.expandedElement.bico_tender=result.bico_tender;
+      this.expandedElement.number_tender=result.number_tender;
+      this.expandedElement.id=result.id;
+      this.expandedElement.country=result.country;
+      this.expandedElement.date_finish=result.date_finish;
+      this.expandedElement.date_start=result.date_start;
       if(result.id == null){
         this.dataSource.data.splice(this.dataSource.data.indexOf(this.expandedElement), 1)
 
         this.dataSource = new MatTableDataSource<Post>(this.dataSource.data);
-        this.dataSource.sort = this.dataSource.sort;
-        this.dataSource.paginator = this.dataSource.paginator
+        this.dataSource.sort = this.sort;
+        this.dataSource.paginator = this.paginator
       }
     });
   }
@@ -82,8 +103,9 @@ user:User;
     let count = 0;
     for(let i = 0;i<this.dataSource.data.length;i++){
 
-      if(this.dataSource.data[i].winner !== 'Нет победителя' && this.dataSource.data[i].winner !== 'Отмена'){
+      if(this.dataSource.data[i].winner !== 'Нет победителя' && this.dataSource.data[i].winner !== 'Отмена' && this.dataSource.data[i].winner !== 'Нет заявок'){
         count= count + 1 ;
+
       }
 
 
@@ -94,8 +116,8 @@ user:User;
     let count = 0;
     for(let i = 0;i<this.dataSource.data.length;i++){
 
-        if(this.dataSource.data[i].winner !== 'Нет победителя' && this.dataSource.data[i].winner !== 'Отмена'){
-          count= count + this.dataSource.data[i].sum ;
+        if(this.dataSource.data[i].winner !== 'Нет победителя' && this.dataSource.data[i].winner !== 'Отмена' && this.dataSource.data[i].winner !== 'Нет заявок'){
+          count= count + (this.dataSource.data[i].win_sum *  this.dataSource.data[i].rate);
         }
 
 
@@ -194,6 +216,11 @@ export class DeleteTenderComponent {
 
 }
 
+export interface dialogTender{
+  adjacent_tender: boolean;
+  id_tender: number;
+}
+
 @Component({
   selector: 'app-tender-dialog',
   templateUrl: '../tender-table/tender-dialog.component.html',
@@ -214,6 +241,7 @@ export class TenderDialogComponent implements OnInit {
   private productCategoryAutocompletComponent: ProductCategoryAutocompletComponent;
   delete = false;
   dataSource = new MatTableDataSource<Orders>();
+
   innWinner: number;
   product: Product  = null;
   Category: ProductCategory = null;
@@ -234,7 +262,29 @@ export class TenderDialogComponent implements OnInit {
   orders: Orders[] = [];
   ordersDB: OrdersDB[] = [];
   selected = new FormControl(0);
-
+  data:Post = {
+    id: 0,
+    name_tender: '',
+    number_tender: '',
+    bico_tender: '',
+    gos_zakupki: '',
+    price: 0,
+    currency: '',
+    rate: 0,
+    date_start: Date.prototype,
+    sum: 0,
+    date_finish: Date.prototype,
+    date_tranding: Date.prototype,
+    full_sum: 0,
+    win_sum: 0,
+    typetender: '',
+    winner: '',
+    customer: '',
+    inn: '',
+    product: '',
+    dublicate: false,
+    country:''
+  };
   default(){
     this.dataSource = new MatTableDataSource<Orders>(this.orders);
     this.productCategoryAutocompletComponent.myControl.setValue('');
@@ -304,7 +354,7 @@ export class TenderDialogComponent implements OnInit {
       if(!result ){
         var index = null;
         for( var i = 0; i < this.ordersDB.length; i++){
-          console.log(this.ordersDB[i].id_product, '',  this.ordersDB[i].product_category)
+
           if(this.ordersDB[i].id_product === 7 && this.ordersDB[i].product_category === 7){
             index = i;
           }
@@ -458,43 +508,79 @@ export class TenderDialogComponent implements OnInit {
       dublicate: this.data.dublicate,
       country: null,
       inn: null}
-      let prod:string = null;
-    let flag:boolean = false;
-    this.api.addOrders( this.ordersDB).subscribe(
-      data => {
 
-      prod = data.name;
-      if (flag){
-        this.data.product = data.name;
+
+    if(this.dataDialog.adjacent_tender){
+      this.api.SaveAdjacentTender(tender).subscribe(data => {
         this.dialog.open(ErrorDialogComponent, { data: 'Сохранил'});
-      }
-        flag = true;},
-      err => {
-          this.dialog.open(ErrorDialogComponent, { data: "Ошибка "+ err});
-      });
-    this.api.SaveTender(tender).subscribe(data => {
-        if (flag){
-          this.dialog.open(ErrorDialogComponent, { data: 'Сохранил'});
-        }
         this.data = data;
-        this.data.product = prod;
-        flag = true;
-    },
-      err => {
-        this.dialog.open(ErrorDialogComponent, { data: "Ошибка "+ err});
-      });
+
+        },
+        err => {
+          this.dialog.open(ErrorDialogComponent, { data: "Ошибка "+ err});
+        });
+    }
+
+    else{
+      let prod:string = null;
+      let flag:boolean = false;
+      this.api.addOrders( this.ordersDB).subscribe(
+        data => {
+
+          prod = data.name;
+          if (flag){
+            this.data.product = data.name;
+            this.dialog.open(ErrorDialogComponent, { data: 'Сохранил'});
+          }
+          flag = true;},
+        err => {
+          this.dialog.open(ErrorDialogComponent, { data: "Ошибка "+ err});
+        });
+      this.api.SaveTender(tender).subscribe(data => {
+
+          if (flag){
+            this.dialog.open(ErrorDialogComponent, { data: 'Сохранил'});
+          }
+          this.data = data;
+          this.data.product = prod;
+          flag = true;
+        },
+        err => {
+          this.dialog.open(ErrorDialogComponent, { data: "Ошибка "+ err});
+        });
+    }
+
 
 
   }
   ngOnInit() {
-    this.api.getOrdersByTender(this.data.id).subscribe(order => {
-      this.orders = order.orders;
-      this.dataSource = new MatTableDataSource<Orders>(order.orders) ;
-      this.ordersDB = order.ordersDB;
-    },
-      error => {
-      this.dialog.open(ErrorDialogComponent, {data:"Ошибка  "+ error})
-      });
+    if(this.dataDialog.adjacent_tender === true){
+      this.api.getAdjacentTenderById(this.dataDialog.id_tender).subscribe(data =>{
+
+          this.data = data
+        },
+        error => {
+          this.dialog.open(ErrorDialogComponent, {data:"Возможно Тендер удален или ошибка на сервере. "+ error})
+        });
+    }
+    else{
+      this.api.getTenderById(this.dataDialog.id_tender).subscribe(data =>{
+
+          this.data = data
+      },
+        error => {
+          this.dialog.open(ErrorDialogComponent, {data:"Возможно Тендер удален или ошибка на сервере. "+ error})
+        });
+      this.api.getOrdersByTender(this.dataDialog.id_tender).subscribe(order => {
+          this.orders = order.orders;
+          this.dataSource = new MatTableDataSource<Orders>(order.orders) ;
+          this.ordersDB = order.ordersDB;
+        },
+        error => {
+          this.dialog.open(ErrorDialogComponent, {data:"Ошибка  "+ error})
+        });
+    }
+
 
   }
   setprice(){
@@ -507,12 +593,11 @@ export class TenderDialogComponent implements OnInit {
   }
   constructor(
     public dialogRef: MatDialogRef<TenderDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: Post, private api: ApiService, public dialog: MatDialog) {}
+    @Inject(MAT_DIALOG_DATA) public dataDialog: dialogTender, private api: ApiService, public dialog: MatDialog) {}
 
     changeTab(){
-    if(this.selected.value === 2){
+    if((this.selected.value === 2 && !this.dataDialog.adjacent_tender)||(this.selected.value === 1 && this.dataDialog.adjacent_tender)){
       this.autocompletTypeComponent.setType(this.data.typetender);
-      this.winnerAutocompletComponent.setWinner(this.data.winner);
       this.customAutocompletComponent.setCustomer(this.data.customer);
     }
     }
@@ -569,17 +654,34 @@ export class TenderDialogComponent implements OnInit {
         type:'customer'}}).afterClosed().subscribe(()=>this.customAutocompletComponent.update());
   }
   deleteTender(){
-    this.dialog.open(DeleteTenderComponent,{data: this.data}).afterClosed().subscribe(result => {
-      if(result) {
-        this.api.deleteTender(this.data.id).subscribe(data => {
-          this.dialog.open(ErrorDialogComponent, {data: 'Удалил'});
-        },
-          err => {
-              this.dialog.open(ErrorDialogComponent, {data: err});
-          });
-        this.data.id = null;
-      }
+    if(this.dataDialog.adjacent_tender){
+      this.dialog.open(DeleteTenderComponent,{data: this.data}).afterClosed().subscribe(result => {
+          if(result) {
+            this.api.deleteAdjacentTender(this.data.id).subscribe(data => {
+                this.dialog.open(ErrorDialogComponent, {data: 'Удалил'});
+              },
+              err => {
+                this.dialog.open(ErrorDialogComponent, {data: err});
+              });
+            this.data.id = null;
+          }
+        }
+      );
     }
-    );
+    else{
+      this.dialog.open(DeleteTenderComponent,{data: this.data}).afterClosed().subscribe(result => {
+          if(result) {
+            this.api.deleteTender(this.data.id).subscribe(data => {
+                this.dialog.open(ErrorDialogComponent, {data: 'Удалил'});
+              },
+              err => {
+                this.dialog.open(ErrorDialogComponent, {data: err});
+              });
+            this.data.id = null;
+          }
+        }
+      );
+    }
+
 }
 }

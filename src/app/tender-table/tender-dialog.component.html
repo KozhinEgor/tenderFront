@@ -1,6 +1,6 @@
 <mat-dialog-content >
   <mat-tab-group mat-align-tabs="center"  [selectedIndex]="selected.value" (selectedIndexChange)="selected.setValue($event); changeTab()">
-    <mat-tab label="Основная информация и продукты">
+    <mat-tab label="Основная информация и продукты" *ngIf="!dataDialog.adjacent_tender">
       <div class = "rowHeader">
         <div class = "id">{{data.id}}</div>
         <div class = "name_tender"> <a href="{{ data.bico_tender }}" target="_blank">{{data.name_tender}}</a> </div>
@@ -22,15 +22,12 @@
       <div class = "row">
         <div class="block_column">
             <span>Цена -
-              <mat-form-field class="example-form-field">
-                <mat-label>Цена</mat-label>
-                <input matInput type="text" [(ngModel)]="data.price">
-              </mat-form-field>
+              {{data.price  | currency : data.currency:'symbol': '1.2-2':'ru'}}
             </span>
         </div>
         <div class="block_column"><span>Валюта - {{data.currency}}</span></div>
         <div class="block_column"><span>Курс - {{data.rate}}</span></div>
-        <div class="block_column"><span>Полня стоимость - {{data.full_sum  | currency : data.currency:'symbol': '1.2-2':'ru'}}</span></div>
+        <div class="block_column"><span>Полная стоимость - {{data.full_sum  | currency : data.currency:'symbol': '1.2-2':'ru'}}</span></div>
       </div>
       <hr>
       <div class = "row">
@@ -145,7 +142,7 @@
           <tr mat-row *matRowDef="let row; columns: ['edit','product_category',  'id_product',  'comment',  'number',    'price',  'winprice', 'delete'];"></tr>
         </table>
       </div>
-    </mat-tab>
+    </mat-tab >
     <mat-tab label="Комментарии">В разработке</mat-tab>
     <mat-tab label="Изменение тенедера" >
       <button mat-flat-button color="warn" (click)="deleteTender()" ><mat-icon>delete_outline</mat-icon> Удалить</button>
@@ -173,7 +170,7 @@
         <span >Ccылки</span>
         <span style="padding-right: 10px;padding-left: 10px"><a href="{{ data.bico_tender }}">Bicotender:,</a></span>
         <mat-form-field style="width: 90%; padding-bottom: 0px" >
-          <input matInput  placeholder="Ccskrf тендера на Бикотендере" [(ngModel)]="data.bico_tender">
+          <input matInput  placeholder="Ссылка тендера на Бикотендере" [(ngModel)]="data.bico_tender">
         </mat-form-field>
         <span style="padding-right: 10px;padding-left: 10px"><a href="{{ data.gos_zakupki }}" target="_blank">Источник:</a></span>
         <mat-form-field style="width: 90%; padding-bottom: 0px" >
@@ -234,11 +231,11 @@
         <mat-form-field  style="width: 30%; padding-bottom: 0px" >
           <input matInput   placeholder="ИН заказчика" [(ngModel)]="data.inn" disabled="true">
         </mat-form-field>
-        <button mat-icon-button color="primary" aria-label="Изменить победителя" (click)="ChangeCustomer()">
+        <button mat-icon-button color="primary" aria-label="Изменить заказчика" (click)="ChangeCustomer()">
           <mat-icon>edit</mat-icon>
         </button>
       </div>
-      <div class = "rowChange">
+      <div class = "rowChange" *ngIf="!dataDialog.adjacent_tender">
         Победитель:
         <button mat-icon-button color="primary" aria-label="Создать нового победителя" (click)="AddWinner()">
           <mat-icon>add</mat-icon>
@@ -250,7 +247,7 @@
         </mat-form-field>
         <mat-form-field style="width: 30%; padding-bottom: 0px" >
           <mat-label>Сумма победителя</mat-label>
-          <input matInput   placeholder="Сумма поебдителя" [(ngModel)]="data.win_sum" type="number">
+          <input matInput   placeholder="Сумма побеодителя" [(ngModel)]="data.win_sum" type="number">
         </mat-form-field>
         <button mat-icon-button color="primary" aria-label="Изменить победителя" (click)="ChangeWinner()">
           <mat-icon>edit</mat-icon>

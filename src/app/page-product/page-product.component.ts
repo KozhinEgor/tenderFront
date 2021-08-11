@@ -183,16 +183,22 @@ export class PageProductComponent implements OnInit {
      */
   }
   saveProduct(){
-    this.api.getSaveProduct(this.product, this.category.myControl.value.id).subscribe(product => {
-      this.dialog.open(ErrorDialogComponent, {data: "Сохранил"});
-      this.dataSource = new MatTableDataSource(product);
-      this.dataSource.sort = this.sort
-    },
-      error => {
-      this.dialog.open(ErrorDialogComponent, {data: "Ошибка " + error})
-      });
+    if (this.product.vendor !== null && this.product.vendor !== '' &&
+    this.product.vendor_code != null && this.product.vendor_code != ''){
+      this.api.getSaveProduct(this.product, this.category.myControl.value.id).subscribe(product => {
+          this.dialog.open(ErrorDialogComponent, {data: "Сохранил"});
+          this.dataSource = new MatTableDataSource(product);
+          this.dataSource.sort = this.sort
+        },
+        error => {
+          this.dialog.open(ErrorDialogComponent, {data: "Ошибка " + error})
+        });
 
-    this.default();
+      this.default();
+    }
+    else {
+      this.dialog.open(ErrorDialogComponent, {data:"Необходимо выбрать вендора из списка и заполнить поле артикул"})
+    }
   }
   createCategory(){
     const dialogRef = this.dialog.open(CreateCategoryComponent);

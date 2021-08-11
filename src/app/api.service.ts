@@ -46,6 +46,24 @@ private host = environment.apiUrl;
       map(posts => posts as Post[])
     );
   }
+  getAdjacentTenderWithParametrs(json: ReceivedJson){
+    //const body = {dateStart: '2020-10-01T00:00:00Z', dateFinish: '2020-10-10T12:00:00Z'};
+    // {dateStart: '', dateFinish: '', type: '%', custom: '%', winner: '%', minSum: 0, maxSum: 999999999999}
+    return this.http.post(this.host+'/demo/AdjacentTender', json).pipe(
+      map(posts => posts as Post[])
+    );
+  }
+  getTenderById(id:number){
+    return this.http.get(this.host + '/demo/TenderByID/'+id).pipe(
+      map(data =>data as Post)
+    )
+  }
+  getAdjacentTenderById(id:number){
+    return this.http.get(this.host + '/demo/AdjacentTenderByID/'+id).pipe(
+      map(data =>data as Post)
+    )
+  }
+
   getFile(json: ReceivedJson){
     return this.http.post(this.host+'/demo/File',json,{responseType: 'blob'}
       );
@@ -55,11 +73,17 @@ private host = environment.apiUrl;
     );
   }
   deleteTender(tender: number){
-    console.log(tender);
     return this.http.get(this.host+'/demo/DeleteTender/'+tender).pipe(
       map(string => string as StringAnswer)
     );
   }
+  deleteAdjacentTender(tender: number){
+
+    return this.http.get(this.host+'/demo/DeleteAdjacentTender/'+tender).pipe(
+      map(string => string as StringAnswer)
+    );
+  }
+
   getSaveProduct(product: Product,category: number){
     //const body = {dateStart: '2020-10-01T00:00:00Z', dateFinish: '2020-10-10T12:00:00Z'};
     // {dateStart: '', dateFinish: '', type: '%', custom: '%', winner: '%', minSum: 0, maxSum: 999999999999}
@@ -232,6 +256,10 @@ private host = environment.apiUrl;
 
     return this.http.post(this.host+'/demo/saveTender', json).pipe(map(data =>data as Post))
   }
+  SaveAdjacentTender(json: Post){
+
+    return this.http.post(this.host+'/demo/saveAdjacentTender', json).pipe(map(data =>data as Post))
+  }
   getFooter(ids: number[]){
     return this.http.post(this.host+'/demo/getFooter', ids).pipe(
       map(status => status as string)
@@ -253,4 +281,15 @@ private host = environment.apiUrl;
       map(data => data as StringAnswer)
     )
   }
+  loadTender(json:number[]){
+    return this.http.post(this.host+'/demo/loadTender', json).pipe(
+      map(posts => posts as Post[])
+    );
+  }
+  loadTenderAdjacent(json:number[]){
+    return this.http.post(this.host+'/demo/loadTenderAdjacent', json).pipe(
+      map(posts => posts as Post[])
+    );
+  }
+
 }

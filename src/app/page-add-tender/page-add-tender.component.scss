@@ -8,15 +8,46 @@
   padding: 5px;
   margin: 1.5rem auto;
 
+}
 
-  .SelectButton{
-    margin: 10px auto 10px 10px;
-  }
-  .UploadButton{
-    margin: 10px 10px 10px auto;
-  }
   .nameFile{
-
+    border: 1px solid darkgrey;
+    width: 200px;
+    height: 40px;
+    padding: 5px;
   }
+
+.example-chip-list{
+  margin: 10px auto 10px 10px;
+  width: 60%;
+}
+.mat-chip{
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 10px;
+}
+
+.fieldset{
+  border: 1px solid darkgrey;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  margin: 10px 10px 10px 10px;
+  width: 45%;
+
+}
+.SelectButton{
+
+
+  margin: 10px auto 10px 10px;
+}
+.UploadButton{
+
+
+  margin: 10px 10px 10px auto;
+}
+.ApiButton{
+
+  margin: 10px auto 10px 10px;
 }
 

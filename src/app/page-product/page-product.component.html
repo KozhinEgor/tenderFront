@@ -2,14 +2,14 @@
 
   <app-product-category-autocomplet (Change)="onChange($event)"></app-product-category-autocomplet>
 
-  <button mat-raised-button color="basic" (click)="showProductNoUses()" class="show_table">Не использующиеся продукты</button>
+  <button mat-raised-button color="basic" (click)="showProductNoUses()" class="show_table">Неиспользуемые продукты</button>
   <button mat-raised-button color="basic" (click)="createCategory()" class="show_table">
     <mat-icon>add_circle_outline</mat-icon>
     Создать категорию
   </button>
   <button mat-raised-button color="basic" (click)="ChageCategory()" class="show_table">
     <mat-icon>swap_horiz</mat-icon>
-    Переместить продукт
+    Заменить продукт
   </button>
   <button mat-raised-button color="primary" (click)="Clean()" class="show_table">Сбросить значения</button>
   <button mat-raised-button color="primary" (click)="File()" class="show_table">Загрузить в файл</button>
@@ -44,14 +44,14 @@
       </mat-form-field>
     </div>
 
-    <button mat-flat-button color="warn" (click)="DeleteProduct()" class="show_table" *ngIf="noUses == true && user != null && user.role !== 'ROLE_USER'">Удалить продукты<br> которые не используются</button>
+    <button mat-flat-button color="warn" (click)="DeleteProduct()" class="show_table" *ngIf="noUses == true && user != null && user.role !== 'ROLE_USER'">Удалить продукты<br> которые неиспользуются</button>
   </div>
 
   <div class="EditContainer" *ngIf="user != null && user.role !== 'ROLE_USER' && columns.length != 0 ">
     <div class="row">
       <mat-form-field appearance="outline" *ngIf="product.id != null" class="Childmargin id">
         <mat-label>Id</mat-label>
-        <input matInput placeholder="Id" type="number" [(ngModel)]="product.id">
+        <input matInput placeholder="Id" type="number" [(ngModel)]="product.id" [disabled]="true">
       </mat-form-field>
 
       <app-vendor-autocomplet (Change)="onChangeVendor($event)" *ngIf="columns.indexOf('vendor') != -1" class="vendor Childmargin"></app-vendor-autocomplet>

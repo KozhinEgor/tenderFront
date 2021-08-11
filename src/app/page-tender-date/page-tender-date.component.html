@@ -5,7 +5,7 @@
       <mat-expansion-panel-header>
         <mat-panel-description>
           <mat-chip-list   multiple>
-            <mat-chip *ngFor="let col of AllColums"
+            <mat-chip *ngFor="let col of Colums"
                       [selected]="isSelected(col)"
                       (click)="toggleOffer(col)">
               {{col.nameru}}&nbsp;
@@ -22,6 +22,9 @@
         <app-data-range ></app-data-range>
         <section>
           <mat-slide-toggle color="primary" [(ngModel)]="dublicate" >Показывать дубликаты!</mat-slide-toggle>
+        </section>
+        <section>
+          <mat-slide-toggle color="primary" [(ngModel)]="adjacent_tender" (change)="changeColumn()">Тендеры из смежных отраслей!</mat-slide-toggle>
         </section>
       </fieldset>
 <!--      Type-->
@@ -161,5 +164,5 @@
 
 
 
-<app-tender-table [displayedColumns]="displayedColumns" [dataSource]="dataSource"></app-tender-table>
+<app-tender-table [displayedColumns]="displayedColumns" [dataSource]="dataSource" [adjacent_tender] = adjacent_tender></app-tender-table>
 

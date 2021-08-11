@@ -1,7 +1,55 @@
 <div class="ChoseContainer mat-elevation-z8">
   <input type="file" style="display: none;" (change)="onFileChanged($event)" placeholder="Upload file" accept=".xlsx" #fileInput>
-  <button (click)="fileInput.click()" mat-flat-button color="primary" class = "SelectButton">Выбрать файл</button>
-  <div class="nameFile" *ngIf = "load">Выбран: {{file.name}}</div>
-  <button type="button" mat-flat-button color="primary" class = "UploadButton" (click)="Upload()" [disabled]="upload_button">Загрузить файл</button>
+
+  <fieldset class="fieldset">
+    <legend>Загрузить по номерам Бикотендера</legend>
+    <mat-form-field class="example-chip-list">
+      <mat-label>Номера Бикотендера</mat-label>
+      <mat-chip-list #chipListBico aria-label="Выбранные Номера Бикотендера">
+        <mat-chip *ngFor="let number of number_bicoTender" [selectable]="selectable"
+                  [removable]="removable" (removed)="removeBicoNumberTender(number)">
+          {{number}}
+          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+        </mat-chip>
+        <input placeholder="Номер бикотендера..."
+               [matChipInputFor]="chipListBico"
+               [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+               [matChipInputAddOnBlur]="addOnBlur"
+               (matChipInputTokenEnd)="addBicoNumberTender($event)" >
+      </mat-chip-list>
+    </mat-form-field>
+    <button (click)="loadTender()" mat-flat-button color="primary" class = "ApiButton" [disabled]="dis">Загрузить</button>
+    <button (click)="number_bicoTender = []" mat-stroked-button color="basic" class = "ApiButton">Очистить</button>
+  </fieldset>
+  <fieldset class="fieldset">
+    <legend>Загрузить по номерам Бикотендера тендеры из смежных отраслей</legend>
+    <mat-form-field class="example-chip-list">
+      <mat-label>Номера Бикотендера</mat-label>
+      <mat-chip-list #chipListBicoAdjacent aria-label="Выбранные Номера Бикотендера">
+        <mat-chip *ngFor="let number of number_bicoAdjacent" [selectable]="selectable"
+                  [removable]="removable" (removed)="removeBicoNumberAdjacent(number)">
+          {{number}}
+          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+        </mat-chip>
+        <input placeholder="Номер бикотендера..."
+               [matChipInputFor]="chipListBicoAdjacent"
+               [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+               [matChipInputAddOnBlur]="addOnBlur"
+               (matChipInputTokenEnd)="addBicoNumberAdjacent($event)" >
+      </mat-chip-list>
+    </mat-form-field>
+    <button (click)="loadTenderAdjacent()" mat-flat-button color="primary" class = "ApiButton" [disabled]="dis">Загрузить</button>
+    <button (click)="number_bicoAdjacent = []" mat-stroked-button color="basic" class = "ApiButton">Очистить</button>
+  </fieldset>
+  <fieldset class="fieldset">
+    <legend>Загрузить из файла</legend>
+
+      <button (click)="fileInput.click()" mat-flat-button color="primary" class = "SelectButton">Выбрать файл</button>
+      <div class="nameFile"  >Выбран:<span *ngIf = "load"> {{file.name}}</span> </div>
+      <button type="button" mat-flat-button color="primary" class = "UploadButton" (click)="Upload()" [disabled]="upload_button">Загрузить файл</button>
+
+
+  </fieldset>
+
 </div>
-<app-tender-table [displayedColumns]="displayedColumns" [dataSource]="dataSource" ></app-tender-table>
+<app-tender-table [displayedColumns]="displayedColumns" [dataSource]="dataSource" [adjacent_tender] = "adjacent_tender"></app-tender-table>
