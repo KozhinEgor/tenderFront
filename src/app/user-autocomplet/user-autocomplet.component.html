@@ -1,0 +1,13 @@
+<mat-form-field>
+  <mat-label>Укажите пользователя</mat-label>
+  <input type="text" matInput [formControl]="myControl" [matAutocomplete]="auto" (ngModelChange)="Change.emit(myControl.value)"/>
+  <button *ngIf="myControl.value !==''"   matSuffix mat-icon-button style="color: darkgrey" aria-label="Clear" (click)="myControl.setValue('')">
+    <mat-icon>close</mat-icon>
+  </button>
+  <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" autoActiveFirstOption (optionSelected)="select()">
+    <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+      {{option.nickname}}
+    </mat-option>
+  </mat-autocomplete>
+</mat-form-field>
+

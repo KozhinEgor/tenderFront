@@ -1,0 +1,57 @@
+<div class ="bodyContainer mat-elevation-z8">
+  <div class="tableContainer" >
+
+    <table mat-table matSort  [dataSource]="dataSource" >
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> id </th>
+        <td mat-cell *matCellDef="let element" > {{element.id}} </td>
+      </ng-container>
+      <ng-container matColumnDef="product_category">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Категория </th>
+        <td mat-cell *matCellDef="let element" > {{element.product_category}} </td>
+      </ng-container>
+      <ng-container matColumnDef="synonyms">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Синонимы </th>
+        <td mat-cell *matCellDef="let element" > {{element.synonyms}} </td>
+      </ng-container>
+      <ng-container matColumnDef="edit">
+        <th mat-header-cell *matHeaderCellDef > Изменить</th>
+        <td mat-cell *matCellDef="let element" >
+          <button mat-icon-button color="primary" (click)="editSynonyms(element)">
+            <mat-icon>edit</mat-icon>
+          </button> </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="columns sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+    </table>
+  </div>
+
+  <div class="Filter" *ngIf="columns.length != 0 ">
+    <div>
+      <mat-form-field class="filter">
+        <mat-label>Поиск</mat-label>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Поиск" #input>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="EditContainer" *ngIf="user != null && user.role !== 'ROLE_USER' && columns.length != 0 ">
+    <div class="row">
+      <mat-form-field appearance="outline" *ngIf="syn.id != null" class="Childmargin id">
+        <mat-label>Id</mat-label>
+        <input matInput placeholder="Id" type="number" [(ngModel)]="syn.id" [disabled]="true">
+      </mat-form-field>
+      <app-product-category-autocomplet (Change)="onChangeCategory($event)"></app-product-category-autocomplet>
+    </div>
+    <div class="row">
+      <mat-form-field class="Synonyms" appearance="fill">
+        <mat-label>Синонимы</mat-label>
+        <textarea matInput placeholder="Введите синонимы через запятую" [(ngModel)]="syn.synonyms"></textarea>
+      </mat-form-field>
+    </div>
+    <div class="row">
+      <button mat-flat-button color="primary" (click)="default()" style="position: center">Сбросить</button>
+      <button mat-flat-button color="primary" (click)="saveSynonyms()" style="position: center">Сохранить</button>
+    </div>
+  </div>
+</div>

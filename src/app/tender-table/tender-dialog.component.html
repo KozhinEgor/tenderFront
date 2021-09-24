@@ -1,3 +1,4 @@
+<div class="fixActionRow">
 <mat-dialog-content >
   <mat-tab-group mat-align-tabs="center"  [selectedIndex]="selected.value" (selectedIndexChange)="selected.setValue($event); changeTab()">
     <mat-tab label="Основная информация и продукты" *ngIf="!dataDialog.adjacent_tender">
@@ -30,52 +31,53 @@
         <div class="block_column"><span>Полная стоимость - {{data.full_sum  | currency : data.currency:'symbol': '1.2-2':'ru'}}</span></div>
       </div>
       <hr>
+
       <div class = "row">
-        <app-product-category-autocomplet (Change)="onChange($event)" class="vendor_code"></app-product-category-autocomplet>
-        <app-vendor-code-autocompleat (Change)="onChangeVendorCode($event)"></app-vendor-code-autocompleat>
-        <mat-form-field appearance="outline" *ngIf="vendor" class="vendor">
-          <mat-label>Вендор</mat-label>
-          <input matInput placeholder="Вендор" type="text" [(ngModel)]="vendor">
-        </mat-form-field>
-        <mat-form-field appearance="legacy">
-          <mat-label>Комментарий</mat-label>
-          <textarea matInput placeholder="Комментарий" [(ngModel)]="comment"></textarea>
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="num" >
-          <mat-label>Количество</mat-label>
-          <input matInput placeholder="Количество" type="number" [(ngModel)]="number" >
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="num">
-          <mat-label>Цена за шт</mat-label>
-          <input matInput placeholder="Цена за шт" type="number" [(ngModel)]="price" >
-        </mat-form-field>
-        <div class="plusProduct">
-          <button mat-mini-fab color="primary" aria-label="plus one icon" (click)="addProduct()" *ngIf="editOrders === null">
-            <mat-icon class="iconPlus">plus_one</mat-icon>
-          </button>
-          <button mat-mini-fab color="primary" aria-label="plus one icon" (click)="saveProduct()" *ngIf="editOrders !== null">
-            <mat-icon class="iconPlus">save</mat-icon>
-          </button>
+          <app-product-category-autocomplet (Change)="ChangeCategory($event)" class="vendor_code"></app-product-category-autocomplet>
+        <app-vendor-autocomplet (Change)="ChangeVendor($event)"></app-vendor-autocomplet>
+          <app-vendor-code-autocompleat (Change)="ChangeVendorCode($event)"></app-vendor-code-autocompleat>
+
+          <mat-form-field appearance="legacy">
+            <mat-label>Комментарий</mat-label>
+            <textarea matInput placeholder="Комментарий" [(ngModel)]="comment"></textarea>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="num" >
+            <mat-label>Количество</mat-label>
+            <input matInput placeholder="Количество" type="number" [(ngModel)]="number" >
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="num">
+            <mat-label>Цена за шт</mat-label>
+            <input matInput placeholder="Цена за шт" type="number" [(ngModel)]="price" >
+          </mat-form-field>
+          <div class="plusProduct">
+            <button mat-mini-fab color="primary" aria-label="plus one icon" (click)="addProduct()" *ngIf="editOrders === null">
+              <mat-icon class="iconPlus">plus_one</mat-icon>
+            </button>
+            <button mat-mini-fab color="primary" aria-label="plus one icon" (click)="saveProduct()" *ngIf="editOrders !== null">
+              <mat-icon class="iconPlus">save</mat-icon>
+            </button>
+          </div>
         </div>
-      </div>
 
       <div class="row">
-        <mat-checkbox class="example-margin" color="primary" *ngIf="vxi != null" [(ngModel)]="vxi" >VXI</mat-checkbox>
-        <mat-checkbox class="example-margin" color="primary" *ngIf="usb != null" [(ngModel)]="usb">USB</mat-checkbox>
-        <mat-checkbox class="example-margin" color="primary" *ngIf="portable != null" [(ngModel)]="portable">Портативный</mat-checkbox>
-        <mat-form-field appearance="outline" *ngIf="frequency != -1 ">
-          <mat-label>Частота/Полоса пропускания</mat-label>
-          <input matInput placeholder="Частота/Полоса пропускания" type="number" [(ngModel)]="frequency" >
-        </mat-form-field>
-        <mat-form-field appearance="outline" *ngIf="channel != -1">
-          <mat-label>Каналы</mat-label>
-          <input matInput placeholder="Число каналов" type="number" [(ngModel)]="channel" >
-        </mat-form-field>
-        <mat-form-field appearance="outline" *ngIf="port != -1">
-          <mat-label>Порты</mat-label>
-          <input matInput placeholder="Число портов" type="number" [(ngModel)]="port" >
-        </mat-form-field>
-      </div>
+          <mat-checkbox class="example-margin" color="primary" *ngIf="vxi != null" [(ngModel)]="vxi" >VXI</mat-checkbox>
+          <mat-checkbox class="example-margin" color="primary" *ngIf="usb != null" [(ngModel)]="usb">USB</mat-checkbox>
+          <mat-checkbox class="example-margin" color="primary" *ngIf="portable != null" [(ngModel)]="portable">Портативный</mat-checkbox>
+          <mat-form-field appearance="outline" *ngIf="frequency != -1 ">
+            <mat-label>Частота/Полоса пропускания</mat-label>
+            <input matInput placeholder="Частота/Полоса пропускания" type="number" [(ngModel)]="frequency" >
+          </mat-form-field>
+          <mat-form-field appearance="outline" *ngIf="channel != -1">
+            <mat-label>Каналы</mat-label>
+            <input matInput placeholder="Число каналов" type="number" [(ngModel)]="channel" >
+          </mat-form-field>
+          <mat-form-field appearance="outline" *ngIf="port != -1">
+            <mat-label>Порты</mat-label>
+            <input matInput placeholder="Число портов" type="number" [(ngModel)]="port" >
+          </mat-form-field>
+        </div>
+
+
 
       <div class="row" >
         <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
@@ -109,33 +111,33 @@
           </ng-container>
           <!-- Position Column -->
           <ng-container matColumnDef="product_category">
-            <th mat-header-cell *matHeaderCellDef> product_category </th>
+            <th mat-header-cell *matHeaderCellDef> Категория Продукта </th>
             <td mat-cell *matCellDef="let element"> {{element.product_category}} </td>
           </ng-container>
 
           <!-- Name Column -->
           <ng-container matColumnDef="id_product">
-            <th mat-header-cell *matHeaderCellDef> id_product </th>
+            <th mat-header-cell *matHeaderCellDef> Артикул </th>
             <td mat-cell *matCellDef="let element"> {{element.id_product}} </td>
           </ng-container>
 
           <!-- Weight Column -->
           <ng-container matColumnDef="comment">
-            <th mat-header-cell *matHeaderCellDef> comment </th>
+            <th mat-header-cell *matHeaderCellDef> Комментарий </th>
             <td mat-cell *matCellDef="let element"> {{element.comment}} </td>
           </ng-container>
 
           <!-- Symbol Column -->
           <ng-container matColumnDef="number">
-            <th mat-header-cell *matHeaderCellDef> number </th>
+            <th mat-header-cell *matHeaderCellDef> Количество </th>
             <td mat-cell *matCellDef="let element"> {{element.number}} </td>
           </ng-container>
           <ng-container matColumnDef="price">
-            <th mat-header-cell *matHeaderCellDef> price </th>
+            <th mat-header-cell *matHeaderCellDef> Цена </th>
             <td mat-cell *matCellDef="let element"> {{element.price}} </td>
           </ng-container>
           <ng-container matColumnDef="winprice">
-            <th mat-header-cell *matHeaderCellDef> winprice </th>
+            <th mat-header-cell *matHeaderCellDef style="text-align: center"> Цена<br>победителя </th>
             <td mat-cell *matCellDef="let element"> {{element.winprice}} </td>
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="['edit','product_category',  'id_product',  'comment',  'number',    'price',  'winprice', 'delete']"></tr>
@@ -143,7 +145,63 @@
         </table>
       </div>
     </mat-tab >
-    <mat-tab label="Комментарии">В разработке</mat-tab>
+
+    <mat-tab>
+      <ng-template mat-tab-label><span [matBadge] = CountComment *ngIf="CountComment !== 0">Комментарии</span><span *ngIf="CountComment === 0">Комментарии</span></ng-template>
+      <div *ngIf="dataDialog.adjacent_tender" class="rowComment">
+        <h2>Данный раздел доступен с основными тендерами</h2>
+      </div>
+      <div *ngIf="!dataDialog.adjacent_tender">
+        <div class="rowComment">
+          <mat-chip-list  aria-label="Выбранные пользователя для оповещения">
+            <mat-chip *ngFor="let user of users" [selectable]="selectable"
+                      [removable]="removable" (removed)="removeUser(user)">
+              {{user.nickname}}
+              <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+            </mat-chip>
+          </mat-chip-list>
+        </div>
+        <div class="rowComment">
+          <app-user-autocomplet (Change)="ChangeUser($event)"></app-user-autocomplet>
+          <mat-form-field class="comment" appearance="fill" hintLabel="Максимум 1024 символа">
+            <mat-label>Введите комментарий</mat-label>
+            <textarea matInput #input placeholder="Ваш коменнтарий" [(ngModel)]="ChangeComment.text"></textarea>
+            <mat-hint align="end">{{input.value?.length || 0}}/1024</mat-hint>
+          </mat-form-field>
+          <div>
+            <button mat-mini-fab color="primary" aria-label="plus one icon" (click)="addComment()">
+            <mat-icon class="iconPlus">send</mat-icon>
+            </button>
+          </div>
+
+        </div>
+        <hr>
+        <div class="rowComment">
+        <mat-list style="padding: 30px; width: 70%">
+          <mat-list-item *ngFor="let comment of comments" style="height: fit-content">
+            <div class="commentCard">
+              <div class="commentBody">
+
+                <div class="commentHeader">
+                  <div class="circle" tabindex="-1" [style.background-color]="UserColor.get(comment.usr)" ><div style="margin-top: 2px;margin-left: auto;color: white">{{comment.user[0].toUpperCase()}}</div></div>
+                  <div class="commenterName">
+                    {{comment.user}}
+                  </div>
+                  <div class="timestamp">
+                    {{comment.date | date:'dd.MM.yyyy HH:mm:ss': "UTC"}}
+                  </div>
+                </div>
+                <div class = "content">
+                  {{comment.text}}
+                </div>
+              </div>
+            </div>
+          </mat-list-item>
+        </mat-list>
+        </div>
+      </div>
+    </mat-tab>
+
     <mat-tab label="Изменение тенедера" >
       <button mat-flat-button color="warn" (click)="deleteTender()" ><mat-icon>delete_outline</mat-icon> Удалить</button>
       <div class = "rowChange">
@@ -168,7 +226,7 @@
       </div>
       <div class = "rowChange">
         <span >Ccылки</span>
-        <span style="padding-right: 10px;padding-left: 10px"><a href="{{ data.bico_tender }}">Bicotender:,</a></span>
+        <span style="padding-right: 10px;padding-left: 10px"><a href="{{ data.bico_tender }}" target="_blank">Bicotender:,</a></span>
         <mat-form-field style="width: 90%; padding-bottom: 0px" >
           <input matInput  placeholder="Ссылка тендера на Бикотендере" [(ngModel)]="data.bico_tender">
         </mat-form-field>
@@ -223,13 +281,13 @@
       </div>
       <div class = "rowChange">
         <span style="padding-right: 10px;padding-left: 10px">Заказчик:</span>
-        <button mat-icon-button color="primary" aria-label="Создать нового победителя" (click)="AddCustomer()">
+        <button mat-icon-button color="primary" aria-label="Создать нового заказчика" (click)="AddCustomer()">
           <mat-icon>add</mat-icon>
         </button>
         <app-custom-autocomplet (Change)="onchangeCustomer($event)" ></app-custom-autocomplet>
-        <app-contry-autocomplet disabled="true" ></app-contry-autocomplet>
+        <app-contry-autocomplet ></app-contry-autocomplet>
         <mat-form-field  style="width: 30%; padding-bottom: 0px" >
-          <input matInput   placeholder="ИН заказчика" [(ngModel)]="data.inn" disabled="true">
+          <input matInput   placeholder="ИНН заказчика" [(ngModel)]="data.inn" disabled="true">
         </mat-form-field>
         <button mat-icon-button color="primary" aria-label="Изменить заказчика" (click)="ChangeCustomer()">
           <mat-icon>edit</mat-icon>
@@ -257,8 +315,10 @@
   </mat-tab-group>
 
 </mat-dialog-content>
-<mat-dialog-actions align="end" >
+<div class="spacer"></div>
+<mat-dialog-actions align="end">
   <button mat-button (click)="setprice()">Посчитать цену</button>
   <button mat-button (click)="Save()" [disabled]="data.id == null">Сохранить</button>
   <button mat-button [mat-dialog-close] = "data">Закрыть</button>
 </mat-dialog-actions>
+</div>

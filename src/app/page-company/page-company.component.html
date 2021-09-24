@@ -71,7 +71,7 @@
         </div>
         <div class="row">
           <button mat-raised-button color="basic" (click)="showCompanyNoUses()" class="show_table" *ngIf="noUses == false">Неиспользуемые компании</button>
-          <button mat-raised-button color="basic" (click)="getCompany()" class="show_table" *ngIf="noUses == true">Используемые компании</button>
+          <button mat-raised-button color="basic" (click)="getCompany()" class="show_table" *ngIf="noUses == true">Все компании</button>
           <button mat-flat-button color="warn" (click)="DeleteCompany()" class="show_table" *ngIf="noUses == true && user != null && user.role !== 'ROLE_USER'" >Удалить компании которые не используются</button>
         </div>
         <div class="row">
@@ -99,7 +99,7 @@
         <div class="row">
           <mat-form-field style=" padding-bottom: 0px"  >
             <mat-label>ИНН</mat-label>
-            <input matInput   placeholder="ИНН" [(ngModel)]="inn" maxlength="12">
+            <input matInput   placeholder="ИНН" [(ngModel)]="inn" maxlength="14">
           </mat-form-field>
         </div>
 

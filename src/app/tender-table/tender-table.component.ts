@@ -3,7 +3,7 @@ import {animate, state, style, transition, trigger} from "@angular/animations";
 import {MatPaginator} from "@angular/material/paginator";
 import {MatSort} from "@angular/material/sort";
 import {MatTableDataSource} from "@angular/material/table";
-import {Company, Orders, OrdersDB, Post, Product, ProductCategory, User} from "../classes";
+import {Company, Orders, OrdersDB, Post, Product, ProductCategory, User,Comment} from "../classes";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {VendorCodeAutocompleatComponent} from "../vendor-code-autocompleat/vendor-code-autocompleat.component";
 import {ProductCategoryAutocompletComponent} from "../product-category-autocomplet/product-category-autocomplet.component";
@@ -15,6 +15,9 @@ import {AutocompletTypeComponent} from "../autocomplet-type/autocomplet-type.com
 import {ContryAutocompletComponent} from "../contry-autocomplet/contry-autocomplet.component";
 import {AuthenticationService} from "../service/authentication.service";
 import {ErrorDialogComponent} from "../error-dialog/error-dialog.component";
+import {UserAutocompletComponent} from "../user-autocomplet/user-autocomplet.component";
+import {of} from "rxjs";
+import {VendorAutocompletComponent} from "../vendor-autocomplet/vendor-autocomplet.component";
 
 
 
@@ -26,6 +29,7 @@ export interface CustomerWinner{
   country: string ;
   type: string;
 }
+
 @Component({
   selector: 'app-tender-table',
   templateUrl: './tender-table.component.html',
@@ -42,10 +46,15 @@ export class TenderTableComponent implements OnInit,OnChanges {
   @Input() displayedColumns;
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
   @ViewChild(MatSort) sort: MatSort | null = null;
+
   @Input() dataSource = new MatTableDataSource<Post>();
   @Input()  adjacent_tender: boolean;
   expandedElement: Post | null;
-user:User;
+  user:User;
+  totalCost: number = 0;
+  totalCount:number = 0;
+  totalCountFinish:number = 0;
+  totalCostFinish:number = 0;
   constructor(public dialog: MatDialog, private api: ApiService, private authenticationService:AuthenticationService){
     this.user = this.authenticationService.userValue;
   }
@@ -85,54 +94,34 @@ user:User;
   ngOnInit(): void {
 
   }
-  getTotalCost() {
-    return this.dataSource.data.map(t =>t.sum).reduce((a,b) =>
-       a+b, 0);
-  }
-  getTotalCount(){
-    let count = 0;
+
+  getTotal() {
     for(let i = 0;i<this.dataSource.data.length;i++){
+      if(this.dataSource.data[i].win_sum>0){
+
+        this.totalCountFinish++;
+        this.totalCostFinish= this.totalCostFinish + (this.dataSource.data[i].win_sum *  this.dataSource.data[i].rate);
+      }
       if(this.dataSource.data[i].sum !== 0 ){
-        count= count +1;
+        this.totalCount++;
+        this.totalCost= this.totalCost + this.dataSource.data[i].sum;
       }
     }
-    return count;
   }
 
-  getTotalCountFinish(){
-    let count = 0;
-    for(let i = 0;i<this.dataSource.data.length;i++){
-
-      if(this.dataSource.data[i].winner !== 'Нет победителя' && this.dataSource.data[i].winner !== 'Отмена' && this.dataSource.data[i].winner !== 'Нет заявок'){
-        count= count + 1 ;
-
-      }
-
-
-    }
-    return count;
-  }
-  getTotalCostFinish() {
-    let count = 0;
-    for(let i = 0;i<this.dataSource.data.length;i++){
-
-        if(this.dataSource.data[i].winner !== 'Нет победителя' && this.dataSource.data[i].winner !== 'Отмена' && this.dataSource.data[i].winner !== 'Нет заявок'){
-          count= count + (this.dataSource.data[i].win_sum *  this.dataSource.data[i].rate);
-        }
-
-
-    }
-    return count;
-  }
 
   ngOnChanges(): void {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    this.totalCost = 0;
+    this.totalCount = 0;
+    this.totalCountFinish = 0;
+    this.totalCostFinish = 0;
+    this.getTotal();
   }
 
 
 }
-
 
 @Component({
   selector: 'add-dialog',
@@ -197,6 +186,7 @@ export class AddDialogTenderComponent implements OnInit, AfterViewInit{
 
   }
 }
+
 @Component({
   selector: 'delete-product',
   templateUrl: '../tender-table/delete-product.html',
@@ -206,6 +196,7 @@ export class DeleteProductComponent {
   constructor(@Inject(MAT_DIALOG_DATA) public data: Orders) {}
 
 }
+
 @Component({
   selector: 'delete-tender',
   templateUrl: '../tender-table/delete-tender.html',
@@ -235,20 +226,21 @@ export class TenderDialogComponent implements OnInit {
   private winnerAutocompletComponent:WinnerAutocompletComponent;
   @ViewChild(AutocompletTypeComponent)
   private autocompletTypeComponent:AutocompletTypeComponent
-  @ViewChild(VendorCodeAutocompleatComponent)
-  private vendorCodeAutocomplete: VendorCodeAutocompleatComponent;
+  @ViewChild(VendorAutocompletComponent)
+  private vendorAutocompletComponent:VendorAutocompletComponent;
   @ViewChild(ProductCategoryAutocompletComponent)
   private productCategoryAutocompletComponent: ProductCategoryAutocompletComponent;
+  @ViewChild(UserAutocompletComponent)
+  private userAutocompletComponent: UserAutocompletComponent;
+  @ViewChild(VendorCodeAutocompleatComponent)
+  private vendorCodeAutocompleatComponent:VendorCodeAutocompleatComponent;
   delete = false;
   dataSource = new MatTableDataSource<Orders>();
-
+  Char:string;
   innWinner: number;
-  product: Product  = null;
-  Category: ProductCategory = null;
+
   channel = -1;
   port = -1;
-  nameCategory: string;
-  vendor = null;
   frequency = -1;
   vxi = null;
   portable = null;
@@ -262,6 +254,9 @@ export class TenderDialogComponent implements OnInit {
   orders: Orders[] = [];
   ordersDB: OrdersDB[] = [];
   selected = new FormControl(0);
+  comments: Comment[];
+  color:string[]=['#FFCC33','#FF9933','#FF6600','#FF3300','#FF6666','#CC3333','#FF0066','#FF0099','#FF33CC','#FF66FF','#CC66CC','#CC00FF','#9933FF','#9966FF','#9999FF','#6666FF','#3300FF','#3366FF','#0066FF',
+  '#3399FF','#33CCFF','#66CCCC','#66FFFF','#33FFCC','#00CC99','#00FF99','#33FF66','#66CC66','#00FF00','#33FF00','#66CC00','#99CC66','#CCFF33','#CCCC33','#CCCCCC'];
   data:Post = {
     id: 0,
     name_tender: '',
@@ -285,16 +280,18 @@ export class TenderDialogComponent implements OnInit {
     dublicate: false,
     country:''
   };
+
   default(){
     this.dataSource = new MatTableDataSource<Orders>(this.orders);
     this.productCategoryAutocompletComponent.myControl.setValue('');
-    this.vendorCodeAutocomplete.myControl.setValue('');
-    this.product = null;
-    this.Category = null;
+    if(this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== ''){
+
+      this.vendorAutocompletComponent.myControl.setValue(null);
+    }
+    this.vendorCodeAutocompleatComponent.myControl.setValue('');
     this.channel = -1;
     this.port = -1;
-    this.nameCategory = null;
-    this.vendor = null;
+
     this.frequency = -1;
     this.vxi = null;
     this.portable = null;
@@ -304,28 +301,30 @@ export class TenderDialogComponent implements OnInit {
     this.price = null;
     this.editOrders = null;
   }
+
   addProduct(){
     if (this.number !== null) {
+      console.log(this.vendorAutocompletComponent.myControl.value);
       try {
-        if (this.product.vendor_code === 'Без артикуля' || this.Category.id === 7) {
-          this.comment = (this.vendor === 'No vendor' || this.vendor === null ? ''  : this.vendor + ' ') + (this.portable ? 'портативный ' : '') + (this.usb ? 'USB ' : '') + (this.vxi ? 'VXI ' : '') + (this.frequency !== -1 && this.frequency?  String(this.frequency) +  'ГГц ' : '') + (this.channel!== -1 &&this.channel? String(this.channel)+  'кан. ' : '')+ (this.port!== -1 &&this.port? String(this.port)+  'порта ' : '') + this.comment ;
+        if (this.vendorCodeAutocompleatComponent.myControl.value.vendor_code === 'Без артикуля' || this.productCategoryAutocompletComponent.myControl.value.id === 7) {
+          this.comment = (this.vendorAutocompletComponent.myControl.value !== '' && this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value.name !== 'No vendor' ?this.vendorAutocompletComponent.myControl.value.name + ' ' : '' ) + (this.portable ? 'портативный ' : '') + (this.usb ? 'USB ' : '') + (this.vxi ? 'VXI ' : '') + (this.frequency !== -1 && this.frequency?  String(this.frequency) +  'ГГц ' : '') + (this.channel!== -1 &&this.channel? String(this.channel)+  'кан. ' : '')+ (this.port!== -1 &&this.port? String(this.port)+  'порта ' : '') + this.comment ;
         }
         this.ordersDB.push({
           id: null,
-          vendor: this.product.vendor_id ? this.product.vendor_id : null,
+          vendor: this.vendorCodeAutocompleatComponent.myControl.value.vendor_id ? this.vendorCodeAutocompleatComponent.myControl.value.vendor_id : null,
           tender: this.data.id,
-          product_category: this.Category.id,
+          product_category: this.productCategoryAutocompletComponent.myControl.value.id,
           comment: this.comment ? this.comment : '',
-          id_product: this.product.id,
+          id_product: this.vendorCodeAutocompleatComponent.myControl.value.id,
           number: this.number,
           price: this.price ? this.price : 0,
           winprice: this.winprice ? this.winprice : 0
         });
         this.orders.push({
           tender: this.data.id,
-          vendor: this.vendor ? this.vendor : '',
-          product_category: this.Category.category,
-          id_product: (this.vendor !== 'No vendor' && this.vendor !== null ? this.vendor : '') + ' ' + (this.product.vendor_code === 'Без артикуля'? '': this.product.vendor_code),
+          vendor: this.vendorAutocompletComponent.myControl.value !== '' && this.vendorAutocompletComponent.myControl.value !== null ? this.vendorAutocompletComponent.myControl.value.name : '',
+          product_category: this.productCategoryAutocompletComponent.myControl.value.category,
+          id_product: (this.vendorAutocompletComponent.myControl.value !== '' && this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value.name !== 'No vendor'  ? this.vendorAutocompletComponent.myControl.value.name : '') + ' ' + (this.vendorCodeAutocompleatComponent.myControl.value.vendor_code === 'Без артикуля'? '': this.vendorCodeAutocompleatComponent.myControl.value.vendor_code),
           comment: this.comment ? this.comment : '' ,
           number: this.number,
           price: this.price !== null ? this.price : 0,
@@ -335,6 +334,7 @@ export class TenderDialogComponent implements OnInit {
       }
       catch (e){
         if(e instanceof TypeError){
+          console.log(e.message);
           this.dialog.open(ErrorDialogComponent, { data: 'Проверьте все значения, не подходит значениее в ' + e.message.substring(e.message.indexOf("\'")+1,e.message.lastIndexOf("\'")) + ' значие должно быть выбранно из списка'})
         }
         else {
@@ -394,11 +394,12 @@ export class TenderDialogComponent implements OnInit {
     });
 
   }
+
   editProduct(or: Orders){
     this.editOrders = this.orders.indexOf(or);
     this.productCategoryAutocompletComponent.myControl.setValue({id: this.ordersDB[this.editOrders].product_category, category: or.product_category , category_en: null});
     this.api.getVendorCodeById(this.ordersDB[this.orders.indexOf(or)].product_category, this.ordersDB[this.editOrders].id_product).subscribe(product =>{
-      this.vendorCodeAutocomplete.myControl.setValue(product); },
+      this.vendorCodeAutocompleatComponent.myControl.setValue(product); },
       error => {
       this.dialog.open(ErrorDialogComponent,{data:"Ошибка " + error})
       }
@@ -407,55 +408,79 @@ export class TenderDialogComponent implements OnInit {
     this.number = or.number;
     this.price = or.price;
   }
+
   saveProduct(){
-    if (this.product.vendor_code === 'Без артикуля' || this.Category.id === 7) {
-      this.comment = (this.vendor === 'No vendor' || this.vendor === null ? ''  : this.vendor + ' ') + (this.portable ? 'портативный ' : '') + (this.usb ? 'USB ' : '') + (this.vxi ? 'VXI ' : '') + (this.frequency !== -1 && this.frequency?  String(this.frequency) +  'ГГц ' : '') + (this.channel!== -1 &&this.channel? String(this.channel)+  'кан. ' : '') + (this.port!== -1 &&this.port? String(this.port)+  'порта ' : '') + this.comment ;
+    if (this.vendorCodeAutocompleatComponent.myControl.value.vendor_code === 'Без артикуля' || this.productCategoryAutocompletComponent.myControl.value.id === 7) {
+      this.comment = (this.vendorAutocompletComponent.myControl.value !== '' && this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value.name !== 'No vendor' ?this.vendorAutocompletComponent.myControl.value.name + ' ' : '' ) + (this.portable ? 'портативный ' : '') + (this.usb ? 'USB ' : '') + (this.vxi ? 'VXI ' : '') + (this.frequency !== -1 && this.frequency?  String(this.frequency) +  'ГГц ' : '') + (this.channel!== -1 &&this.channel? String(this.channel)+  'кан. ' : '')+ (this.port!== -1 &&this.port? String(this.port)+  'порта ' : '') + this.comment ;
     }
     this.orders[this.editOrders] = {tender: this.data.id,
-      vendor: this.vendor ? this.vendor : '',
-      product_category: this.Category.category,
-      id_product: (this.vendor !== 'No vendor' && this.vendor !== null ? this.vendor : '') + ' ' + (this.product.vendor_code === 'Без артикуля'? '': this.product.vendor_code),
+      vendor: this.vendorAutocompletComponent.myControl.value !== '' && this.vendorAutocompletComponent.myControl.value !== null ? this.vendorAutocompletComponent.myControl.value.name : '',
+      product_category: this.productCategoryAutocompletComponent.myControl.value.category,
+      id_product: (this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== '' && this.vendorAutocompletComponent.myControl.value.name !== 'No vendor' ? this.vendorAutocompletComponent.myControl.value.name : '') + ' ' + (this.vendorCodeAutocompleatComponent.myControl.value.vendor_code === 'Без артикуля'? '': this.vendorCodeAutocompleatComponent.myControl.value.vendor_code),
       comment: this.comment ? this.comment : '' ,
       number: this.number,
       price: this.price ? this.price : 0,
       winprice: this.winprice ? this.winprice : 0};
     this.ordersDB[this.editOrders] = {
       id: this.ordersDB[this.editOrders].id,
-      vendor: this.product.vendor_id ? this.product.vendor_id : null,
+      vendor: this.vendorCodeAutocompleatComponent.myControl.value.vendor_id ? this.vendorCodeAutocompleatComponent.myControl.value.vendor_id : null,
       tender: this.data.id,
-      product_category: this.Category.id,
+      product_category: this.productCategoryAutocompletComponent.myControl.value.id,
       comment: this.comment ? this.comment : '',
-      id_product: this.product.id,
+      id_product: this.vendorCodeAutocompleatComponent.myControl.value.id,
       number: this.number,
       price: this.price ? this.price : 0,
       winprice: this.winprice ? this.winprice : 0
     };
     this.default();
   }
-  onChange(t: any) {
-    if (t != null && typeof t !== 'string') {
-      this.Category = t;
-      this.vendorCodeAutocomplete.start(this.Category.id);
 
-    }
-  }
-  onChangeVendorCode(product: Product){
+  ChangeCategory(category : any){
+    if (category != null && typeof category !== 'string') {
 
-    if (product != null && typeof product !== 'string'){
-      this.product = product;
-      if ( this.product.vendor_code === 'Без артикуля' || this.Category.id === 7){
-        this.product.vendor = null;
+
+      if(this.productCategoryAutocompletComponent.myControl.value.id === 7 ){
+        this.vendorAutocompletComponent.myControl.disable();
       }
-      this.vendor = this.product.vendor;
-      this.vxi = this.product.vxi;
-      this.portable = this.product.portable;
-      this.usb = this.product.usb;
-      this.frequency = this.product.frequency === null ? -1: this.product.frequency;
-      this.channel = this.product.channel === null?  -1  : this.product.channel;
-      this.port = this.product.port === null? -1: this.product.port;
-      this.flag = true;
+      else {
+        this.vendorAutocompletComponent.myControl.enable();
+        this.vendorAutocompletComponent.start(category.id);
+      }
+      this.vendorCodeAutocompleatComponent.start(category.id);
+    }
+    else if(category === ''){
+      this.vendorCodeAutocompleatComponent.start(0);
     }
   }
+
+  ChangeVendorCode(vendor_code: any){
+    if (vendor_code != null && typeof vendor_code !== 'string') {
+      if(!this.vendorAutocompletComponent.myControl.value && this.productCategoryAutocompletComponent.myControl.value.id !== 7){
+        this.vendorAutocompletComponent.setVendor(vendor_code.vendor);
+      }
+      console.log()
+
+      this.vxi = this.vendorCodeAutocompleatComponent.myControl.value.vxi;
+      this.portable = this.vendorCodeAutocompleatComponent.myControl.value.portable;
+      this.usb = this.vendorCodeAutocompleatComponent.myControl.value.usb;
+      this.frequency = this.vendorCodeAutocompleatComponent.myControl.value.frequency === null ? -1: this.vendorAutocompletComponent.myControl.value.frequency;
+      this.channel = this.vendorCodeAutocompleatComponent.myControl.value.channel === null?  -1  : this.vendorAutocompletComponent.myControl.value.channel;
+      this.port = this.vendorCodeAutocompleatComponent.myControl.value.port === null? -1: this.vendorAutocompletComponent.myControl.value.port;
+      this.flag = true;
+
+
+    }
+  }
+
+  ChangeVendor(vendor:any){
+    if(vendor != null && typeof vendor !=="string"){
+      this.vendorCodeAutocompleatComponent.ChangeVendor(vendor.name);
+    }
+    else if (vendor === ''){
+      this.vendorCodeAutocompleatComponent.ChangeVendor(null);
+    }
+  }
+
   Save(){
 
     var sum = 0;
@@ -485,7 +510,7 @@ export class TenderDialogComponent implements OnInit {
     }
     let message: string = '';
     this.autocompletTypeComponent.setType(this.data.typetender);
-    this.winnerAutocompletComponent.setWinner(this.data.winner);
+    if(!this.dataDialog.adjacent_tender){this.winnerAutocompletComponent.setWinner(this.data.winner);}
     this.customAutocompletComponent.setCustomer(this.data.customer);
     let tender: Post= {id: this.data.id,
       name_tender: this.data.name_tender,
@@ -502,7 +527,7 @@ export class TenderDialogComponent implements OnInit {
       full_sum: this.data.full_sum,
       win_sum: this.data.win_sum,
       typetender: this.autocompletTypeComponent.myControl.value.id,
-      winner: this.winnerAutocompletComponent.myControl.value.id,
+      winner:this.dataDialog.adjacent_tender?null: this.winnerAutocompletComponent.myControl.value.id,
       customer: this.customAutocompletComponent.myControl.value.id ,
       product: this.data.product,
       dublicate: this.data.dublicate,
@@ -553,6 +578,7 @@ export class TenderDialogComponent implements OnInit {
 
 
   }
+
   ngOnInit() {
     if(this.dataDialog.adjacent_tender === true){
       this.api.getAdjacentTenderById(this.dataDialog.id_tender).subscribe(data =>{
@@ -579,10 +605,35 @@ export class TenderDialogComponent implements OnInit {
         error => {
           this.dialog.open(ErrorDialogComponent, {data:"Ошибка  "+ error})
         });
+      this.api.getComments(this.dataDialog.id_tender).subscribe(comment =>{
+          this.comments = comment;
+          this.setcolor();
+        },
+        error => {
+          this.dialog.open(ErrorDialogComponent, {data:"Ошибка  "+ error})
+        }
+      )
     }
-
-
+    if(!this.dataDialog.adjacent_tender){
+      this.countComment();
+    }
+    this.Char = this.user.nickname[0].toUpperCase();
   }
+
+  countComment(){
+    this.api.getCountCommentByTender(this.dataDialog.id_tender).subscribe(count => {
+        this.CountComment = count;},
+      error=> {this.CountComment = null;})
+  }
+
+  setcolor(){
+    for(var a of this.comments){
+      if(!this.UserColor.has(a.usr)){
+        this.UserColor.set(a.usr,this.color[Math.floor(Math.random() * this.color.length)]);
+      }
+    }
+  }
+
   setprice(){
     var sum = 0;
     for( var i = 0; i < this.ordersDB.length; i++){
@@ -591,16 +642,24 @@ export class TenderDialogComponent implements OnInit {
     this.data.price = sum;
     this.data.sum = this.data.price * this.data.rate;
   }
-  constructor(
-    public dialogRef: MatDialogRef<TenderDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public dataDialog: dialogTender, private api: ApiService, public dialog: MatDialog) {}
+
+  constructor(    public dialogRef: MatDialogRef<TenderDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public dataDialog: dialogTender, private api: ApiService, public dialog: MatDialog, private authenticationService:AuthenticationService) {
+    this.user = this.authenticationService.userValue;
+  }
 
     changeTab(){
     if((this.selected.value === 2 && !this.dataDialog.adjacent_tender)||(this.selected.value === 1 && this.dataDialog.adjacent_tender)){
       this.autocompletTypeComponent.setType(this.data.typetender);
       this.customAutocompletComponent.setCustomer(this.data.customer);
+      this.contryAutocompletComponent.myControl.disable();
+      if(!this.dataDialog.adjacent_tender){
+        this.winnerAutocompletComponent.setWinner(this.data.winner);
+      }
+
     }
     }
+
   onChangeWinner(t: any) {
     if (typeof t !== "string") {
       this.data.winner = t.name;
@@ -611,6 +670,7 @@ export class TenderDialogComponent implements OnInit {
       this.innWinner = null;
     }
   }
+
   onchangeCustomer(t:any){
     if (t != null && typeof t !== 'string') {
       this.data.customer = t.name;
@@ -622,6 +682,7 @@ export class TenderDialogComponent implements OnInit {
       this.innWinner = null;
     }
   }
+
   onchangeType(t:any){
     if (t != null && typeof t !== 'string') {
       this.data.typetender = t.type;
@@ -633,10 +694,12 @@ export class TenderDialogComponent implements OnInit {
     this.dialog.open(AddDialogTenderComponent,{ data: {type:'winner'}}).afterClosed().subscribe(()=>this.winnerAutocompletComponent.update());
 
   }
+
   AddCustomer(){
     this.dialog.open(AddDialogTenderComponent,{ data: {type:'customer'}}).afterClosed().subscribe(()=>this.customAutocompletComponent.update());
 
   }
+
   ChangeWinner(){
     this.dialog.open(AddDialogTenderComponent,{ data: {
         id: this.winnerAutocompletComponent.myControl.value.id ,
@@ -644,6 +707,7 @@ export class TenderDialogComponent implements OnInit {
         name: this.winnerAutocompletComponent.myControl.value.name ,
         type:'winner'}}).afterClosed().subscribe(()=>this.winnerAutocompletComponent.update());
   }
+
   ChangeCustomer(){
 
     this.dialog.open(AddDialogTenderComponent,{ data: {
@@ -653,6 +717,7 @@ export class TenderDialogComponent implements OnInit {
         country: this.customAutocompletComponent.myControl.value.country ,
         type:'customer'}}).afterClosed().subscribe(()=>this.customAutocompletComponent.update());
   }
+
   deleteTender(){
     if(this.dataDialog.adjacent_tender){
       this.dialog.open(DeleteTenderComponent,{data: this.data}).afterClosed().subscribe(result => {
@@ -684,4 +749,70 @@ export class TenderDialogComponent implements OnInit {
     }
 
 }
+
+  user:User;
+  UserColor = new Map();
+  selectable = true;
+  removable = true;
+  CountComment: number;
+  ChangeComment: Comment ={
+    id:null,
+    text:'',
+    usr:null,
+    user: '',
+    date: null,
+    tender: this.dataDialog.id_tender,
+    users:[]
+  };
+
+  defaultComment(){
+    this.users=[];
+    this.ChangeComment={
+      id:null,
+      text:'',
+      usr:null,
+      user: '',
+      date: null,
+      tender: this.dataDialog.id_tender,
+      users:[]
+    };
+  }
+
+  users: User[] = [];
+
+  ChangeUser(user: any) {
+    if (typeof user !== "string") {
+      this.users.push(user);
+
+      this.userAutocompletComponent.myControl.setValue('');
+    }
+  }
+
+  removeUser(user: User) {
+    const index = this.users.indexOf(user);
+    if (index >= 0) {
+      this.users.splice(index, 1);
+    }
+  }
+
+  addComment() {
+    this.ChangeComment.usr = this.user.id;
+    this.ChangeComment.user = this.user.nickname;
+    for(var u of this.users){
+      this.ChangeComment.users.push(u.id);
+    }
+    this.api.postComments(this.ChangeComment).subscribe(comment =>{
+        this.comments = comment;
+        this.countComment();
+        this.UserColor = new Map();
+        this.setcolor();
+      },
+      error => {
+        this.dialog.open(ErrorDialogComponent, {data:"Ошибка  "+ error})
+      }
+    )
+
+    this.defaultComment();
+  }
+
 }

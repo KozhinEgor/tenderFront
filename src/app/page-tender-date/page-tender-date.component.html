@@ -130,16 +130,19 @@
         </mat-form-field>
       </fieldset>
 <!--      Product-->
-      <fieldset>
+      <fieldset *ngIf="!adjacent_tender">
         <legend>Продукты</legend>
+
         <mat-chip-list  aria-label="Выбранные продукты">
           <mat-chip *ngFor="let prod of product" [selectable]="selectable"
                     [removable]="removable" (removed)="removeProduct(prod)">
-            {{prod.category?prod.category.category:''}} {{prod.vendor?prod.vendor.name:''}} {{prod.vendor_code ?prod.vendor_code.vendor_code : ''}}
+            {{prod.big_category?prod.big_category.big_category:''}}{{prod.category?prod.category.category:''}} {{prod.vendor?prod.vendor.name:''}} {{prod.vendor_code ?prod.vendor_code.vendor_code : ''}}
             <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
           </mat-chip>
         </mat-chip-list>
+          <app-bigcategory-autocomplet (Change)="ChangeBigCategory($event)"></app-bigcategory-autocomplet>
         <app-product-category-autocomplet (Change)="ChangeCategory($event)"></app-product-category-autocomplet>
+
         <app-vendor-autocomplet (Change)="ChangeVendor($event)"></app-vendor-autocomplet>
         <app-vendor-code-autocompleat (Change)="ChangeVendorCode($event)"></app-vendor-code-autocompleat>
         <button mat-mini-fab color="primary" (click)="AddProduct()">

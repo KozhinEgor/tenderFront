@@ -55,6 +55,12 @@ export class PageAddTenderComponent implements OnInit {
   }
 
   ngOnInit(): void {
+      this.api.numberFromBuffer(1).subscribe(posts => {
+      this.addBicoNumberTenderFromBuffer(posts.name)
+      });
+    this.api.numberFromBuffer(2).subscribe(posts => {
+      this.addBicoNumberAdjacentFromBuffer(posts.name)
+    });
   }
   number_bicoTender: number[] = [];
   selectable = true;
@@ -62,6 +68,24 @@ export class PageAddTenderComponent implements OnInit {
   addOnBlur = true;
   dis=false;
   readonly separatorKeysCodes = [ENTER, COMMA, SPACE] as const;
+  addBicoNumberTenderFromBuffer(event: string): void {
+    let value = (event || '').trim();
+    let mas = value.split(/ |,|\.|;|:|\\|\//);
+
+    // Add our fruit
+    if (value) {
+      for (let i of mas) {
+        if(i !== ''){
+          i = i.replace(/\D/g, '');
+
+          this.number_bicoTender.push(Number(i));
+        }
+
+      }
+
+    }
+  }
+
   addBicoNumberTender(event: MatChipInputEvent): void {
     let value = (event.value || '').trim();
     let mas = value.split(/ |,|\.|;|:|\\|\//);
@@ -90,26 +114,51 @@ export class PageAddTenderComponent implements OnInit {
       this.number_bicoTender.splice(index, 1);
     }
   }
+
   loadTender(){
     this.adjacent_tender = false;
     this.displayedColumns = this.displayedColumnsAll;
     this.dialog.open(ErrorDialogComponent,{data:'Дождитетесь загрузки, она займет какое-то время'});
     this.dis = true;
     this.api.loadTender(this.number_bicoTender).subscribe(posts => {
-        if(posts.length === 0){
-          this.dataSource = new MatTableDataSource<Post>(posts)
-          this.dialog.open(ErrorDialogComponent, { data: 'Найдено 0 тендеров'});
-        }
-        else{this.dataSource = new MatTableDataSource<Post>(posts) ;
-         }
+      if (posts === null){
+        this.dialog.open(ErrorDialogComponent, { data: 'Ошибка ответа от Бикотендера, номера Основных тендеров сохранены'});
         this.dis = false;
+      }
+      else if(posts.length === 0){
+        this.dataSource = new MatTableDataSource<Post>(posts)
+          this.dialog.open(ErrorDialogComponent, { data: 'Найдено 0 тендеров'});
+      }
+      else{this.dataSource = new MatTableDataSource<Post>(posts) ;
+       }
+      this.dis = false;
       },
       error => {
         this.dis = false;
         this.dialog.open(ErrorDialogComponent, { data:"Ошибка на сервере: "+ error});
       })
   }
+
   number_bicoAdjacent: number[] = [];
+
+  addBicoNumberAdjacentFromBuffer(event: string): void {
+    let value = (event || '').trim();
+    let mas = value.split(/ |,|\.|;|:|\\|\//);
+
+    // Add our fruit
+    if (value) {
+      for (let i of mas) {
+        if(i !== ''){
+          i = i.replace(/\D/g, '');
+
+          this.number_bicoAdjacent.push(Number(i));
+        }
+
+      }
+
+    }
+  }
+
   addBicoNumberAdjacent(event: MatChipInputEvent): void {
     let value = (event.value || '').trim();
     let mas = value.split(/ |,|\.|;|:|\\|\//);
@@ -138,13 +187,18 @@ export class PageAddTenderComponent implements OnInit {
       this.number_bicoAdjacent.splice(index, 1);
     }
   }
+
   loadTenderAdjacent(){
     this.adjacent_tender = true;
     this.displayedColumns = this.displayedColumnsAll.slice(0,this.displayedColumnsAll.length-2);
     this.dialog.open(ErrorDialogComponent,{data:'Дождитетесь загрузки, она займет какое-то время'});
     this.dis = true;
     this.api.loadTenderAdjacent(this.number_bicoAdjacent).subscribe(posts => {
-        if(posts.length === 0){
+        if (posts === null){
+        this.dialog.open(ErrorDialogComponent, { data: 'Ошибка ответа от Бикотендера, номера тендеров из смежных отраслей сохранены'});
+          this.dis = false;
+        }
+        else if(posts.length === 0){
           this.dataSource = new MatTableDataSource<Post>(posts)
           this.dialog.open(ErrorDialogComponent, { data: 'Найдено 0 тендеров'});
         }

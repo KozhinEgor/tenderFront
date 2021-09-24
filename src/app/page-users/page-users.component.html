@@ -2,7 +2,10 @@
   <div class="tableContainer" >
 
     <table mat-table matSort  [dataSource]="dataSource" >
-
+      <ng-container matColumnDef="nickname">
+        <th mat-header-cell *matHeaderCellDef> Имя пользователя </th>
+        <td mat-cell *matCellDef="let element"> {{element.nickname}} </td>
+      </ng-container>
       <ng-container matColumnDef="username">
         <th mat-header-cell *matHeaderCellDef> Почта пользователя </th>
         <td mat-cell *matCellDef="let element"> {{element.username}} </td>

@@ -19,7 +19,8 @@ import {
   User,
   CreateTable,
   StringAnswer,
-  ChangeCategory, ChangeCompany
+  Comment,
+  ChangeCategory, ChangeCompany, SynonymsProduct, BigCategory
 } from './classes';
 
 
@@ -64,10 +65,15 @@ private host = environment.apiUrl;
     )
   }
 
-  getFile(json: ReceivedJson){
-    return this.http.post(this.host+'/demo/File',json,{responseType: 'blob'}
+  getFileTender(json: ReceivedJson){
+    return this.http.post(this.host+'/demo/FileTender',json,{responseType: 'blob'}
       );
   }
+  getFileAdjacentTender(json: ReceivedJson){
+    return this.http.post(this.host+'/demo/FileAdjacentTender',json,{responseType: 'blob'}
+    );
+  }
+
   getProductFile(id:number){
     return this.http.get(this.host+'/demo/ProductFile/' + id,{responseType: 'blob'}
     );
@@ -104,9 +110,16 @@ private host = environment.apiUrl;
     );
   }
   setPasswordUser(user: any){
-    return this.http.post(this.host+'/setPassword', user);
+    console.log(user);
+    return this.http.post(this.host+'/setPassword', user).pipe(
+      map(status => status as string)
+    );
   }
-
+  checkNickname(nickname: string){
+    return this.http.post(this.host+'/checkNickname', nickname).pipe(
+      map(a => a as Map<string,boolean>)
+    );
+  }
   getAllTypes(){
       return this.http.get(this.host+'/demo/TypeTender').pipe(
         map(types => types as Type[])
@@ -180,8 +193,18 @@ private host = environment.apiUrl;
       map(reportQuarter => reportQuarter as ReportQuarter[])
     );
   }
+  getReportQuarterBigCategory(category: number, json:ReceivedJson){
+    return this.http.post(this.host+'/demo/quarterTenderBigCategory/'+category,json).pipe(
+      map(reportQuarter => reportQuarter as ReportQuarter[])
+    );
+  }
   getReportVendorQuarter(category: number, json:ReceivedJson){
     return this.http.post(this.host+'/demo/quarterVendor/'+category,json).pipe(
+      map(reportQuarter => reportQuarter as ReportVendorQuarter[])
+    );
+  }
+  getReportVendorQuarterBigCategory(category: number, json:ReceivedJson){
+    return this.http.post(this.host+'/demo/quarterVendorBigCategory/'+category,json).pipe(
       map(reportQuarter => reportQuarter as ReportVendorQuarter[])
     );
   }
@@ -190,12 +213,37 @@ private host = environment.apiUrl;
       map(reportQuarter => reportQuarter as ReportVendorQuarter[])
     );
   }
+  getReportNoVendorQuarterBigCategory(category: number, json:ReceivedJson){
+    return this.http.post(this.host+'/demo/quarterNoVendorBigCategory/'+category,json).pipe(
+      map(reportQuarter => reportQuarter as ReportVendorQuarter[])
+    );
+  }
+  getReportQuarterCustomer(category: number, json:ReceivedJson){
+    return this.http.post(this.host+'/demo/quarterTender/'+category,json).pipe(
+      map(reportQuarter => reportQuarter as ReportQuarter[])
+    );
+  }
+  getReportCustomerQuarter(category: number, json:ReceivedJson){
+    return this.http.post(this.host+'/demo/quarterCustomer/'+category,json).pipe(
+      map(reportQuarter => reportQuarter as ReportVendorQuarter[])
+    );
+  }
+  getQuartal(json:ReceivedJson){
+    return this.http.post(this.host+'/demo/getQuartal/',json).pipe(
+      map(reportQuarter => reportQuarter as string[])
+    );
+  }
   fileQuarter(json:ReceivedJson){
     return this.http.post(this.host+'/demo/FileReport',json, {responseType: 'blob'})
   }
   addTender(uploadData: any){
     return this.http.post(this.host+'/demo/addTender', uploadData).pipe(
       map(posts => posts as Post[])
+    );
+  }
+  addProduct(uploadData: any, category:number){
+    return this.http.post(this.host+'/demo/addProduct/'+category, uploadData).pipe(
+      map(data => data as StringAnswer)
     );
   }
   getAllProductCategory(){
@@ -235,6 +283,11 @@ private host = environment.apiUrl;
   }
   getCountTenderWithoutOrders(){
     return this.http.get(this.host+'/demo/CountTenderWithoutOrders').pipe(
+      map(count => count as number)
+    );
+  }
+  getCountCommentByTender(tender:number){
+    return this.http.get(this.host+'/demo/CountCommentByTender/'+tender).pipe(
       map(count => count as number)
     );
   }
@@ -291,5 +344,49 @@ private host = environment.apiUrl;
       map(posts => posts as Post[])
     );
   }
-
+  getSynonymsProduct(){
+    return this.http.get(this.host + '/demo/SynonymsProduct').pipe(
+      map(synonyms => synonyms as SynonymsProduct[])
+    );
+  }
+  saveSynonymsProduct(syn:SynonymsProduct){
+    return this.http.post(this.host + '/demo/ChangeSynonymsProduct', syn).pipe(
+      map(synonyms => synonyms as SynonymsProduct[])
+    );
+  }
+  getBigCategory(){
+    return this.http.get(this.host + '/demo/BigCategory').pipe(
+      map(bigCategory => bigCategory as BigCategory[])
+    );
+  }
+  saveBigCategory(big:BigCategory){
+    return this.http.post(this.host + '/demo/ChangeBigCategory', big).pipe(
+      map(bigCategory => bigCategory as BigCategory[])
+    );
+  }
+  getAllUsers(){
+    return this.http.get(this.host + '/demo/getAllUsers').pipe(
+      map(user => user as User[])
+    )
+  }
+  getComments(tender:number){
+    return this.http.get(this.host + '/demo/getCommentsByTender/'+tender).pipe(
+      map(comment => comment as Comment[])
+    )
+  }
+  postComments(comment:Comment){
+    return this.http.post(this.host + '/demo/postComment/',comment).pipe(
+      map(comment => comment as Comment[])
+    )
+  }
+  test(){
+    return this.http.get(this.host + '/demo/Test').pipe(
+      map(comment => comment as Post[])
+    )
+  }
+  numberFromBuffer(id:number){
+    return this.http.get(this.host+'/demo/numberFromBuffer/'+id).pipe(
+      map(data => data as StringAnswer)
+    )
+  }
 }

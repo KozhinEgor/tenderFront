@@ -18,7 +18,7 @@ export class PageUsersComponent implements OnInit {
   roles: string[] = this.getAllValues();
   role: string;
   constructor(private formBuilder: FormBuilder,private api: ApiService, public dialog: MatDialog) { }
-  columns = ['username','role','code'];
+  columns = ['nickname','username','role','code'];
   getUser(){
     this.api.getUsers().subscribe(user=>{
         this.dataSource = new MatTableDataSource(user);
@@ -54,7 +54,7 @@ export class PageUsersComponent implements OnInit {
 
   saveUsers() {
     if(this.email.value !== null && this.role !== null){
-      let user:User = {username:this.email.value, role: this.role, activationCode:null, token: null}
+      let user:User = {username:this.email.value, role: this.role, activationCode:null, token: null, nickname:null, id:null}
 
       this.api.createUser(user).subscribe(data => this.getUser(),
         error => {

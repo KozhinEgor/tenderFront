@@ -140,12 +140,15 @@ export interface ProductReceived{
   category: ProductCategory;
   vendor: Vendor;
   vendor_code: Product;
+  big_category: BigCategory;
 }
 export interface User{
+  id:number;
   token?: string;
   role: string;
   username: string;
   activationCode: string;
+  nickname: string;
 }
 export enum Role{
   ROLE_ADMIN,ROLE_USER,ROLE_OPERATOR
@@ -173,4 +176,25 @@ export interface ChangeCategory{
 export interface ChangeCompany{
   company:number;
   newCompany: number;
+}
+export interface SynonymsProduct {
+  id: number;
+  product_category: string;
+  synonyms: string;
+  id_category: number;
+}
+export interface BigCategory{
+  big_category_id: number;
+  big_category: string;
+  category :ProductCategory[];
+  productCategory: string;
+}
+export interface Comment{
+  id:number;
+  text:string;
+  usr:number;
+  user: string;
+  date: Date;
+  tender: number;
+  users:number[];
 }

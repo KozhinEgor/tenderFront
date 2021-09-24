@@ -66,6 +66,6 @@ export class ProductCategoryAutocompletComponent implements OnInit {
   public _filter(category: string): ProductCategory[] {
     const filterValue = category.toLowerCase();
 
-    return this.options.filter(option => option.category.toLowerCase().indexOf(filterValue) === 0);
+    return this.options.filter(option => option.category.toLowerCase().includes(filterValue));
   }
 }

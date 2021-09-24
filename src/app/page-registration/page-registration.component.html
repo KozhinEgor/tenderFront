@@ -1,29 +1,46 @@
+<div class="block">
+  <div class="card">
 
-<div >
-  <h4 >Ввод пароля</h4>
-  <div >
-    <mat-form-field appearance="fill">
-      <mat-label>Enter your email</mat-label>
-      <input matInput placeholder="pat@example.com" [formControl]="email" required>
-      <mat-error *ngIf="email.invalid">{{getErrorMessage()}}</mat-error>
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-      <mat-label>Введите свой пароль</mat-label>
-      <input matInput [type]="hide ? 'password' : 'text'" [(ngModel)]="password">
-      <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
-        <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-      </button>
-    </mat-form-field>
+    <h4 class="card-header">Ввод пароля</h4>
+    <div class="card-body">
+      <mat-form-field appearance="fill">
+        <mat-label>Введите ваше почту</mat-label>
+        <input matInput placeholder="pat@example.com" [formControl]="email" required>
+        <mat-error *ngIf="email.invalid">{{getErrorMessage()}}</mat-error>
+      </mat-form-field>
+    </div>
+    <div class="card-body">
+      <mat-form-field appearance="fill">
+        <mat-label>Введите свой пароль</mat-label>
+        <input matInput [type]="hide ? 'password' : 'text'" [(ngModel)]="password">
+        <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+                [attr.aria-pressed]="hide">
+          <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+    <div class="card-body">
       <mat-form-field appearance="fill">
         <mat-label>Введите код из письма</mat-label>
         <input matInput [(ngModel)]="code">
       </mat-form-field>
+    </div>
+    <div class="card-body">
+    <mat-form-field appearance="fill" [class.mat-form-field-invalid]="!flagNickname">
+      <mat-label>Введите ваш никнейнм</mat-label>
+      <input matInput [formControl]="nickname" (change)="checkNickname()">
+      <mat-hint *ngIf="!flagNickname" style="color: red">Никнейм занят</mat-hint>
+    </mat-form-field>
 
-      <button mat-flat-button color="primary"  (click)="savepassword()">
-        <span  class="spinner-border spinner-border-sm mr-1"></span>
-        Сохранить пароль
-      </button>
-    <div *ngIf="error">{{error}}</div>
+  </div>
+  <div class="card-body">
+    <button mat-flat-button color="primary" (click)="savepassword()">
+      <span class="spinner-border spinner-border-sm mr-1"></span>
+      Сохранить пароль
+    </button>
+  </div>
+  <div *ngIf="error">{{error}}</div>
 
   </div>
 </div>
+

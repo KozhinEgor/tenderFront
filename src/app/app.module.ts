@@ -41,9 +41,10 @@ import {RouterModule} from '@angular/router';
 import { PageHomeComponent } from './page-home/page-home.component';
 import {
   ChangeCategoryComponent,
+  AddProductComponent,
   CreateCategoryComponent,
-  PageProductComponent
-} from './page-product/page-product.component';
+  ProductComponent
+} from './page-product/product/product.component';
 import { PageTenderComponent } from './page-tender/page-tender.component';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
@@ -73,6 +74,14 @@ import {ErrorInterceptor} from "./_helper/ErrorInterceptor";
 import { PageUsersComponent } from './page-users/page-users.component';
 import {MatSelectModule} from "@angular/material/select";
 import {ChangeCompanyComponent, PageCompanyComponent} from './page-company/page-company.component';
+import { SynonymsComponent } from './page-product/synonyms/synonyms.component';
+import { BigCategoryComponent } from './page-product/big-category/big-category.component';
+import {PageProductComponent} from "./page-product/page-product.component";
+import { BigcategoryAutocompletComponent } from './bigcategory-autocomplet/bigcategory-autocomplet.component';
+import { ProductReportComponent } from './page-report/product-report/product-report.component';
+import { BigCategoryReportComponent } from './page-report/big-category-report/big-category-report.component';
+import { CompanyReportComponent } from './page-report/company-report/company-report.component';
+import { UserAutocompletComponent } from './user-autocomplet/user-autocomplet.component';
 
 
 
@@ -86,9 +95,15 @@ const routes = [
   {path: 'tender', component: PageTenderComponent, canActivate: [AuthGuard] },
   {path: 'tender-date', component: PageTenderDateComponent, canActivate: [AuthGuard]},
   {path: 'report', component: PageReportComponent, canActivate: [AuthGuard]},
+  {path: 'company', component: PageCompanyComponent, canActivate: [AuthGuard]},
   {path: 'add-tender', component: PageAddTenderComponent, canActivate: [AuthGuard]},
   {path: 'tender-without-orders', component: PageTenderWithoutOrdersComponent, canActivate: [AuthGuard]},
-  {path: 'company', component: PageCompanyComponent, canActivate: [AuthGuard]},
+  {path: 'report/product-report', component: ProductReportComponent, canActivate: [AuthGuard]},
+  {path: 'report/bigcategory-report', component: BigCategoryReportComponent, canActivate: [AuthGuard]},
+  {path: 'report/company-report', component: CompanyReportComponent, canActivate: [AuthGuard]},
+  {path: 'product/product', component: ProductComponent, canActivate: [AuthGuard]},
+  {path: 'product/synonyms', component: SynonymsComponent, canActivate: [AuthGuard]},
+  {path: 'product/bigcategory', component: BigCategoryComponent, canActivate: [AuthGuard]},
   {path: '**', redirectTo:'home'}
 ];
 
@@ -119,6 +134,7 @@ const routes = [
     PageTenderWithoutOrdersComponent,
     AddDialogTenderComponent,
     ChangeCategoryComponent,
+    AddProductComponent,
     VendorAutocompletComponent,
     DeleteTenderComponent,
     ContryAutocompletComponent,
@@ -126,7 +142,15 @@ const routes = [
     PageRegistrationComponent,
     PageUsersComponent,
     PageCompanyComponent,
-    ChangeCompanyComponent
+    ChangeCompanyComponent,
+    ProductComponent,
+    SynonymsComponent,
+    BigCategoryComponent,
+    BigcategoryAutocompletComponent,
+    ProductReportComponent,
+    BigCategoryReportComponent,
+    CompanyReportComponent,
+    UserAutocompletComponent
   ],
   imports: [
     AppRoutingModule,

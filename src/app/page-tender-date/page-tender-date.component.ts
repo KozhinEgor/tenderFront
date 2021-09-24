@@ -121,6 +121,7 @@ Colums: group[];
         this.toggleOffer(this.AllColums[7])
       }
     }
+    this.dataSource = new MatTableDataSource<Post>();
     return this.adjacent_tender;
   }
   add(event: MatChipInputEvent): void {
@@ -277,7 +278,11 @@ Colums: group[];
   vendor: Vendor = null;
   vendor_code: Product = null;
   product: ProductReceived[] = [];
-
+  ChangeBigCategory(bigCategory: any){
+    if (bigCategory != null && typeof bigCategory !== 'string') {
+      this.product.push({category:null, vendor:null, vendor_code:null,big_category:bigCategory});
+    }
+  }
   ChangeCategory(category : any){
     if (category != null && typeof category !== 'string') {
 
@@ -292,7 +297,6 @@ Colums: group[];
       this.vendorCodeAutocompleatComponent.start(category.id);
     }
     else if(category === ''){
-      category
       this.vendorCodeAutocompleatComponent.start(0);
     }
   }
@@ -321,7 +325,7 @@ Colums: group[];
       || (this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== '')
       || (this.vendorCodeAutocompleatComponent.myControl.value !== null && this.vendorCodeAutocompleatComponent.myControl.value !== '')){
       if(this.product){
-        this.product.push({category: this.productCategoryAutocompletComponent.myControl.value== ''?null:this.productCategoryAutocompletComponent.myControl.value, vendor: this.vendorAutocompletComponent.myControl.value == ''?null:this.vendorAutocompletComponent.myControl.value, vendor_code:this.vendorCodeAutocompleatComponent.myControl.value== ''?null:this.vendorCodeAutocompleatComponent.myControl.value});
+        this.product.push({category: this.productCategoryAutocompletComponent.myControl.value== ''?null:this.productCategoryAutocompletComponent.myControl.value, vendor: this.vendorAutocompletComponent.myControl.value == ''?null:this.vendorAutocompletComponent.myControl.value, vendor_code:this.vendorCodeAutocompleatComponent.myControl.value== ''?null:(this.vendorCodeAutocompleatComponent.myControl.value),big_category:null});
 
         this.productCategoryAutocompletComponent.myControl.setValue('');
         if(this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== ''){
@@ -345,12 +349,14 @@ Colums: group[];
   }
 
   showTables(): void{
-    if((this.productCategoryAutocompletComponent.myControl.value !== null && this.productCategoryAutocompletComponent.myControl.value !== '')
-      || (this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== '')
-      || (this.vendorCodeAutocompleatComponent.myControl.value !== null && this.vendorCodeAutocompleatComponent.myControl.value !== '')){
-      this.AddProduct();
+    if(!this.adjacent_tender){
+      if((this.productCategoryAutocompletComponent.myControl.value !== null && this.productCategoryAutocompletComponent.myControl.value !== '')
+        || (this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== '')
+        || (this.vendorCodeAutocompleatComponent.myControl.value !== null && this.vendorCodeAutocompleatComponent.myControl.value !== '')){
+        this.AddProduct();
+      }
     }
-    //this.AddProduct();
+
 
     const json: ReceivedJson = {
       dateStart: this.dataRange.getDateStart(),
@@ -372,7 +378,6 @@ Colums: group[];
       numberShow: this.numberShow,
       product: this.product
     }
-    console.log(json);
     if(this.adjacent_tender){
 
       this.api.getAdjacentTenderWithParametrs(json).subscribe(posts => {
@@ -429,15 +434,27 @@ Colums: group[];
       numberShow: this.numberShow,
       product: this.product
     }
+    if (this.adjacent_tender){
+      this.api.getFileAdjacentTender(json).subscribe(
+        blob => {
+          saveAs(blob, "Tender.xlsx");
+        },
+        error => {
+          this.dialog.open(ErrorDialogComponent,{data:"Ошибка" + error});
+        }
+      );
+    }
+    else{
+      this.api.getFileTender(json).subscribe(
+        blob => {
+          saveAs(blob, "Tender.xlsx");
+        },
+        error => {
+          this.dialog.open(ErrorDialogComponent,{data:"Ошибка" + error});
+        }
+      );
+    }
 
-    this.api.getFile(json).subscribe(
-      blob => {
-        saveAs(blob, "Tender.xlsx");
-      },
-      error => {
-        this.dialog.open(ErrorDialogComponent,{data:"Ошибка" + error});
-      }
-    )
   }
 
   ngOnInit(): void {

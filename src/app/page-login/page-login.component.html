@@ -1,21 +1,21 @@
  <div class="block">
   <div class="card">
     <h4 class="card-header">Авторизация</h4>
-    <div class="card-body">
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div >
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="card-body">
         <mat-form-field appearance="fill">
           <mat-label>Введите свою почту</mat-label>
           <input matInput placeholder="pat@example.com" formControlName="username" required>
           <mat-error *ngIf="loginForm.value.username.invalid">{{getErrorMessage()}}</mat-error>
         </mat-form-field>
-        <mat-form-field appearance="fill">
+        <mat-form-field appearance="fill" style="padding-left: 10px; padding-right: 10px">
           <mat-label>Введите свой пароль</mat-label>
           <input matInput [type]="hide ? 'password' : 'text'" formControlName="password">
           <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
             <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
           </button>
         </mat-form-field>
-        <button mat-flat-button color="primary" [disabled]="loading">
+        <button mat-flat-button color="primary" [disabled]="loading" >
           <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
           Войти
         </button>

@@ -29,7 +29,7 @@ export class VendorAutocompletComponent implements OnInit {
         this.filteredOptions = this.myControl.valueChanges
           .pipe(
             startWith(''),
-
+            map(value => typeof value === 'string' || value === null ? value :value.name ),
             map(vendor => vendor ? this._filter(vendor) : this.options.slice())
           );
       },

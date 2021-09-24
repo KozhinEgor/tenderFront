@@ -1,0 +1,23 @@
+.card{
+
+  display: inline-block;
+  padding: 15px;
+  border-radius: 8px;
+  border: 2px solid #b3b3b3;
+}
+.card-body{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.block{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+.card-header{
+  text-align: center;
+}
+

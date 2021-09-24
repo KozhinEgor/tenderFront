@@ -21,6 +21,8 @@ export class PageRegistrationComponent implements OnInit {
   password: string;
   code:string;
   error:string;
+  nickname = new FormControl('' );
+  flagNickname:boolean = true;
   getErrorMessage() {
     if (this.email.hasError('required')) {
       return 'You must enter a value';
@@ -28,14 +30,27 @@ export class PageRegistrationComponent implements OnInit {
 
     return this.email.hasError('email') ? 'Not a valid email' : '';
   }
+  checkNickname() {
+    if (this.nickname.value !== '' && this.nickname.value !== null && this.nickname.value !== undefined) {
+      this.api.checkNickname(this.nickname.value).subscribe(data => {
+          this.flagNickname = data["name"];
 
+        },
+        (error: HttpErrorResponse) => {
+          this.error = "Ошибка! Проверьте все значения, если все введено верно обратитесь к администратору";
+        })
+    }
+    else{
+      this.flagNickname = true;
+    }
+  }
   savepassword() {
     this.error='';
-    if(this.email.value !== '' && this.code !== '' && this.password !== '' &&
-    this.email.value !== null && this.code !== null && this.password !== null &&
-    this.email.value !== undefined && this.code !== undefined && this.password !== undefined){
-
-      this.api.setPasswordUser({username:this.email.value, activationCode:this.code.trim() ,password:this.password}).subscribe(
+    if(this.email.value !== '' && this.code !== '' && this.password !== '' && this.nickname.value !== '' &&
+    this.email.value !== null && this.code !== null && this.password !== null && this.nickname.value !== null &&
+    this.email.value !== undefined && this.code !== undefined && this.password !== undefined && this.nickname.value !== undefined){
+    console.log('Pltcm')
+      this.api.setPasswordUser({username:this.email.value, activationCode:this.code.trim() ,password:this.password, nickname:this.nickname.value}).subscribe(
         data =>{this.router.navigate(['/login'])},
         (error:HttpErrorResponse) => { this.error = "Ошибка! Проверьте все значения, если все введено верно обратитесь к администратору";
         // if(error.status === 200){

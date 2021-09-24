@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Country} from "../classes";
 import {FormControl} from "@angular/forms";
 import {Observable} from "rxjs";
@@ -16,7 +16,6 @@ export class ContryAutocompletComponent implements OnInit {
 
 // tslint:disable-next-line:no-output-on-prefix
   @Output() Change = new EventEmitter<Country>();
-
   name: string = null;
   myControl = new FormControl();
   options: Country[] = [];

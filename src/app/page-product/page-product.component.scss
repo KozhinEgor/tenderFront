@@ -1,75 +1,22 @@
-.ChoseContainer{
-  width: 97%;
-  padding: 5px;
-  margin: 1.5rem auto;
-  height: fit-content;
-
-}
-.Filter{
-  position: sticky;
-  top: 40px;
-  display: inline-block;
-  min-width: 200px;
-  margin-top: 60px;
-  margin-right: 10px;
-  margin-left: 10px;
-  padding: 15px;
-  border-radius: 8px;
-  border: 2px solid #e3e3e3;
-}
-.filter {
-  margin-left: 15px;
-  //width: 100%;
-}
-.tableContainer{
-  display: inline-block;
-  padding-left: 5px;
-}
-.bodyContainer {
+.but{
+  width: 175px;
+  height: 175px;
+  border: 1px solid #000000;
+  box-sizing: border-box;
+  border-radius: 15px;
+  background-color: #fafafa;
   display: flex;
-  width: 97%;
-  overflow: visible;
-  margin: 1.5rem auto;
-  height: fit-content;
-  align-items: flex-start;
-}
-.row{
-  display: flex;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
 }
-.EditContainer{
-    position: sticky;
-    top: 40px;
-    display: inline-block;
-    min-width: 200px;
-    margin-top: 60px;
-    margin-right: 10px;
-    margin-left: 10px;
-    padding: 15px;
-    border-radius: 8px;
-    border: 2px solid #e3e3e3;
+.block{
+  display: flex;
+  justify-content: space-between;
 }
-.mat-cell, .mat-header-cell {
-  font-size: 14px;
-  min-height: 48px;
-  min-width: 40px;
-  text-align: center;
-}
-.Childmargin{
-  margin: 5px;
-}
-.id{
-  min-width: 50px;
-  max-width: 80px;
-}
-.show_table{
-  margin-left: 10px;
-}
-.changeDiv{
-  display: inline-block;
-  border: 2px solid #e3e3e3;
-  border-radius: 8px;
-  padding: 5px;
-  margin: 10px;
+.all{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
