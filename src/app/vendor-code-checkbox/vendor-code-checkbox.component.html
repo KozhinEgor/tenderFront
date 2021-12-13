@@ -1,0 +1,6 @@
+<mat-form-field appearance="fill">
+  <mat-label>Артикулы</mat-label>
+  <mat-select [formControl]="myControl" multiple (ngModelChange)="Change.emit(myControl.value)">
+    <mat-option *ngFor="let sub of vendor_codes" [value]="sub">{{sub.subcategory}} {{sub.vendor}} {{sub.vendor_code}}</mat-option>
+  </mat-select>
+</mat-form-field>

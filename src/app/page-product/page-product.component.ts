@@ -10,6 +10,7 @@ import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog
 import {saveAs} from 'file-saver';
 import {DialogData, ErrorDialogComponent} from "../error-dialog/error-dialog.component";
 import {VendorCodeAutocompleatComponent} from "../vendor-code-autocompleat/vendor-code-autocompleat.component";
+import {CategoryProductComponent} from "../category-product/category-product.component";
 
 @Component({
   selector: 'app-page-product',
@@ -17,8 +18,10 @@ import {VendorCodeAutocompleatComponent} from "../vendor-code-autocompleat/vendo
   styleUrls: ['./page-product.component.scss']
 })
 export class PageProductComponent implements OnInit {
+
   constructor() {
   }
   ngOnInit() {
   }
+
 }

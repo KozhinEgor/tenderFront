@@ -49,7 +49,7 @@ export class PageRegistrationComponent implements OnInit {
     if(this.email.value !== '' && this.code !== '' && this.password !== '' && this.nickname.value !== '' &&
     this.email.value !== null && this.code !== null && this.password !== null && this.nickname.value !== null &&
     this.email.value !== undefined && this.code !== undefined && this.password !== undefined && this.nickname.value !== undefined){
-    console.log('Pltcm')
+
       this.api.setPasswordUser({username:this.email.value, activationCode:this.code.trim() ,password:this.password, nickname:this.nickname.value}).subscribe(
         data =>{this.router.navigate(['/login'])},
         (error:HttpErrorResponse) => { this.error = "Ошибка! Проверьте все значения, если все введено верно обратитесь к администратору";

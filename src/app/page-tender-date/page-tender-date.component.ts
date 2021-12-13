@@ -12,7 +12,7 @@ import {
   Product,
   ProductCategory,
   ProductReceived,
-  ReceivedJson,
+  ReceivedJson, SearchParameters,
   Type,
   Vendor
 } from '../classes';
@@ -29,6 +29,17 @@ import {COMMA, ENTER, SPACE} from "@angular/cdk/keycodes";
 import {ContryAutocompletComponent} from "../contry-autocomplet/contry-autocomplet.component";
 import {VendorAutocompletComponent} from "../vendor-autocomplet/vendor-autocomplet.component";
 import {of} from "rxjs";
+import {CategoryProductComponent} from "../category-product/category-product.component";
+import {SubcategoryAutocompletComponent} from "../subcategory-autocomplet/subcategory-autocomplet.component";
+import {VendorCodeCheckboxComponent} from "../vendor-code-checkbox/vendor-code-checkbox.component";
+import {ProductCategoryCheckboxComponent} from "../product-category-checkbox/product-category-checkbox.component";
+import {VendorCheckboxComponent} from "../vendor-checkbox/vendor-checkbox.component";
+import {SubcategoryCheckboxComponent} from "../subcategory-checkbox/subcategory-checkbox.component";
+import {TypeProductOrderComponent} from "../type-product-order/type-product-order.component";
+import {AuthenticationService} from "../service/authentication.service";
+import {SaveParametrsComponent} from "../save-parametrs/save-parametrs.component";
+import {RegionSelectedComponent} from "../region-selected/region-selected.component";
+import {DistrictSelectedComponent} from "../district-selected/district-selected.component";
 
 
 export interface group {
@@ -62,15 +73,27 @@ export class PageTenderDateComponent implements OnInit {
   private winnerAutocomplet: WinnerAutocompletComponent;
 
   @ViewChild(ContryAutocompletComponent)
-  private contryAutocompletComponent:ContryAutocompletComponent
+  private contryAutocompletComponent: ContryAutocompletComponent
   @ViewChild(DataRangeComponent)
   private dataRange: DataRangeComponent | undefined;
-  @ViewChild(VendorCodeAutocompleatComponent)
-  private vendorCodeAutocompleatComponent:VendorCodeAutocompleatComponent;
-  @ViewChild(ProductCategoryAutocompletComponent)
-  private productCategoryAutocompletComponent:ProductCategoryAutocompletComponent
-  @ViewChild(VendorAutocompletComponent)
-  private vendorAutocompletComponent:VendorAutocompletComponent;
+  @ViewChild(VendorCodeCheckboxComponent)
+  private vendorCodeCheckboxComponent:VendorCodeCheckboxComponent;
+  @ViewChild(ProductCategoryCheckboxComponent)
+  private productCategoryCheckboxComponent:ProductCategoryCheckboxComponent
+  @ViewChild(VendorCheckboxComponent)
+  private vendorCheckboxComponent:VendorCheckboxComponent;
+  @ViewChild(SubcategoryCheckboxComponent)
+  private subcategoryCheckboxComponent: SubcategoryCheckboxComponent
+  @ViewChild(CategoryProductComponent)
+  private categoryProductComponent:CategoryProductComponent
+  @ViewChild(TypeProductOrderComponent)
+  private typeProductOrderComponent:TypeProductOrderComponent
+  @ViewChild(SaveParametrsComponent)
+  saveParametrsComponent:SaveParametrsComponent
+  @ViewChild(RegionSelectedComponent)
+  regionSelectedComponent:RegionSelectedComponent;
+  @ViewChild(DistrictSelectedComponent)
+  districtSelectedComponent:DistrictSelectedComponent;
   expandedElement: Post | null;
   panelOpenState = false;
   dublicate: boolean = true;
@@ -84,15 +107,15 @@ export class PageTenderDateComponent implements OnInit {
   adjacent_tender: boolean = false;
   AllColums: group[] = [{name: 'id', nameru: 'ID'},
     {name: 'nameTender', nameru: 'Название тендера'},
-    {name: 'customer',    nameru: 'Заказчик'},
+    {name: 'customer', nameru: 'Заказчик'},
     {name: 'typetender', nameru: 'Тип тендера'},
     {name: 'sum', nameru: 'Сумма'},
     {name: 'dateStart', nameru: 'Дата начала'},
     {name: 'dateFinish', nameru: 'Дата окончания'},
     {name: 'product', nameru: 'Продукты'},
-    {name: 'winner',nameru: 'Победитель'},
+    {name: 'winner', nameru: 'Победитель'},
     {name: 'winSum', nameru: 'Сумма победителя'}];
-Colums: group[];
+  Colums: group[];
   visible = true;
   selectable = true;
   removable = true;
@@ -101,29 +124,30 @@ Colums: group[];
   readonly separatorKeysCodes = [ENTER, COMMA, SPACE] as const;
   ids: number[] = [];
   numberShow = false;
-  changeColumn(){
+
+  changeColumn() {
     // this.adjacent_tender = !this.adjacent_tender;
-    if(this.adjacent_tender){
-      this.Colums = this.AllColums.slice(0,6);
-      if(this.isSelected(this.AllColums[7])){
+    if (this.adjacent_tender) {
+      this.Colums = this.AllColums.slice(0, 6);
+      if (this.isSelected(this.AllColums[7])) {
         this.toggleOffer(this.AllColums[7])
       }
-      if(this.isSelected(this.AllColums[8])){
+      if (this.isSelected(this.AllColums[8])) {
         this.toggleOffer(this.AllColums[8])
       }
-      if(this.isSelected(this.AllColums[9])){
+      if (this.isSelected(this.AllColums[9])) {
         this.toggleOffer(this.AllColums[9])
       }
-    }
-    else{
+    } else {
       this.Colums = this.AllColums;
-      if(!this.isSelected(this.AllColums[7])){
+      if (!this.isSelected(this.AllColums[7])) {
         this.toggleOffer(this.AllColums[7])
       }
     }
     this.dataSource = new MatTableDataSource<Post>();
     return this.adjacent_tender;
   }
+
   add(event: MatChipInputEvent): void {
     let value = (event.value || '').trim();
     let mas = value.split(/ |,|\.|;|:|\\|\//);
@@ -131,7 +155,7 @@ Colums: group[];
 
     if (value) {
       for (let i of mas) {
-        if(i !== ''){
+        if (i !== '') {
           i = i.replace(/\D/g, '');
 
           this.ids.push(Number(i));
@@ -162,7 +186,7 @@ Colums: group[];
     // Add our fruit
     if (value) {
       for (let i of mas) {
-        if(i !== ''){
+        if (i !== '') {
           i = i.replace(/\D/g, '');
 
           this.number_bico.push(Number(i));
@@ -234,25 +258,29 @@ Colums: group[];
     }
   }
 
-  constructor(private api: ApiService, public dialog: MatDialog) {
+  constructor(private api: ApiService, public dialog: MatDialog,private authenticationService: AuthenticationService) {
     for (let index = 0; index < this.AllColums.length - 2; index++) {
       this.ChoseColums.push(this.AllColums[index]);
       this.displayedColumns.push(this.AllColums[index].name);
     }
     this.Colums = this.AllColums;
   }
+
   country: number;
 
   ChangeCountry(country: any) {
-  if(typeof country !=="string"){
-    this.country = country.id;
-  }
+    if(typeof country !=="string"){
+      this.country = country.id;
+    }
+    if(country === '' || country === null || country === undefined){
+      this.country = null;
+    }
   }
 
-  default(){
+  default() {
     this.dublicate = true;
     this.TypeExclude = false;
-    this.types =[];
+    this.types = [];
     this.CustomExclude = false;
     this.customers = [];
     this.innCustomer = '';
@@ -268,79 +296,97 @@ Colums: group[];
     this.adjacent_tender = false;
     this.Colums = this.AllColums;
     this.contryAutocompletComponent.myControl.setValue('');
-    this.dataRange.range.setValue({dateStart:null,dateFinish:null});
-    this.productCategoryAutocompletComponent.myControl.setValue('');
-    this.vendorAutocompletComponent.myControl.setValue('');
-    this.vendorCodeAutocompleatComponent.myControl.setValue('')
+    this.dataRange.range.setValue({dateStart: null, dateFinish: null});
+
+    this.categoryProductComponent.category_product = "";
+    this.categoryProductComponent.setCategory_product('');
+    this.productCategoryCheckboxComponent.myControl.setValue([]);
+    this.vendorCodeCheckboxComponent.myControl.setValue([]);
+    this.vendorCodeCheckboxComponent.myControl.disable();
+    this.vendorCheckboxComponent.myControl.setValue([]);
+    this.subcategoryCheckboxComponent.myControl.setValue([]);
+    this.typeProductOrderComponent.type = "Год";
+    this.productCategoryCheckboxComponent.ChangeCategoryProduct('');
+
+    this.saveParametrsComponent.myControl.setValue('');
   }
 
   category: ProductCategory = null;
   vendor: Vendor = null;
   vendor_code: Product = null;
   product: ProductReceived[] = [];
-  ChangeBigCategory(bigCategory: any){
+
+  ChangeBigCategory(bigCategory: any) {
     if (bigCategory != null && typeof bigCategory !== 'string') {
-      this.product.push({category:null, vendor:null, vendor_code:null,big_category:bigCategory});
+      this.product.push({category: null, vendor: null, vendor_code: null, big_category: bigCategory, subcategory: null,category_product: null,});
     }
   }
+
+
+  ChangeCategoryProduct(categoryProduct: any) {
+    if (categoryProduct != null) {
+      this.productCategoryCheckboxComponent.ChangeCategoryProduct(categoryProduct);
+    }
+  }
+
   ChangeCategory(category : any){
-    if (category != null && typeof category !== 'string') {
-
-
-        if(this.productCategoryAutocompletComponent.myControl.value.id === 7 ){
-          this.vendorAutocompletComponent.myControl.disable();
-        }
-        else {
-          this.vendorAutocompletComponent.myControl.enable();
-          this.vendorAutocompletComponent.start(category.id);
+    if (category != null && this.productCategoryCheckboxComponent.myControl.value.length  !== 0) {
+      if(this.productCategoryCheckboxComponent.myControl.value.length === 1){
+        this.vendorCodeCheckboxComponent.myControl.enable();
+        this.vendorCodeCheckboxComponent.start(this.productCategoryCheckboxComponent.myControl.value[0].id);
       }
-      this.vendorCodeAutocompleatComponent.start(category.id);
+      else{this.vendorCodeCheckboxComponent.myControl.disable()}
     }
     else if(category === ''){
-      this.vendorCodeAutocompleatComponent.start(0);
+      this.vendorCodeCheckboxComponent.myControl.setValue([]);
+
+      this.vendorCodeCheckboxComponent.myControl.disable();
+
     }
   }
 
-  ChangeVendor(vendor:any){
-    if(vendor != null && typeof vendor !=="string"){
-      this.vendorCodeAutocompleatComponent.ChangeVendor(vendor.name);
-    }
-    else if (vendor === ''){
-      this.vendorCodeAutocompleatComponent.ChangeVendor(null);
-    }
-  }
 
-  ChangeVendorCode(vendor_code: any){
-    if (vendor_code != null && typeof vendor_code !== 'string') {
-      if(!this.vendorAutocompletComponent.myControl.value && this.productCategoryAutocompletComponent.myControl.value.id !== 7){
-        this.vendorAutocompletComponent.setVendor(vendor_code.vendor);
+
+  ChangeVendor(vendor: any) {
+    if (vendor != null && this.vendorCheckboxComponent.myControl.value.length !== 0) {
+      if(this.vendorCheckboxComponent.myControl.value.length === 1 && this.productCategoryCheckboxComponent.myControl.value.length === 1){
+        this.vendorCodeCheckboxComponent.filterProduct(vendor[0].name)
       }
-
-
     }
   }
 
-  AddProduct(){
-    if((this.productCategoryAutocompletComponent.myControl.value !== null && this.productCategoryAutocompletComponent.myControl.value !== '')
-      || (this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== '')
-      || (this.vendorCodeAutocompleatComponent.myControl.value !== null && this.vendorCodeAutocompleatComponent.myControl.value !== '')){
-      if(this.product){
-        this.product.push({category: this.productCategoryAutocompletComponent.myControl.value== ''?null:this.productCategoryAutocompletComponent.myControl.value, vendor: this.vendorAutocompletComponent.myControl.value == ''?null:this.vendorAutocompletComponent.myControl.value, vendor_code:this.vendorCodeAutocompleatComponent.myControl.value== ''?null:(this.vendorCodeAutocompleatComponent.myControl.value),big_category:null});
-
-        this.productCategoryAutocompletComponent.myControl.setValue('');
-        if(this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== ''){
-
-          this.vendorAutocompletComponent.myControl.setValue(null);
+  AddProduct() {
+    if ((this.productCategoryCheckboxComponent.myControl.value !== undefined && this.productCategoryCheckboxComponent.myControl.value !== null && this.productCategoryCheckboxComponent.myControl.value.length !== 0  && this.productCategoryCheckboxComponent.myControl.value !== [])
+      || (this.vendorCheckboxComponent.myControl.value !== undefined && this.vendorCheckboxComponent.myControl.value !== null && this.vendorCheckboxComponent.myControl.value.length !== 0 && this.vendorCheckboxComponent.myControl.value !== [])
+      || (this.vendorCodeCheckboxComponent.myControl.value  !== undefined && this.vendorCodeCheckboxComponent.myControl.value !== null && this.vendorCodeCheckboxComponent.myControl.value.length !== 0 && this.vendorCodeCheckboxComponent.myControl.value !== [])
+      || (this.subcategoryCheckboxComponent.myControl.value !== undefined && this.subcategoryCheckboxComponent.myControl.value !== null && this.subcategoryCheckboxComponent.myControl.value.length !== 0 && this.subcategoryCheckboxComponent.myControl.value !== [])
+      || (this.categoryProductComponent.category_product !== undefined && this.categoryProductComponent.category_product !== null && this.categoryProductComponent.category_product !== '')) {
+      if (this.product) {
+        this.product.push({
+          category: this.productCategoryCheckboxComponent.myControl.value == [] ? null : this.productCategoryCheckboxComponent.myControl.value,
+          vendor: this.vendorCheckboxComponent.myControl.value == [] ? null : this.vendorCheckboxComponent.myControl.value,
+          vendor_code: this.vendorCodeCheckboxComponent.myControl.value == [] ? null : (this.vendorCodeCheckboxComponent.myControl.value),
+          big_category: null,
+          subcategory: this.subcategoryCheckboxComponent.myControl.value == []? null : this.subcategoryCheckboxComponent.myControl.value,
+          category_product:this.categoryProductComponent.category_product
+        });
+        console.log(this.product);
+        this.productCategoryCheckboxComponent.myControl.setValue([]);
+        if (this.vendorCheckboxComponent.myControl.value !== null && this.vendorCheckboxComponent.myControl.value !== []) {
+          this.vendorCheckboxComponent.myControl.setValue([]);
         }
-        this.vendorCodeAutocompleatComponent.myControl.setValue('');
-
+        this.categoryProductComponent.category_product = "";
+        this.vendorCodeCheckboxComponent.myControl.setValue([]);
+        this.vendorCodeCheckboxComponent.myControl.disable();
+        if(this.subcategoryCheckboxComponent.myControl.value !== null && this.subcategoryCheckboxComponent.myControl.value !== []){
+          this.subcategoryCheckboxComponent.myControl.setValue('')
+        }
+        this.productCategoryCheckboxComponent.ChangeCategoryProduct('');
       }
     }
-
-
   }
 
-  removeProduct(product: ProductReceived){
+  removeProduct(product: ProductReceived) {
     const index = this.product.indexOf(product);
 
     if (index >= 0) {
@@ -348,11 +394,13 @@ Colums: group[];
     }
   }
 
-  showTables(): void{
-    if(!this.adjacent_tender){
-      if((this.productCategoryAutocompletComponent.myControl.value !== null && this.productCategoryAutocompletComponent.myControl.value !== '')
-        || (this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== '')
-        || (this.vendorCodeAutocompleatComponent.myControl.value !== null && this.vendorCodeAutocompleatComponent.myControl.value !== '')){
+  showTables(): void {
+    if (!this.adjacent_tender) {
+      if ((this.productCategoryCheckboxComponent.myControl.value !== undefined && this.productCategoryCheckboxComponent.myControl.value !== null && this.productCategoryCheckboxComponent.myControl.value.length !== 0  && this.productCategoryCheckboxComponent.myControl.value !== [])
+        || (this.vendorCheckboxComponent.myControl.value !== undefined && this.vendorCheckboxComponent.myControl.value !== null && this.vendorCheckboxComponent.myControl.value.length !== 0 && this.vendorCheckboxComponent.myControl.value !== [])
+        || (this.vendorCodeCheckboxComponent.myControl.value  !== undefined && this.vendorCodeCheckboxComponent.myControl.value !== null && this.vendorCodeCheckboxComponent.myControl.value.length !== 0 && this.vendorCodeCheckboxComponent.myControl.value !== [])
+        || (this.subcategoryCheckboxComponent.myControl.value !== undefined && this.subcategoryCheckboxComponent.myControl.value !== null && this.subcategoryCheckboxComponent.myControl.value.length !== 0 && this.subcategoryCheckboxComponent.myControl.value !== [])
+        || (this.categoryProductComponent.category_product !== undefined && this.categoryProductComponent.category_product !== null && this.categoryProductComponent.category_product !== '')) {
         this.AddProduct();
       }
     }
@@ -376,44 +424,47 @@ Colums: group[];
       ids: this.ids,
       bicotender: this.number_bico,
       numberShow: this.numberShow,
-      product: this.product
+      product: this.product,
+      districts: this.districtSelectedComponent.myControl.value !== null? this.districtSelectedComponent.myControl.value:null,
+      regions: this.regionSelectedComponent.myControl.value !== null? this.regionSelectedComponent.myControl.value:null
     }
-    if(this.adjacent_tender){
+    if (this.adjacent_tender) {
 
       this.api.getAdjacentTenderWithParametrs(json).subscribe(posts => {
 
-          if(posts.length === 0){
+          if (posts.length === 0) {
             this.dataSource = new MatTableDataSource<Post>(posts)
-            this.dialog.open(ErrorDialogComponent, { data: 'Найдено 0 тендеров'});
-          }
-          else{this.dataSource = new MatTableDataSource<Post>(posts) ;
+            this.dialog.open(ErrorDialogComponent, {data: 'Найдено 0 тендеров'});
+          } else {
+            this.dataSource = new MatTableDataSource<Post>(posts);
             this.dataSource.paginator = this.paginator;
-            this.dataSource.sort = this.sort;}
+            this.dataSource.sort = this.sort;
+          }
 
         },
         error => {
-          this.dialog.open(ErrorDialogComponent,{data: 'Ошибка' + error});
+          this.dialog.open(ErrorDialogComponent, {data: 'Ошибка' + error});
         });
-    }
-    else {
+    } else {
       this.api.getPostWithParametrs(json).subscribe(posts => {
 
-          if(posts.length === 0){
+          if (posts.length === 0) {
             this.dataSource = new MatTableDataSource<Post>(posts)
-            this.dialog.open(ErrorDialogComponent, { data: 'Найдено 0 тендеров'});
-          }
-          else{this.dataSource = new MatTableDataSource<Post>(posts) ;
+            this.dialog.open(ErrorDialogComponent, {data: 'Найдено 0 тендеров'});
+          } else {
+            this.dataSource = new MatTableDataSource<Post>(posts);
             this.dataSource.paginator = this.paginator;
-            this.dataSource.sort = this.sort;}
+            this.dataSource.sort = this.sort;
+          }
 
         },
         error => {
-          this.dialog.open(ErrorDialogComponent,{data: 'Ошибка' + error});
+          this.dialog.open(ErrorDialogComponent, {data: 'Ошибка' + error});
         });
     }
   }
 
-  getFile(){
+  getFile() {
     const json: ReceivedJson = {
       dateStart: this.dataRange.getDateStart(),
       dateFinish: this.dataRange.getDateFinish(),
@@ -432,25 +483,26 @@ Colums: group[];
       ids: this.ids,
       bicotender: this.number_bico,
       numberShow: this.numberShow,
-      product: this.product
+      product: this.product,
+      districts: this.districtSelectedComponent.myControl.value !== null? this.districtSelectedComponent.myControl.value:null,
+      regions: this.regionSelectedComponent.myControl.value !== null? this.regionSelectedComponent.myControl.value:null
     }
-    if (this.adjacent_tender){
+    if (this.adjacent_tender) {
       this.api.getFileAdjacentTender(json).subscribe(
         blob => {
           saveAs(blob, "Tender.xlsx");
         },
         error => {
-          this.dialog.open(ErrorDialogComponent,{data:"Ошибка" + error});
+          this.dialog.open(ErrorDialogComponent, {data: "Ошибка" + error});
         }
       );
-    }
-    else{
+    } else {
       this.api.getFileTender(json).subscribe(
         blob => {
           saveAs(blob, "Tender.xlsx");
         },
         error => {
-          this.dialog.open(ErrorDialogComponent,{data:"Ошибка" + error});
+          this.dialog.open(ErrorDialogComponent, {data: "Ошибка" + error});
         }
       );
     }
@@ -471,7 +523,7 @@ Colums: group[];
       this.ChoseColums.push(offer);
       const indexDisplay = this.AllColums.indexOf(offer);
 
-     this.displayedColumns.splice(indexDisplay, 0, offer.name);
+      this.displayedColumns.splice(indexDisplay, 0, offer.name);
     }
     this.displayedColumns = this.displayedColumns;
   }
@@ -482,6 +534,150 @@ Colums: group[];
 
     return index >= 0;
   }
+  saveSearch(){
+    let name: string;
+    let id:number;
+    let flag:boolean;
+    if(typeof this.saveParametrsComponent.myControl.value !== "string" && this.saveParametrsComponent.myControl.value !== '' && this.saveParametrsComponent.myControl.value.id !== undefined
+      && this.saveParametrsComponent.myControl.value.id !== null){
+      flag = true;
+      name = this.saveParametrsComponent.myControl.value.name;
+      id = this.saveParametrsComponent.myControl.value.id;
+    }
+    else if(typeof this.saveParametrsComponent.myControl.value  === "string" && this.saveParametrsComponent.myControl.value !== '' && this.saveParametrsComponent.myControl.value !== undefined
+      && this.saveParametrsComponent.myControl.value !== null){
+      flag = true;
+      id = null;
+      name = this.saveParametrsComponent.myControl.value;
+    }
+    else{
+      flag = false;
+      this.dialog.open(ErrorDialogComponent,{data:'Проверьте значение в навзание поиска'})
+    }
+    if(flag) {
+      if (!this.adjacent_tender) {
+        if ((this.productCategoryCheckboxComponent.myControl.value !== undefined && this.productCategoryCheckboxComponent.myControl.value !== null && this.productCategoryCheckboxComponent.myControl.value.length !== 0 && this.productCategoryCheckboxComponent.myControl.value !== [])
+          || (this.vendorCheckboxComponent.myControl.value !== undefined && this.vendorCheckboxComponent.myControl.value !== null && this.vendorCheckboxComponent.myControl.value.length !== 0 && this.vendorCheckboxComponent.myControl.value !== [])
+          || (this.vendorCodeCheckboxComponent.myControl.value !== undefined && this.vendorCodeCheckboxComponent.myControl.value !== null && this.vendorCodeCheckboxComponent.myControl.value.length !== 0 && this.vendorCodeCheckboxComponent.myControl.value !== [])
+          || (this.subcategoryCheckboxComponent.myControl.value !== undefined && this.subcategoryCheckboxComponent.myControl.value !== null && this.subcategoryCheckboxComponent.myControl.value.length !== 0 && this.subcategoryCheckboxComponent.myControl.value !== [])
+          || (this.categoryProductComponent.category_product !== undefined && this.categoryProductComponent.category_product !== null && this.categoryProductComponent.category_product !== '')) {
+          this.AddProduct();
+        }
+      }
 
+      const json: SearchParameters = {
+        name: name, id: id, nickname: this.authenticationService.userValue.nickname,
+        ids_string: null,
+        bicotender_string: null,
+        dateStart: this.dataRange.getDateStart(),
+        dateFinish: this.dataRange.getDateFinish(),
+        dublicate: this.dublicate,
+        quarter: null,
+        typeExclude: this.TypeExclude,
+        type: this.types,
+        customExclude: this.CustomExclude,
+        custom: this.customers,
+        innCustomer: this.innCustomer,
+        country: this.country,
+        winnerExclude: this.WinnersExclude,
+        winner: this.winners,
+        minSum: this.minSum.value,
+        maxSum: this.maxSum.value,
+        ids: this.ids,
+        bicotender: this.number_bico,
+        numberShow: this.numberShow,
+        product: this.product,
+        districts: this.districtSelectedComponent.myControl.value !== null && this.districtSelectedComponent.myControl.value !== [] && this.districtSelectedComponent.myControl.value !== undefined? this.districtSelectedComponent.myControl.value:[],
+        regions: this.regionSelectedComponent.myControl.value !== null && this.regionSelectedComponent.myControl.value !== [] && this.regionSelectedComponent.myControl.value !== undefined? this.regionSelectedComponent.myControl.value:[]
+      }
+
+      this.api.save_SaveParameters(json).subscribe(
+        data =>{ this.saveParametrsComponent.setOprions(data);
+          this.dialog.open(ErrorDialogComponent, {data: 'Сохранил'});},
+    error => {
+      this.dialog.open(ErrorDialogComponent, {data: 'Ошибка' + error});
+    }
+      );
+    }
+  }
+  ChangeSaveParameters(saveParameters: any) {
+      if(typeof saveParameters !=="string"){
+        this.dataRange.range.setValue({dateStart:saveParameters.dateStart !== null?new Date(saveParameters.dateStart):null, dateFinish:saveParameters.dateFinish != null?new Date(saveParameters.dateFinish):null});
+          this.dublicate = saveParameters.dublicate;
+          this.TypeExclude = saveParameters.typeExclude;
+          this.types = saveParameters.type;
+        this.CustomExclude = saveParameters.customExclude;
+        this.customers = saveParameters.custom;
+        this.innCustomer = saveParameters.innCustomer;
+        this.country = saveParameters.country;
+        this.contryAutocompletComponent.setContryById(saveParameters.country);
+           this.WinnersExclude = saveParameters.winnerExclude;
+          this.winners = saveParameters.winner;
+          this.minSum.setValue(saveParameters.minSum);
+          this.maxSum.setValue(saveParameters.maxSum);
+          if(saveParameters.ids !== null){this.add(saveParameters.ids);}
+          if(saveParameters.bicotender !== null){this.addBicoNumber(saveParameters.bicotender)};
+          this.numberShow = saveParameters.numberShow;
+          this.product = saveParameters.product;
+           this.regionSelectedComponent.setRegions(saveParameters.regions);
+          this.districtSelectedComponent.setDistrict(saveParameters.districts);
+
+
+      }
+
+    }
+    regionsSelected: boolean = false;
+  districtSelected: boolean = false;
+  ChangeRegion(regions: any) {
+
+    if(regions !== null && regions.length !== 0) {
+
+      this.regionsSelected = true;
+      this.innCustomer = '';
+
+        this.contryAutocompletComponent.myControl.setValue('');
+        this.contryAutocompletComponent.myControl.disable();
+
+
+      this.customAutocomplet.myControl.disable();
+      this.customers = [];
+      this.districtSelectedComponent.myControl.disable();
+      this.districtSelectedComponent.myControl.setValue([]);
+    }
+    else{
+      if(this.districtSelectedComponent.myControl.value !== null && this.districtSelectedComponent.myControl.value.length < 1) {
+        this.districtSelectedComponent.myControl.enable();
+        this.regionsSelected = false;
+        this.contryAutocompletComponent.myControl.enable();
+        this.customAutocomplet.myControl.enable();
+      }
+
+    }
+  }
+  ChangeDistrict(district: any) {
+
+    if(district !== null && district.length !== 0) {
+      this.regionsSelected = true;
+      this.innCustomer = '';
+        this.contryAutocompletComponent.myControl.setValue('');
+        this.contryAutocompletComponent.myControl.disable();
+
+      this.customAutocomplet.myControl.disable();
+      this.regionSelectedComponent.myControl.disable();
+      this.regionSelectedComponent.myControl.setValue([]);
+      this.customers = [];
+    }
+    else{
+        if(this.regionSelectedComponent.myControl.value !== null && this.regionSelectedComponent.myControl.value.length < 1) {
+          this.regionsSelected = false;
+          if (!this.contryAutocompletComponent.myControl.enabled) {
+            this.contryAutocompletComponent.myControl.enable();
+          }
+          this.customAutocomplet.myControl.enable();
+          this.regionSelectedComponent.myControl.enable();
+        }
+
+    }
+  }
 }
 

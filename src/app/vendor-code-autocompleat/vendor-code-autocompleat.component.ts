@@ -17,7 +17,7 @@ export class VendorCodeAutocompleatComponent implements OnInit {
   // tslint:disable-next-line:no-output-on-prefix
   @Output() Change = new EventEmitter<Product>();
 
-
+  subcategory: string;
   myControl = new FormControl();
   options: Product[] = [];
   filteredOptions: Observable<Product[]> | undefined;
@@ -33,15 +33,7 @@ export class VendorCodeAutocompleatComponent implements OnInit {
           .pipe(
             startWith(''),
             map(value => typeof value === 'string' ? value : value.vendor_code),
-            map(productVendorCode => {
-                if(productVendorCode){
-                  return this._filter(productVendorCode)
-                }
-                else if(this.vendor){
-                  return this._filterVendor(this.vendor);
-                }
-                else{return this.options.slice();}
-              }
+            map(productVendorCode => this._filter(productVendorCode?productVendorCode:'',this.vendor?this.vendor:'',this.subcategory?this.subcategory:'')
             )
           );
       }
@@ -61,20 +53,44 @@ export class VendorCodeAutocompleatComponent implements OnInit {
     return product && product.vendor_code ? product.vendor_code : '';
   }
 
-  private _filter(vendorCode: string): Product[] {
+  private _filter(vendorCode: string,vendor: string, subcategory: string): Product[] {
     const filterValue = vendorCode.toLowerCase();
+    const filterSubcategory = subcategory.toLowerCase();
+    const filterVendor = typeof vendor === 'string'?vendor.toLowerCase():'';
 
-    return this.options.filter(option => option.vendor_code.toLowerCase().includes(filterValue));
+    return this.options.filter(option =>{
+      let sub: boolean = true;
+      let ven: boolean = true;
+      let val: boolean = true;
+
+      if(filterSubcategory !== '' && option.subcategory !== null && typeof option.subcategory === "string"){
+        sub =  option.subcategory.toLowerCase().includes(filterSubcategory);
+
+      }
+      else if(filterSubcategory !== '' && option.subcategory === null && typeof option.subcategory !== "string") {sub = false;}
+      if(filterVendor !== '' && option.vendor!=null && typeof  option.vendor === "string"){
+        ven = option.vendor.toLowerCase().includes(filterVendor);
+      }
+      else if(filterVendor !== '' && option.vendor === null && typeof  option.vendor !== "string") { ven = false;}
+      if(filterValue !== '' && option.vendor_code != null && typeof  option.vendor_code === "string"){
+        val = option.vendor_code.toLowerCase().includes(filterValue);
+      }
+      else if (filterValue !== '' && option.vendor_code === null && typeof option.vendor_code !== "string"){ val = false}
+      return sub && ven && val;
+    }
+    );
   }
   public ChangeVendor(vendor: string){
     this.vendor = vendor;
     this.myControl.setValue(this.myControl.value? this.myControl.value:'');
   }
-  public _filterVendor(vendor: string): Product[]{
-    const filterVendor = vendor.toLowerCase();
-    return this.options.filter(option => option.vendor.toLowerCase().includes(filterVendor));
-  }
+
+
   getProduct(): any{
     return this.myControl.value != null ? this.myControl.value.id : '%';
+  }
+  ChangeSubcategory(subcategory: string){
+    this.subcategory = subcategory;
+    this.myControl.setValue(this.myControl.value? this.myControl.value:'');
   }
 }

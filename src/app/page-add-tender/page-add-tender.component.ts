@@ -55,12 +55,17 @@ export class PageAddTenderComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.addBicoNumberTenderFromBuffer(localStorage.getItem('number_bicoTender'));
+    this.addBicoNumberAdjacentFromBuffer(localStorage.getItem('number_bicoAdjacent'))
       this.api.numberFromBuffer(1).subscribe(posts => {
-      this.addBicoNumberTenderFromBuffer(posts.name)
-      });
+        this.addBicoNumberTenderFromBuffer(posts.name)
+
+      }
+      );
     this.api.numberFromBuffer(2).subscribe(posts => {
       this.addBicoNumberAdjacentFromBuffer(posts.name)
-    });
+    }
+    );
   }
   number_bicoTender: number[] = [];
   selectable = true;
@@ -77,8 +82,10 @@ export class PageAddTenderComponent implements OnInit {
       for (let i of mas) {
         if(i !== ''){
           i = i.replace(/\D/g, '');
+          if(this.number_bicoTender.indexOf(Number(i)) < 0){
+            this.number_bicoTender.push(Number(i));
+          }
 
-          this.number_bicoTender.push(Number(i));
         }
 
       }
@@ -96,7 +103,10 @@ export class PageAddTenderComponent implements OnInit {
         if(i !== ''){
           i = i.replace(/\D/g, '');
 
-          this.number_bicoTender.push(Number(i));
+          if(this.number_bicoTender.indexOf(Number(i)) < 0){
+            this.number_bicoTender.push(Number(i));
+            localStorage.setItem('number_bicoTender', this.number_bicoTender.toString().replace(',',' '));
+          }
         }
 
       }
@@ -150,8 +160,10 @@ export class PageAddTenderComponent implements OnInit {
       for (let i of mas) {
         if(i !== ''){
           i = i.replace(/\D/g, '');
+          if(this.number_bicoAdjacent.indexOf(Number(i)) < 0){
+            this.number_bicoAdjacent.push(Number(i));
+          }
 
-          this.number_bicoAdjacent.push(Number(i));
         }
 
       }
@@ -168,8 +180,10 @@ export class PageAddTenderComponent implements OnInit {
       for (let i of mas) {
         if(i !== ''){
           i = i.replace(/\D/g, '');
-
-          this.number_bicoAdjacent.push(Number(i));
+          if(this.number_bicoAdjacent.indexOf(Number(i)) < 0) {
+            this.number_bicoAdjacent.push(Number(i));
+            localStorage.setItem('number_bicoAdjacent', this.number_bicoAdjacent.toString().replace(',', ' '));
+          }
         }
 
       }
@@ -180,8 +194,8 @@ export class PageAddTenderComponent implements OnInit {
     event.input.value = null;
   }
 
-  removeBicoNumberAdjacent(fruit: number): void {
-    const index = this.number_bicoAdjacent.indexOf(fruit);
+  removeBicoNumberAdjacent(number: number): void {
+    const index = this.number_bicoAdjacent.indexOf(number);
 
     if (index >= 0) {
       this.number_bicoAdjacent.splice(index, 1);
@@ -189,6 +203,7 @@ export class PageAddTenderComponent implements OnInit {
   }
 
   loadTenderAdjacent(){
+
     this.adjacent_tender = true;
     this.displayedColumns = this.displayedColumnsAll.slice(0,this.displayedColumnsAll.length-2);
     this.dialog.open(ErrorDialogComponent,{data:'Дождитетесь загрузки, она займет какое-то время'});

@@ -7,11 +7,11 @@
         <td mat-cell *matCellDef="let element" > {{element.big_category_id}} </td>
       </ng-container>
       <ng-container matColumnDef="big_category">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Категория </th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Название </th>
         <td mat-cell *matCellDef="let element" > {{element.big_category}} </td>
       </ng-container>
       <ng-container matColumnDef="product_category">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Синонимы </th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Категории </th>
         <td mat-cell *matCellDef="let element" > {{element.productCategory}} </td>
       </ng-container>
       <ng-container matColumnDef="edit">
@@ -43,11 +43,11 @@
       </mat-form-field>
       <mat-form-field appearance="outline" class="Childmargin">
         <mat-label>Название</mat-label>
-        <input matInput placeholder="Название большой категории" type="text" [(ngModel)]="bigCategory.big_category">
+        <input matInput placeholder="Название группы" type="text" [(ngModel)]="bigCategory.big_category">
       </mat-form-field>
     </div>
     <div class="row">
-      <mat-chip-list  aria-label="Выбранные продукты">
+      <mat-chip-list  aria-label="Выбранные категории">
         <mat-chip *ngFor="let category of bigCategory.category" [selectable]="selectable"
                   [removable]="removable" (removed)="removeCategory(category)">
           {{category.category}}

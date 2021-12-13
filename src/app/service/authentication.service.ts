@@ -5,6 +5,7 @@ import {HttpClient} from "@angular/common/http";
 import {environment} from "../../environments/environment";
 import {User} from "../classes";
 import {map} from "rxjs/operators";
+import { interval } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationService {
@@ -28,11 +29,20 @@ export class AuthenticationService {
       .pipe(map(user => {
         // store user details and jwt token in local storage to keep user logged in between page refreshes
         localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('username',username);
+
         this.userSubject.next(user);
         return user;
       }));
   }
+  intervalId = setInterval(() => this.addJWT(), 5*60000);
+  addJWT() {
+    let username: string = localStorage.getItem('username');
+    this.http.post(this.host+'/refreshJWT',{username}).pipe(map(user => {
+      localStorage.setItem('user', JSON.stringify(user));
 
+    })).subscribe();
+  }
   logout() {
     // remove user from local storage to log user out
     localStorage.removeItem('user');

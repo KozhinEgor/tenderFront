@@ -1,9 +1,98 @@
-<div class="ChoseContainer mat-elevation-z8">
-  <app-data-range ></app-data-range>
-  <app-product-category-autocomplet (Change)="onChange($event)" class="vendor_code"></app-product-category-autocomplet>
-  <app-vendor-code-autocompleat (Change)="onChangeVendorCode($event)"></app-vendor-code-autocompleat>
-  <button mat-flat-button color="primary" (click)="showTables()" class="show_table">Показать таблицу</button>
+<div *ngIf="data !== null">
+<div class = "rowHeader">
+  <div>{{data.name_tender !== null ? data.name_tender : null}}</div>
+  <button *ngIf="user != null && user.role !== 'ROLE_USER'" mat-icon-button color="primary" aria-label="Изменить тендер" (click)="showTender()">
+    <mat-icon>edit</mat-icon>
+  </button>
+</div>
+<fieldset class = "row">
+  <div *ngIf="data.dublicate == true" style="color: red">Дубликат</div>
+  <div>ID: {{data.id !== null ? data.id : null}}</div>
+  <div>Номер на Бикотендер: {{data.number_tender !== null ? data.number_tender : null}}</div>
+  <div>Тип тендера: {{data.typetender !== null ? data.typetender : null}}</div>
+  </fieldset>
+  <fieldset class = "row">
+    <div>Биконтедер: <a href="{{ data.bico_tender !== null ? data.bico_tender : null}}" target="_blank">{{data.bico_tender  !== null ? data.bico_tender : null}}</a></div>
+    <div>Источник: <a href="{{ data.gos_zakupki  !== null ? data.gos_zakupki : null}}" target="_blank">{{data.gos_zakupki !== null ? data.gos_zakupki : null}}</a></div>
+  </fieldset>
+  <fieldset class = "row">
+    <legend>Деньги</legend>
+    <div>Сумма: {{data.sum !== null ? (data.sum | currency : 'RUB':'symbol': '1.2-2':'ru'): null}}</div>
+    <div>Валюта: {{data.currency !== null ? data.currency : null}}</div>
+    <div>Курс: {{data.rate !== null ? data.rate : null}}</div>
+    <div>Цена: {{data.price !== null ?(data.price  | currency : data.currency:'symbol': '1.2-2':'ru'): null}}</div>
+    <div>Полная стоимость: {{data.full_sum !== null ?(data.full_sum  | currency : data.currency:'symbol': '1.2-2':'ru'): null}}</div>
 
+  </fieldset>
+  <fieldset class = "row">
+    <legend>Даты тендера</legend>
+    <div>Дата начала: {{ data.date_start !== null ?(data.date_start | date:'dd.MM.yyyy': "UTC" ): null}}</div>
+    <div>Дата окончания: {{ data.date_finish !== null ?(data.date_finish | date:'dd.MM.yyyy HH:mm:ss': "UTC"): null}} </div>
+    <div *ngIf="data.date_tranding !== null">Дата торгов: {{ data.date_tranding!== null ?(data.date_tranding | date:'dd.MM.yyyy': "UTC" ): null}}</div>
+
+  </fieldset>
+  <fieldset class = "row">
+    <legend>Заказчик</legend>
+    <div>Название: {{data.customer !== null ? data.customer : null}}</div>
+    <div>Страна: {{data.country !== null ? data.country : null}}</div>
+    <div>ИНН: {{data.inn !== null ? data.inn : null}}</div>
+  </fieldset>
+  <fieldset class = "row">
+    <legend>Победитель</legend>
+    <div>Название: {{data.winner !== null ? data.winner : null}}</div>
+    <div>Страна: {{data.winner_country !== null ? data.winner_country : null}}</div>
+    <div>ИНН: {{data.winner_inn !== null ? data.winner_inn : null}}</div>
+    <div>Наилучшее ценовое предложение: {{data.win_sum !== null ?(data.win_sum | currency : 'RUB':'symbol': '1.2-2':'ru'): null}}</div>
+  </fieldset>
+<fieldset class="row">
+  <legend>Продукты</legend>
+  <div>{{data.product!== null ? data.product : null}}</div>
+</fieldset>
+
+  <div class="rowComment">
+    <mat-chip-list  aria-label="Выбранные пользователя для оповещения">
+      <mat-chip *ngFor="let user of users" [selectable]="selectable"
+                [removable]="removable" (removed)="removeUser(user)">
+        {{user.nickname}}
+        <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+      </mat-chip>
+    </mat-chip-list>
+  </div>
+  <div class="rowComment">
+    <app-user-autocomplet (Change)="ChangeUser($event)"></app-user-autocomplet>
+    <mat-form-field class="comment" appearance="fill" hintLabel="Максимум 1024 символа">
+      <mat-label>Введите комментарий</mat-label>
+      <textarea matInput #input placeholder="Ваш коменнтарий" [(ngModel)]="ChangeComment.text" maxlength="1024"></textarea>
+      <mat-hint align="end">{{input.value?.length || 0}}/1024</mat-hint>
+    </mat-form-field>
+    <div>
+      <button mat-mini-fab color="primary" aria-label="plus one icon" (click)="addComment()">
+        <mat-icon class="iconPlus">send</mat-icon>
+      </button>
+    </div>
+  </div>
+  <div class="rowComment">
+    <mat-list style="padding: 30px; width: 70%">
+      <mat-list-item *ngFor="let comment of comments" style="height: fit-content">
+        <div class="commentCard">
+          <div class="commentBody">
+
+            <div class="commentHeader">
+              <div class="circle" tabindex="-1" [style.background-color]="UserColor.get(comment.usr)" ><div style="margin-top: 2px;margin-left: auto;color: white">{{comment.user[0].toUpperCase()}}</div></div>
+              <div class="commenterName">
+                {{comment.user}}
+              </div>
+              <div class="timestamp">
+                {{comment.date | date:'dd.MM.yyyy HH:mm:ss': "UTC"}}
+              </div>
+            </div>
+            <div class = "content">
+              {{comment.text}}
+            </div>
+          </div>
+        </div>
+      </mat-list-item>
+    </mat-list>
+  </div>
 
 </div>
-<app-tender-table [displayedColumns]="displayedColumns" [dataSource]="dataSource"></app-tender-table>

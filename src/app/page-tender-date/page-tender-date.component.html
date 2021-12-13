@@ -16,6 +16,13 @@
           </mat-chip-list>
         </mat-panel-description>
       </mat-expansion-panel-header>
+      <!-- save search_paramets-->
+      <fieldset >
+        <legend>Сохранненые поиски</legend>
+
+          <app-save-parametrs (Change)="ChangeSaveParameters($event)"></app-save-parametrs>
+
+      </fieldset>
 <!--      Date-->
       <fieldset >
         <legend>Даты и Дубликаты</legend>
@@ -53,14 +60,16 @@
           </mat-chip>
         </mat-chip-list>
         <app-custom-autocomplet (Change)="ChangeCustom($event)"></app-custom-autocomplet>
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" >
           <mat-label>ИНН</mat-label>
-          <input matInput [(ngModel)]="innCustomer" type="text" onkeyup="this.value=this.value.replace(/[^0-9 %]/gi, '');"  >
+          <input matInput [(ngModel)]="innCustomer" type="text" onkeyup="this.value=this.value.replace(/[^0-9 %]/gi, '');"  [disabled]="regionsSelected">
           <mat-error></mat-error>
         </mat-form-field>
-        <app-contry-autocomplet (Change)="ChangeCountry($event)"></app-contry-autocomplet>
-        <section>
-          <mat-slide-toggle color="primary" [(ngModel)]="CustomExclude" >Исключить выбранных заказчиков!</mat-slide-toggle>
+        <app-contry-autocomplet (Change)="ChangeCountry($event)" ></app-contry-autocomplet>
+        <app-region-selected (Change)="ChangeRegion($event)"></app-region-selected>
+        <app-district-selected (Change)="ChangeDistrict($event)" ></app-district-selected>
+        <section >
+          <mat-slide-toggle color="primary" [(ngModel)]="CustomExclude" [disabled] = "regionsSelected">Исключить выбранных заказчиков!</mat-slide-toggle>
         </section>
       </fieldset>
 <!--      Winner-->
@@ -130,21 +139,26 @@
         </mat-form-field>
       </fieldset>
 <!--      Product-->
-      <fieldset *ngIf="!adjacent_tender">
+      <fieldset >
         <legend>Продукты</legend>
 
         <mat-chip-list  aria-label="Выбранные продукты">
           <mat-chip *ngFor="let prod of product" [selectable]="selectable"
                     [removable]="removable" (removed)="removeProduct(prod)">
-            {{prod.big_category?prod.big_category.big_category:''}}{{prod.category?prod.category.category:''}} {{prod.vendor?prod.vendor.name:''}} {{prod.vendor_code ?prod.vendor_code.vendor_code : ''}}
+            {{prod.category_product?prod.category_product + ' ':''}}
+            <span *ngFor="let category of prod.category">{{category.category}}&nbsp; </span>
+            <span *ngFor="let subcategory of prod.subcategory">{{subcategory}} &nbsp;</span>
+            <span *ngFor="let vendor of prod.vendor">{{vendor.name}}&nbsp;</span>
+            <span *ngFor="let vendor_code of prod.vendor_code"> {{vendor_code.vendor}} {{vendor_code.vendor_code}};&nbsp;</span>
             <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
           </mat-chip>
         </mat-chip-list>
-          <app-bigcategory-autocomplet (Change)="ChangeBigCategory($event)"></app-bigcategory-autocomplet>
-        <app-product-category-autocomplet (Change)="ChangeCategory($event)"></app-product-category-autocomplet>
 
-        <app-vendor-autocomplet (Change)="ChangeVendor($event)"></app-vendor-autocomplet>
-        <app-vendor-code-autocompleat (Change)="ChangeVendorCode($event)"></app-vendor-code-autocompleat>
+        <app-category-product (Change)="ChangeCategoryProduct($event)" ></app-category-product>
+        <app-product-category-checkbox (Change)="ChangeCategory($event)"></app-product-category-checkbox>
+        <app-subcategory-checkbox ></app-subcategory-checkbox>
+        <app-vendor-checkbox (Change)="ChangeVendor($event)"></app-vendor-checkbox>
+        <app-vendor-code-checkbox ></app-vendor-code-checkbox>
         <button mat-mini-fab color="primary" (click)="AddProduct()">
           <mat-icon>add</mat-icon>
         </button>
@@ -160,7 +174,8 @@
 <!--      </mat-form-field>-->
     </mat-expansion-panel>
   </mat-accordion>
-  <button class="saveFile" mat-stroked-button (click)="getFile()">Вывод в файл</button>
+  <button class="saveFile" mat-stroked-button (click)="saveSearch()">Сохранить поиск</button>
+  <button class="default" mat-stroked-button (click)="getFile()">Вывод в файл</button>
   <button class="default" mat-stroked-button (click)="default()">Сбросить все значения</button>
   <button class="show" mat-flat-button color="primary" (click)="showTables()">Показать таблицу</button>
 </div>

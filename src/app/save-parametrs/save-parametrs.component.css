@@ -1,0 +1,9 @@
+.mat-form-field {
+  margin: 5px;
+}
+.name{
+  padding-bottom: 5px;
+  padding-top: 5px;
+  white-space: normal !important;
+  line-height: 1.5;
+}

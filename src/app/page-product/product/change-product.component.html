@@ -1,0 +1,12 @@
+<h1 style="display: flex"><span style="margin: auto">Вставить в категорию {{data.category}} продукты из файла?</span></h1>
+<mat-dialog-content style="display: flex; align-items: center">
+  <input type="file" style="display: none;" (change)="onFileChanged($event)" placeholder="Upload file" accept=".xlsx" #fileInput>
+  <button (click)="fileInput.click()" mat-flat-button color="primary" class = "SelectButton">Выбрать файл</button>
+  <div class="nameFile"  >Выбран:<span *ngIf = "load"> {{file.name}}</span> </div>
+  <app-product-category-autocomplet></app-product-category-autocomplet>
+</mat-dialog-content>
+<mat-dialog-actions align="end" >
+
+  <button mat-button (click)="Upload()" [disabled]="upload_button">Загрузить</button>
+  <button mat-button mat-dialog-close="true">Закрыть</button>
+</mat-dialog-actions>

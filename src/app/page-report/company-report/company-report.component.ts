@@ -5,7 +5,7 @@ import {
   BigCategory,
   Company,
   Post, Product,
-  ProductCategory, ProductReceived, ReceivedJson,
+  ProductCategory, ProductReceived, ReceivedJson, Report, ReportCriteria,
   ReportQuarter,
   ReportVendorQuarter,
   Type,
@@ -26,6 +26,15 @@ import {COMMA, ENTER, SPACE} from "@angular/cdk/keycodes";
 import {MatChipInputEvent} from "@angular/material/chips";
 import {ErrorDialogComponent} from "../../error-dialog/error-dialog.component";
 import {saveAs} from 'file-saver';
+import {SubcategoryAutocompletComponent} from "../../subcategory-autocomplet/subcategory-autocomplet.component";
+import {ProductCategoryCheckboxComponent} from "../../product-category-checkbox/product-category-checkbox.component";
+import {VendorCheckboxComponent} from "../../vendor-checkbox/vendor-checkbox.component";
+import {SubcategoryCheckboxComponent} from "../../subcategory-checkbox/subcategory-checkbox.component";
+import {CategoryProductComponent} from "../../category-product/category-product.component";
+import {TypeProductOrderComponent} from "../../type-product-order/type-product-order.component";
+import {VendorCodeCheckboxComponent} from "../../vendor-code-checkbox/vendor-code-checkbox.component";
+import {RegionSelectedComponent} from "../../region-selected/region-selected.component";
+import {DistrictSelectedComponent} from "../../district-selected/district-selected.component";
 @Component({
   selector: 'app-company-report',
   templateUrl: './company-report.component.html',
@@ -61,12 +70,23 @@ export class CompanyReportComponent implements OnInit {
   private contryAutocompletComponent:ContryAutocompletComponent
   @ViewChild(DataRangeComponent)
   private dataRange: DataRangeComponent | undefined;
-  @ViewChild(VendorCodeAutocompleatComponent)
-  private vendorCodeAutocompleatComponent:VendorCodeAutocompleatComponent;
-  @ViewChild(ProductCategoryAutocompletComponent)
-  private productCategoryAutocompletComponent:ProductCategoryAutocompletComponent
-  @ViewChild(VendorAutocompletComponent)
-  private vendorAutocompletComponent:VendorAutocompletComponent;
+
+  @ViewChild(VendorCodeCheckboxComponent)
+  private vendorCodeCheckboxComponent:VendorCodeCheckboxComponent;
+  @ViewChild(ProductCategoryCheckboxComponent)
+  private productCategoryCheckboxComponent:ProductCategoryCheckboxComponent
+  @ViewChild(VendorCheckboxComponent)
+  private vendorCheckboxComponent:VendorCheckboxComponent;
+  @ViewChild(SubcategoryCheckboxComponent)
+  private subcategoryCheckboxComponent: SubcategoryCheckboxComponent
+  @ViewChild(CategoryProductComponent)
+  private categoryProductComponent:CategoryProductComponent
+  @ViewChild(TypeProductOrderComponent)
+  private typeProductOrderComponent:TypeProductOrderComponent
+  @ViewChild(RegionSelectedComponent)
+  regionSelectedComponent:RegionSelectedComponent;
+  @ViewChild(DistrictSelectedComponent)
+  districtSelectedComponent:DistrictSelectedComponent;
   expandedElement: Post | null;
   panelOpenState = true;
   dublicate: boolean = false;
@@ -193,6 +213,9 @@ export class CompanyReportComponent implements OnInit {
     if(typeof country !=="string"){
       this.country = country.id;
     }
+    if(country === '' || country === null || country === undefined){
+      this.country = null;
+    }
   }
 
   default(){
@@ -217,77 +240,89 @@ export class CompanyReportComponent implements OnInit {
     this.vendor_code = null;
     this.contryAutocompletComponent.myControl.setValue('');
     this.dataRange.range.setValue({dateStart:null,dateFinish:null});
-    this.productCategoryAutocompletComponent.myControl.setValue('');
-    this.vendorAutocompletComponent.myControl.setValue('');
-    this.vendorCodeAutocompleatComponent.myControl.setValue('')
+
+    this.categoryProductComponent.category_product = "";
+    this.categoryProductComponent.setCategory_product('');
+    this.productCategoryCheckboxComponent.myControl.setValue([]);
+    this.vendorCodeCheckboxComponent.myControl.setValue([]);
+    this.vendorCodeCheckboxComponent.myControl.disable();
+    this.vendorCheckboxComponent.myControl.setValue([]);
+    this.subcategoryCheckboxComponent.myControl.setValue([]);
+    this.typeProductOrderComponent.type = "Год";
+    this.productCategoryCheckboxComponent.ChangeCategoryProduct('');
   }
 
   category: ProductCategory = null;
   vendor: Vendor = null;
   vendor_code: Product = null;
   product: ProductReceived[] = [];
-  ChangeBigCategory(bigCategory: any){
+  ChangeBigCategory(bigCategory: any) {
     if (bigCategory != null && typeof bigCategory !== 'string') {
-      this.product.push({category:null, vendor:null, vendor_code:null,big_category:bigCategory});
+      this.product.push({category: null, vendor: null, vendor_code: null, big_category: bigCategory, subcategory: null, category_product:null});
     }
   }
+
+  ChangeCategoryProduct(categoryProduct: any) {
+    if (categoryProduct != null) {
+      this.productCategoryCheckboxComponent.ChangeCategoryProduct(categoryProduct);
+    }
+  }
+
   ChangeCategory(category : any){
-    if (category != null && typeof category !== 'string') {
-      this.category = category;
-
-      if(this.category.id === 7 ){
-        this.vendorAutocompletComponent.myControl.disable();
+    if (category != null && this.productCategoryCheckboxComponent.myControl.value.length  !== 0) {
+      if(this.productCategoryCheckboxComponent.myControl.value.length === 1){
+        this.vendorCodeCheckboxComponent.myControl.enable();
+        this.vendorCodeCheckboxComponent.start(this.productCategoryCheckboxComponent.myControl.value[0].id);
       }
-      else {
-        this.vendorAutocompletComponent.myControl.enable();
-        this.vendorAutocompletComponent.start(category.id);
-      }
-
-      this.vendorCodeAutocompleatComponent.start(category.id);
+      else{this.vendorCodeCheckboxComponent.myControl.disable()}
     }
     else if(category === ''){
-      this.vendorCodeAutocompleatComponent.start(0);
-    }
+      this.vendorCodeCheckboxComponent.myControl.setValue([]);
 
-  }
+      this.vendorCodeCheckboxComponent.myControl.disable();
 
-  ChangeVendor(vendor:any){
-    if(vendor != null && typeof vendor !=="string"){
-      this.vendor = vendor;
-      this.vendorCodeAutocompleatComponent.ChangeVendor(vendor.name);
-    }
-    else if (vendor === ''){
-      this.vendorCodeAutocompleatComponent.ChangeVendor(null);
     }
   }
 
-  ChangeVendorCode(vendor_code: any){
-    if (vendor_code != null && typeof vendor_code !== 'string') {
-      if(!this.vendor && this.category.id !== 7){
-        this.vendorAutocompletComponent.setVendor(vendor_code.vendor);
+
+
+  ChangeVendor(vendor: any) {
+    if (vendor != null && this.vendorCheckboxComponent.myControl.value.length !== 0) {
+      if(this.vendorCheckboxComponent.myControl.value.length === 1 && this.productCategoryCheckboxComponent.myControl.value.length === 1){
+        this.vendorCodeCheckboxComponent.filterProduct(vendor[0].name)
       }
-
-      this.vendor_code = vendor_code;
     }
   }
 
-  AddProduct(){
-    if((this.productCategoryAutocompletComponent.myControl.value !== null && this.productCategoryAutocompletComponent.myControl.value !== '')
-      || (this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== '')
-      || (this.vendorCodeAutocompleatComponent.myControl.value !== null && this.vendorCodeAutocompleatComponent.myControl.value !== '')){
-      if(this.product){
-        this.product.push({category: this.productCategoryAutocompletComponent.myControl.value== ''?null:this.productCategoryAutocompletComponent.myControl.value, vendor: this.vendorAutocompletComponent.myControl.value == ''?null:this.vendorAutocompletComponent.myControl.value, vendor_code:this.vendorCodeAutocompleatComponent.myControl.value== ''?null:(this.vendorCodeAutocompleatComponent.myControl.value),big_category:null});
-
-        this.productCategoryAutocompletComponent.myControl.setValue('');
-        if(this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== ''){
-
-          this.vendorAutocompletComponent.myControl.setValue(null);
+  AddProduct() {
+    if ((this.productCategoryCheckboxComponent.myControl.value !== undefined && this.productCategoryCheckboxComponent.myControl.value !== null && this.productCategoryCheckboxComponent.myControl.value.length !== 0  && this.productCategoryCheckboxComponent.myControl.value !== [])
+      || (this.vendorCheckboxComponent.myControl.value !== undefined && this.vendorCheckboxComponent.myControl.value !== null && this.vendorCheckboxComponent.myControl.value.length !== 0 && this.vendorCheckboxComponent.myControl.value !== [])
+      || (this.vendorCodeCheckboxComponent.myControl.value  !== undefined && this.vendorCodeCheckboxComponent.myControl.value !== null && this.vendorCodeCheckboxComponent.myControl.value.length !== 0 && this.vendorCodeCheckboxComponent.myControl.value !== [])
+      || (this.subcategoryCheckboxComponent.myControl.value !== undefined && this.subcategoryCheckboxComponent.myControl.value !== null && this.subcategoryCheckboxComponent.myControl.value.length !== 0 && this.subcategoryCheckboxComponent.myControl.value !== [])
+      || (this.categoryProductComponent.category_product !== undefined && this.categoryProductComponent.category_product !== null && this.categoryProductComponent.category_product !== '')) {
+      if (this.product) {
+        this.product.push({
+          category: this.productCategoryCheckboxComponent.myControl.value == [] ? null : this.productCategoryCheckboxComponent.myControl.value,
+          vendor: this.vendorCheckboxComponent.myControl.value == [] ? null : this.vendorCheckboxComponent.myControl.value,
+          vendor_code: this.vendorCodeCheckboxComponent.myControl.value == [] ? null : (this.vendorCodeCheckboxComponent.myControl.value),
+          big_category: null,
+          subcategory: this.subcategoryCheckboxComponent.myControl.value == []? null : this.subcategoryCheckboxComponent.myControl.value,
+          category_product:this.categoryProductComponent.category_product
+        });
+        console.log(this.product);
+        this.productCategoryCheckboxComponent.myControl.setValue([]);
+        if (this.vendorCheckboxComponent.myControl.value !== null && this.vendorCheckboxComponent.myControl.value !== []) {
+          this.vendorCheckboxComponent.myControl.setValue([]);
         }
-        this.vendorCodeAutocompleatComponent.myControl.setValue('');
-
+        this.categoryProductComponent.category_product = "";
+        this.vendorCodeCheckboxComponent.myControl.setValue([]);
+        this.vendorCodeCheckboxComponent.myControl.disable();
+        if(this.subcategoryCheckboxComponent.myControl.value !== null && this.subcategoryCheckboxComponent.myControl.value !== []){
+          this.subcategoryCheckboxComponent.myControl.setValue('')
+        }
+        this.productCategoryCheckboxComponent.ChangeCategoryProduct('');
       }
     }
-
   }
 
   removeProduct(product: ProductReceived){
@@ -297,36 +332,28 @@ export class CompanyReportComponent implements OnInit {
       this.product.splice(index, 1);
     }
   }
+  reportCriteria:ReportCriteria = {interval: 'Год', receivedJSON: null}
+  report:Report;
 
   loadReport(){
-    this.reportQuarter = null;
-    this.load = true;
-    this.data = null;
-    this.dataS = null;
-    this.colums = [];
+    this.reportCriteria = {interval: this.typeProductOrderComponent.type === null?'Год':this.typeProductOrderComponent.type
+      ,receivedJSON:this.receivedJson}
     if(this.receivedJson == null){
       this.showOrder();
     }
+  this.load = true;
 
-    this.api.getQuartal( this.receivedJson).subscribe(posts => {
-        this.colums.push('vendor');
-        for(let index = 0;index< posts.length;index++){
-          this.colums.push(posts[index]);
-        }
-        this.load = false;},
-      error => {this.dialog.open(ErrorDialogComponent,{data: "Ошибка" + error})}
-    );
-
-    this.api.getReportCustomerQuarter(this.selected.value, this.receivedJson).subscribe(posts => {
-        this.vendorNUll = false;
-        if(posts.length > 0){
-          this.data = new MatTableDataSource<ReportVendorQuarter>(posts);
-          this.data.sort = this.firstSort;
+    this.api.getReportCustomerQuarter(this.selected.value, this.reportCriteria).subscribe(data => {
+        if(data === null){
+          this.dialog.open(ErrorDialogComponent,{data:"Ничего не найдено"});
         }
         else {
-          this.vendorNUll = true;
+          this.report = data;
+          this.load = false;
+
+          this.colums = this.report.columnProduct;
         }
-        this.load = false;},
+        },
       error => {this.dialog.open(ErrorDialogComponent,{data: "Ошибка" + error})}
     );
 
@@ -359,9 +386,12 @@ export class CompanyReportComponent implements OnInit {
   receivedJson:ReceivedJson = null;
   getFile(){
     this.dialog.open(ErrorDialogComponent,{data:"Фомирую файл!!! Дождитесь загрузки!!!!"});
-    if((this.productCategoryAutocompletComponent.myControl.value !== null && this.productCategoryAutocompletComponent.myControl.value !== '')
-      || (this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== '')
-      || (this.vendorCodeAutocompleatComponent.myControl.value !== null && this.vendorCodeAutocompleatComponent.myControl.value !== '')){
+    if ((this.productCategoryCheckboxComponent.myControl.value !== undefined && this.productCategoryCheckboxComponent.myControl.value !== null && this.productCategoryCheckboxComponent.myControl.value.length !== 0  && this.productCategoryCheckboxComponent.myControl.value !== [])
+      || (this.vendorCheckboxComponent.myControl.value !== undefined && this.vendorCheckboxComponent.myControl.value !== null && this.vendorCheckboxComponent.myControl.value.length !== 0 && this.vendorCheckboxComponent.myControl.value !== [])
+      || (this.vendorCodeCheckboxComponent.myControl.value  !== undefined && this.vendorCodeCheckboxComponent.myControl.value !== null && this.vendorCodeCheckboxComponent.myControl.value.length !== 0 && this.vendorCodeCheckboxComponent.myControl.value !== [])
+      || (this.subcategoryCheckboxComponent.myControl.value !== undefined && this.subcategoryCheckboxComponent.myControl.value !== null && this.subcategoryCheckboxComponent.myControl.value.length !== 0 && this.subcategoryCheckboxComponent.myControl.value !== [])
+      || (this.categoryProductComponent.category_product !== undefined && this.categoryProductComponent.category_product !== null && this.categoryProductComponent.category_product !== '')) {
+
       this.AddProduct();
     }
     this.receivedJson = {
@@ -382,7 +412,9 @@ export class CompanyReportComponent implements OnInit {
       ids: this.ids,
       bicotender: this.number_bico,
       numberShow: this.numberShow,
-      product: this.product
+      product: this.product,
+      districts: this.districtSelectedComponent.myControl.value !== null? this.districtSelectedComponent.myControl.value:null,
+      regions: this.regionSelectedComponent.myControl.value !== null? this.regionSelectedComponent.myControl.value:null
     }
     this.api.fileQuarter(this.receivedJson).subscribe(blob => {
         saveAs(blob, "Report.xlsx");
@@ -396,9 +428,11 @@ export class CompanyReportComponent implements OnInit {
 
   showOrder(){
     this.show = true;
-    if((this.productCategoryAutocompletComponent.myControl.value !== null && this.productCategoryAutocompletComponent.myControl.value !== '')
-      || (this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== '')
-      || (this.vendorCodeAutocompleatComponent.myControl.value !== null && this.vendorCodeAutocompleatComponent.myControl.value !== '')){
+    if ((this.productCategoryCheckboxComponent.myControl.value !== undefined && this.productCategoryCheckboxComponent.myControl.value !== null && this.productCategoryCheckboxComponent.myControl.value.length !== 0  && this.productCategoryCheckboxComponent.myControl.value !== [])
+      || (this.vendorCheckboxComponent.myControl.value !== undefined && this.vendorCheckboxComponent.myControl.value !== null && this.vendorCheckboxComponent.myControl.value.length !== 0 && this.vendorCheckboxComponent.myControl.value !== [])
+      || (this.vendorCodeCheckboxComponent.myControl.value  !== undefined && this.vendorCodeCheckboxComponent.myControl.value !== null && this.vendorCodeCheckboxComponent.myControl.value.length !== 0 && this.vendorCodeCheckboxComponent.myControl.value !== [])
+      || (this.subcategoryCheckboxComponent.myControl.value !== undefined && this.subcategoryCheckboxComponent.myControl.value !== null && this.subcategoryCheckboxComponent.myControl.value.length !== 0 && this.subcategoryCheckboxComponent.myControl.value !== [])
+      || (this.categoryProductComponent.category_product !== undefined && this.categoryProductComponent.category_product !== null && this.categoryProductComponent.category_product !== '')) {
       this.AddProduct();
     }
     this.receivedJson = {
@@ -419,7 +453,9 @@ export class CompanyReportComponent implements OnInit {
       ids: this.ids,
       bicotender: this.number_bico,
       numberShow: this.numberShow,
-      product: this.product
+      product: this.product,
+      districts: this.districtSelectedComponent.myControl.value !== null? this.districtSelectedComponent.myControl.value:null,
+      regions: this.regionSelectedComponent.myControl.value !== null? this.regionSelectedComponent.myControl.value:null
     }
     this.loadReport();
   }

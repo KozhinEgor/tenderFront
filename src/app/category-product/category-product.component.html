@@ -1,0 +1,8 @@
+<mat-form-field appearance="fill">
+  <mat-label>Выберите Группу продуктов</mat-label>
+  <select matNativeControl [(ngModel)]="category_product" (ngModelChange)="Change.emit(category_product)">
+    <option value="" selected></option>
+    <option value="Целевая">Целевая</option>
+    <option value="Общего назначения">Общего назначения</option>
+  </select>
+</mat-form-field>

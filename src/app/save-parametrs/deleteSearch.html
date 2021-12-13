@@ -1,0 +1,9 @@
+<mat-dialog-content>
+  Вы хотите удалить поиск "
+  {{data.name}}" созданный пользователем {{data.nickname}}
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button  [matDialogClose]="true" cdkFocusInitial>Удалить</button>
+  <button mat-button  [matDialogClose]="false" cdkFocusInitial>Закрыть</button>
+</mat-dialog-actions>

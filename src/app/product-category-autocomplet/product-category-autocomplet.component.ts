@@ -1,6 +1,6 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {FormControl} from "@angular/forms";
-import {ProductCategory} from "../classes";
+import {Product, ProductCategory} from "../classes";
 import {Observable} from "rxjs";
 import {ApiService} from "../api.service";
 import {map, startWith} from "rxjs/operators";
@@ -21,6 +21,7 @@ export class ProductCategoryAutocompletComponent implements OnInit {
   options: ProductCategory[] = [];
   filteredOptions: Observable<ProductCategory[]> | undefined;
   name: string = null;
+  categoryProduct: string;
   constructor(private api: ApiService, private dialog:MatDialog) {
   }
   ngOnInit() {
@@ -28,12 +29,13 @@ export class ProductCategoryAutocompletComponent implements OnInit {
   }
   request(){
     this.api.getAllProductCategory().subscribe( productCategories => {
+
       this.options = productCategories;
       this.filteredOptions = this.myControl.valueChanges
         .pipe(
           startWith(''),
           map(value => typeof value === 'string' ? value : value.category),
-          map(productCategory => productCategory ? this._filter(productCategory) : this.options.slice())
+          map(productCategory => this._filter(productCategory?productCategory:'', this.categoryProduct?this.categoryProduct:''))
         );
       if(this.name !== null){
         this.setCategory(this.name);
@@ -63,9 +65,33 @@ export class ProductCategoryAutocompletComponent implements OnInit {
 
 
   }
-  public _filter(category: string): ProductCategory[] {
+  public ChangeCategoryProduct(categoryProduct: string){
+    this.categoryProduct = categoryProduct;
+    this.myControl.setValue(this.myControl.value? this.myControl.value:'');
+  }
+  public _filterCategoryProduct(categoryProduct: string): ProductCategory[]{
+    const filterCategoryProduct = categoryProduct.toLowerCase();
+    return this.options.filter(option => option.category_product.toLowerCase().includes(filterCategoryProduct ));
+  }
+  public _filter(category: string, categoryProduct: string): ProductCategory[] {
     const filterValue = category.toLowerCase();
+    const filterCategoryProduct = categoryProduct.toLowerCase();
+    return this.options.filter(option => {
+      let val: boolean = true;
+      let cat:boolean = true;
+        if(filterValue !== '' && option.category !== null && typeof option.category === "string"){
+          val =  option.category.toLowerCase().includes(filterValue);
 
-    return this.options.filter(option => option.category.toLowerCase().includes(filterValue));
+        }
+        else if(filterValue !== '' && option.category === null && typeof option.category !== "string") {val = false;}
+
+        if(filterCategoryProduct !== '' && option.category_product !== null && typeof option.category_product === "string"){
+          cat =  option.category_product.toLowerCase().includes(filterCategoryProduct);
+
+        }
+        else if(filterCategoryProduct !== '' && option.category_product === null && typeof option.category_product !== "string") {cat = false;}
+      return val && cat;
+    }
+    )
   }
 }

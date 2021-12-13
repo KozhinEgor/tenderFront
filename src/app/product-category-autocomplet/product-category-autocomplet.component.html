@@ -7,7 +7,7 @@
   <mat-autocomplete #auto="matAutocomplete"  [displayWith]="displayFn" autoActiveFirstOption panelWidth ="max-width:1000px">
 
     <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
-      {{option.category}}
+      {{option.category_product? option.category_product:''}} {{option.category}}
     </mat-option>
   </mat-autocomplete>
 </mat-form-field>

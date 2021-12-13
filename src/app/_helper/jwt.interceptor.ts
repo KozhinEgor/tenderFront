@@ -18,7 +18,7 @@ export class JwtInterceptor implements HttpInterceptor {
 
       request = request.clone({
         setHeaders: {
-          Authorization: `Bearer ${user.token}`
+          Authorization: `Bearer ${JSON.parse(localStorage.getItem('user')).token}`
         }
       });
     }

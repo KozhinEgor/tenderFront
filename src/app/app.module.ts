@@ -43,7 +43,8 @@ import {
   ChangeCategoryComponent,
   AddProductComponent,
   CreateCategoryComponent,
-  ProductComponent
+  ProductComponent,
+  ChangeProductFileComponent
 } from './page-product/product/product.component';
 import { PageTenderComponent } from './page-tender/page-tender.component';
 import {MatToolbarModule} from '@angular/material/toolbar';
@@ -79,9 +80,20 @@ import { BigCategoryComponent } from './page-product/big-category/big-category.c
 import {PageProductComponent} from "./page-product/page-product.component";
 import { BigcategoryAutocompletComponent } from './bigcategory-autocomplet/bigcategory-autocomplet.component';
 import { ProductReportComponent } from './page-report/product-report/product-report.component';
-import { BigCategoryReportComponent } from './page-report/big-category-report/big-category-report.component';
 import { CompanyReportComponent } from './page-report/company-report/company-report.component';
 import { UserAutocompletComponent } from './user-autocomplet/user-autocomplet.component';
+import { CategoryProductComponent } from './category-product/category-product.component';
+import { SubcategoryAutocompletComponent } from './subcategory-autocomplet/subcategory-autocomplet.component';
+import { OptionsComponent } from './options/options.component';
+import { ProductCategoryCheckboxComponent } from './product-category-checkbox/product-category-checkbox.component';
+import { SubcategoryCheckboxComponent } from './subcategory-checkbox/subcategory-checkbox.component';
+import { VendorCheckboxComponent } from './vendor-checkbox/vendor-checkbox.component';
+import { VendorCodeCheckboxComponent } from './vendor-code-checkbox/vendor-code-checkbox.component';
+import { TypeProductOrderComponent } from './type-product-order/type-product-order.component';
+import { SaveParametrsComponent,DeleteSearchComponent } from './save-parametrs/save-parametrs.component';
+import { RegionSelectedComponent } from './region-selected/region-selected.component';
+import { DistrictSelectedComponent } from './district-selected/district-selected.component';
+
 
 
 
@@ -92,18 +104,16 @@ const routes = [
   {path: 'home', component: PageHomeComponent, canActivate: [AuthGuard]},
   {path: 'users', component: PageUsersComponent, canActivate: [AuthGuard]},
   {path: 'product', component: PageProductComponent, canActivate: [AuthGuard]},
-  {path: 'tender', component: PageTenderComponent, canActivate: [AuthGuard] },
+  {path: 'tender/:id', component: PageTenderComponent, canActivate: [AuthGuard] },
   {path: 'tender-date', component: PageTenderDateComponent, canActivate: [AuthGuard]},
   {path: 'report', component: PageReportComponent, canActivate: [AuthGuard]},
   {path: 'company', component: PageCompanyComponent, canActivate: [AuthGuard]},
   {path: 'add-tender', component: PageAddTenderComponent, canActivate: [AuthGuard]},
   {path: 'tender-without-orders', component: PageTenderWithoutOrdersComponent, canActivate: [AuthGuard]},
   {path: 'report/product-report', component: ProductReportComponent, canActivate: [AuthGuard]},
-  {path: 'report/bigcategory-report', component: BigCategoryReportComponent, canActivate: [AuthGuard]},
   {path: 'report/company-report', component: CompanyReportComponent, canActivate: [AuthGuard]},
   {path: 'product/product', component: ProductComponent, canActivate: [AuthGuard]},
   {path: 'product/synonyms', component: SynonymsComponent, canActivate: [AuthGuard]},
-  {path: 'product/bigcategory', component: BigCategoryComponent, canActivate: [AuthGuard]},
   {path: '**', redirectTo:'home'}
 ];
 
@@ -148,9 +158,21 @@ const routes = [
     BigCategoryComponent,
     BigcategoryAutocompletComponent,
     ProductReportComponent,
-    BigCategoryReportComponent,
     CompanyReportComponent,
-    UserAutocompletComponent
+    UserAutocompletComponent,
+    CategoryProductComponent,
+    SubcategoryAutocompletComponent,
+    OptionsComponent,
+    ChangeProductFileComponent,
+    ProductCategoryCheckboxComponent,
+    SubcategoryCheckboxComponent,
+    VendorCheckboxComponent,
+    VendorCodeCheckboxComponent,
+    TypeProductOrderComponent,
+    SaveParametrsComponent,
+    DeleteSearchComponent,
+    RegionSelectedComponent,
+    DistrictSelectedComponent
   ],
   imports: [
     AppRoutingModule,

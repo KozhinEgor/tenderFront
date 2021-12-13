@@ -17,6 +17,7 @@ export class ContryAutocompletComponent implements OnInit {
 // tslint:disable-next-line:no-output-on-prefix
   @Output() Change = new EventEmitter<Country>();
   name: string = null;
+  id: number = null;
   myControl = new FormControl();
   options: Country[] = [];
   filteredOptions: Observable<Country[]> | undefined;
@@ -36,11 +37,14 @@ export class ContryAutocompletComponent implements OnInit {
       this.filteredOptions = this.myControl.valueChanges
         .pipe(
           startWith(''),
-          map(value => typeof value === 'string' ? value : value.name),
+          map(value => {if(typeof value === 'string'){return value} else {return value.name}}),
           map(country => country? this._filter(country) : this.options.slice())
         );
       if(this.name !== null){
         this.setContry(this.name);
+      }
+      if(this.id !== null){
+        this.setContryById(this.id);
       }
     },
       error => {
@@ -73,5 +77,17 @@ export class ContryAutocompletComponent implements OnInit {
       }
     }
   }
+  setContryById(id: number){
+    if(this.options.length === 0){
+      this.id = id;
+    }
+    else{
+      for( let cont of this.options){
 
+        if(cont.id == id){
+          this.myControl.setValue(cont);
+        }
+      }
+    }
+  }
 }

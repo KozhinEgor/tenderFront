@@ -65,6 +65,7 @@
           <button *ngIf="user != null && user.role !== 'ROLE_USER'" mat-icon-button color="primary" aria-label="Изменить тендер" (click)="showTender()">
             <mat-icon>edit</mat-icon>
           </button>
+          <a [href]="url+'/tender/'+element.id" target="_blank" *ngIf="user != null && user.role === 'ROLE_USER'"><mat-icon color="primary">chat_bubble</mat-icon></a>
         </div>
       </div>
     </td>
