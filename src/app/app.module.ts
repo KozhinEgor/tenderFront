@@ -51,7 +51,12 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatListModule} from '@angular/material/list';
-import { PageAddTenderComponent } from './page-add-tender/page-add-tender.component';
+import {
+  AddDublicateDialogComponent,
+  DublicateDialogComponent,
+  PageAddTenderComponent,
+  PlanDialogComponent
+} from './page-add-tender/page-add-tender.component';
 import { GoogleChartsModule } from 'angular-google-charts';
 import { PageReportComponent } from './page-report/page-report.component';
 import { ProductCategoryAutocompletComponent } from './product-category-autocomplet/product-category-autocomplet.component';
@@ -93,6 +98,9 @@ import { TypeProductOrderComponent } from './type-product-order/type-product-ord
 import { SaveParametrsComponent,DeleteSearchComponent } from './save-parametrs/save-parametrs.component';
 import { RegionSelectedComponent } from './region-selected/region-selected.component';
 import { DistrictSelectedComponent } from './district-selected/district-selected.component';
+import { PageSetWinnerComponent } from './page-set-winner/page-set-winner.component';
+import {MatCardModule} from '@angular/material/card';
+
 
 
 
@@ -114,6 +122,7 @@ const routes = [
   {path: 'report/company-report', component: CompanyReportComponent, canActivate: [AuthGuard]},
   {path: 'product/product', component: ProductComponent, canActivate: [AuthGuard]},
   {path: 'product/synonyms', component: SynonymsComponent, canActivate: [AuthGuard]},
+  {path: 'setWinner', component: PageSetWinnerComponent, canActivate: [AuthGuard]},
   {path: '**', redirectTo:'home'}
 ];
 
@@ -172,7 +181,11 @@ const routes = [
     SaveParametrsComponent,
     DeleteSearchComponent,
     RegionSelectedComponent,
-    DistrictSelectedComponent
+    DistrictSelectedComponent,
+    PageSetWinnerComponent,
+    DublicateDialogComponent,
+    PlanDialogComponent,
+    AddDublicateDialogComponent
   ],
   imports: [
     AppRoutingModule,
@@ -184,6 +197,7 @@ const routes = [
     MatAutocompleteModule,
     MatBadgeModule,
     MatButtonModule,
+    MatCardModule,
     MatCheckboxModule,
     MatChipsModule,
     MatDatepickerModule,

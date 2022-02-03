@@ -94,7 +94,7 @@ export class CompanyReportComponent implements OnInit {
   minSum = new FormControl(1, [Validators.max(999999999999), Validators.min(0)]);
   maxSum = new FormControl('', [Validators.max(999999999999), Validators.min(0)]);
   innCustomer: string = '';
-
+  plan_schedule: boolean = false;
   visible = true;
   selectable = true;
   removable = true;
@@ -414,7 +414,9 @@ export class CompanyReportComponent implements OnInit {
       numberShow: this.numberShow,
       product: this.product,
       districts: this.districtSelectedComponent.myControl.value !== null? this.districtSelectedComponent.myControl.value:null,
-      regions: this.regionSelectedComponent.myControl.value !== null? this.regionSelectedComponent.myControl.value:null
+      regions: this.regionSelectedComponent.myControl.value !== null? this.regionSelectedComponent.myControl.value:null,
+      plan_schedule: this.plan_schedule,
+      realized: false
     }
     this.api.fileQuarter(this.receivedJson).subscribe(blob => {
         saveAs(blob, "Report.xlsx");
@@ -455,7 +457,9 @@ export class CompanyReportComponent implements OnInit {
       numberShow: this.numberShow,
       product: this.product,
       districts: this.districtSelectedComponent.myControl.value !== null? this.districtSelectedComponent.myControl.value:null,
-      regions: this.regionSelectedComponent.myControl.value !== null? this.regionSelectedComponent.myControl.value:null
+      regions: this.regionSelectedComponent.myControl.value !== null? this.regionSelectedComponent.myControl.value:null,
+      plan_schedule: this.plan_schedule,
+      realized: false
     }
     this.loadReport();
   }

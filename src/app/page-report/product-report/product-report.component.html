@@ -47,6 +47,8 @@
           <mat-error></mat-error>
         </mat-form-field>
         <app-contry-autocomplet (Change)="ChangeCountry($event)"></app-contry-autocomplet>
+        <app-region-selected (Change)="ChangeRegion($event)"></app-region-selected>
+        <app-district-selected (Change)="ChangeDistrict($event)" ></app-district-selected>
         <section>
           <mat-slide-toggle color="primary" [(ngModel)]="CustomExclude" >Исключить выбранных заказчиков!</mat-slide-toggle>
         </section>
@@ -143,6 +145,7 @@
           <mat-icon>add</mat-icon>
         </button>
       </fieldset>
+
     </mat-expansion-panel>
   </mat-accordion>
   <button class="saveFile" mat-stroked-button (click)="getFile()" disabled>Вывод в файл</button>
@@ -223,7 +226,7 @@
 <!--    </div>-->
 </div>
 <mat-progress-bar mode="query" style="margin:20% auto;"  *ngIf = "load"></mat-progress-bar>
->
+
 
 
 

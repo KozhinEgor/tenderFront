@@ -22,6 +22,9 @@ export interface Post {
   country: string;
   winner_inn: string;
   winner_country: string;
+  plan: boolean;
+  tender_plan:string;
+  tender_dublicate:string;
 }
 
 export interface Type {
@@ -46,28 +49,7 @@ export interface Company {
   country: string;
 }
 
-export interface ReceivedJson {
-  dateStart: string;
-  dateFinish: string;
-  dublicate: boolean;
-  quarter: boolean;
-  typeExclude: boolean;
-  type: Type[];
-  customExclude: boolean;
-  custom: Company[];
-  innCustomer: string;
-  country: number;
-  winnerExclude: boolean;
-  winner: Company[];
-  minSum: number;
-  maxSum: number;
-  ids: number[];
-  bicotender: number[];
-  numberShow: boolean;
-  product: ProductReceived[];
-  regions: Region[];
-  districts: District[];
-}
+
 
 export interface ReportQuarter {
   product: string;
@@ -264,6 +246,31 @@ export interface Report{
   columnTender:Array<string>;
 }
 
+export interface ReceivedJson {
+  dateStart: string;
+  dateFinish: string;
+  dublicate: boolean;
+  quarter: boolean;
+  typeExclude: boolean;
+  type: Type[];
+  customExclude: boolean;
+  custom: Company[];
+  innCustomer: string;
+  country: number;
+  winnerExclude: boolean;
+  winner: Company[];
+  minSum: number;
+  maxSum: number;
+  ids: number[];
+  bicotender: number[];
+  numberShow: boolean;
+  product: ProductReceived[];
+  regions: Region[];
+  districts: District[];
+  plan_schedule: boolean;
+  realized: boolean;
+}
+
 export interface SearchParameters{
   id: number;
   nickname: string;
@@ -290,6 +297,10 @@ export interface SearchParameters{
   product: ProductReceived[];
   regions: Region[];
   districts: District[];
+  plan_schedule: boolean;
+  adjacent_tender: boolean;
+  realized: boolean;
+  private_search: boolean;
 }
 export interface Region{
   id:number;

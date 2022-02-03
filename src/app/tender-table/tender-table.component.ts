@@ -22,6 +22,8 @@ import {SubcategoryAutocompletComponent} from "../subcategory-autocomplet/subcat
 import {CategoryProductComponent} from "../category-product/category-product.component";
 import {OptionsComponent} from "../options/options.component";
 import {ActivatedRoute} from "@angular/router";
+import {DublicateDialogComponent} from "../page-add-tender/page-add-tender.component";
+import {environment} from "../../environments/environment";
 
 
 export interface CustomerWinner {
@@ -52,6 +54,7 @@ export class TenderTableComponent implements OnInit, OnChanges {
 
   @Input() dataSource = new MatTableDataSource<Post>();
   @Input() adjacent_tender: boolean;
+  @Input()plan:boolean;
   expandedElement: Post | null;
   user: User;
   totalCost: number = 0;
@@ -69,7 +72,7 @@ export class TenderTableComponent implements OnInit, OnChanges {
     this.dialog.open(TenderDialogComponent, {
       width: '80%',
       height: '90%',
-      data: {adjacent_tender: this.adjacent_tender, id_tender: this.expandedElement.id}
+      data: {adjacent_tender: this.adjacent_tender, id_tender: this.expandedElement.id, plan:this.plan}
     }).afterClosed().subscribe(result => {
       this.expandedElement.price = result.price;
       this.expandedElement.product = result.product;
@@ -120,7 +123,9 @@ export class TenderTableComponent implements OnInit, OnChanges {
     }
   }
 
-
+getURL(id_tender:string){
+  return environment.url+"/tender/"+id_tender;
+}
   ngOnChanges(): void {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
@@ -241,6 +246,7 @@ export class DeleteTenderComponent {
 export interface dialogTender {
   adjacent_tender: boolean;
   id_tender: number;
+  plan: boolean;
 }
 
 @Component({
@@ -321,7 +327,10 @@ export class TenderDialogComponent implements OnInit {
     dublicate: false,
     country: '',
     winner_inn: '',
-    winner_country: ''
+    winner_country: '',
+    plan: false,
+    tender_plan: '',
+    tender_dublicate: ''
   };
   parameters: string[] = [];
 
@@ -734,8 +743,9 @@ export class TenderDialogComponent implements OnInit {
     }
     let message: string = '';
     this.autocompletTypeComponent.setType(this.data.typetender);
-    if (!this.dataDialog.adjacent_tender) {
-      this.winnerAutocompletComponent.setWinner(this.data.winner);
+    if (!this.dataDialog.adjacent_tender && !this.dataDialog.plan &&(
+      this.winnerAutocompletComponent.myControl.value === undefined || this.winnerAutocompletComponent.myControl.value === null)) {
+      this.winnerAutocompletComponent.setWinnerById(Number(this.data.winner));
     }
     this.customAutocompletComponent.setCustomer(this.data.customer);
     let tender: Post = {
@@ -754,14 +764,18 @@ export class TenderDialogComponent implements OnInit {
       full_sum: this.data.full_sum,
       win_sum: this.data.win_sum,
       typetender: this.autocompletTypeComponent.myControl.value.id,
-      winner: this.dataDialog.adjacent_tender ? null : this.winnerAutocompletComponent.myControl.value.id,
+      winner: this.dataDialog.adjacent_tender || this.dataDialog.plan &&(
+        this.winnerAutocompletComponent.myControl.value === undefined || this.winnerAutocompletComponent.myControl.value === null)? null : this.winnerAutocompletComponent.myControl.value.id,
       customer: this.customAutocompletComponent.myControl.value.id,
       product: this.data.product,
       dublicate: this.data.dublicate,
       country: null,
       inn: null,
       winner_inn: this.data.winner_inn,
-      winner_country: this.data.winner_country
+      winner_country: this.data.winner_country,
+      plan: this.data.plan,
+      tender_plan: this.data.tender_plan,
+      tender_dublicate: this.data.tender_dublicate
     }
 
 
@@ -774,7 +788,18 @@ export class TenderDialogComponent implements OnInit {
         err => {
           this.dialog.open(ErrorDialogComponent, {data: "Ошибка " + err});
         });
-    } else {
+    }
+    else if(this.dataDialog.plan){
+      this.api.SavePlanTender(tender).subscribe(data => {
+          this.dialog.open(ErrorDialogComponent, {data: 'Сохранил'});
+          this.data = data;
+
+        },
+        err => {
+          this.dialog.open(ErrorDialogComponent, {data: "Ошибка " + err});
+        });
+    }
+    else {
       let prod: string = null;
       let flag: boolean = false;
 
@@ -792,11 +817,11 @@ export class TenderDialogComponent implements OnInit {
           this.dialog.open(ErrorDialogComponent, {data: "Ошибка " + err});
         });
       this.api.SaveTender(tender).subscribe(data => {
-
           if (flag) {
             this.dialog.open(ErrorDialogComponent, {data: 'Сохранил'});
           }
           this.data = data;
+          this.winnerAutocompletComponent.setWinnerById(Number(this.data.winner));
           this.data.product = prod;
           flag = true;
         },
@@ -818,7 +843,17 @@ export class TenderDialogComponent implements OnInit {
         error => {
           this.dialog.open(ErrorDialogComponent, {data: "Возможно Тендер удален или ошибка на сервере. " + error})
         });
-    } else {
+    }
+    else if(this.dataDialog.plan === true){
+      this.api.getPlanTenderByID(this.dataDialog.id_tender).subscribe(data => {
+
+          this.data = data
+        },
+        error => {
+          this.dialog.open(ErrorDialogComponent, {data: "Возможно Тендер удален или ошибка на сервере. " + error})
+        });
+    }
+    else {
       this.api.getTenderById(this.dataDialog.id_tender).subscribe(data => {
 
           this.data = data
@@ -846,7 +881,7 @@ export class TenderDialogComponent implements OnInit {
         }
       )
     }
-    if (!this.dataDialog.adjacent_tender) {
+    if (!this.dataDialog.adjacent_tender && !this.dataDialog.plan) {
       this.countComment();
     }
     this.Char = this.user.nickname[0].toUpperCase();
@@ -860,7 +895,34 @@ export class TenderDialogComponent implements OnInit {
         this.CountComment = null;
       })
   }
+  newTender:number;
+  dublicate(id_d:number, id:number){
+    this.dialog.open(DublicateDialogComponent, {data:{id: id,id_d: id_d}}).afterClosed().subscribe( date =>{
+      this.api.getTenderById(this.dataDialog.id_tender).subscribe(data => {
 
+          this.data = data
+        },
+        error => {
+          this.dialog.open(ErrorDialogComponent, {data: "Возможно Тендер удален или ошибка на сервере. " + error})
+        });
+    })
+  }
+  deleteDublicate(){
+    this.newTender = null;
+    this.api.deleteDublicate(this.data.id).subscribe(data => {
+        this.dialog.open(ErrorDialogComponent, {data: "Сохранено"})
+        this.api.getTenderById(this.dataDialog.id_tender).subscribe(data => {
+
+            this.data = data
+          },
+          error => {
+            this.dialog.open(ErrorDialogComponent, {data: "Возможно Тендер удален или ошибка на сервере. " + error})
+          });
+      },
+      error => {
+        this.dialog.open(ErrorDialogComponent, {data: "Ошибка" + error});
+      });
+  }
   setcolor() {
     for (var a of this.comments) {
       if (!this.UserColor.has(a.usr)) {
@@ -888,19 +950,20 @@ export class TenderDialogComponent implements OnInit {
   }
 
   changeTab() {
-    if ((this.selected.value === 2 && !this.dataDialog.adjacent_tender) || (this.selected.value === 1 && this.dataDialog.adjacent_tender)) {
+    if ((this.selected.value === 2 && !this.dataDialog.adjacent_tender && !this.dataDialog.plan) || (this.selected.value === 1 && this.dataDialog.adjacent_tender && !this.dataDialog.plan)) {
       this.autocompletTypeComponent.setType(this.data.typetender);
       this.customAutocompletComponent.setCustomer(this.data.customer);
       this.contryAutocompletComponent.myControl.disable();
-      if (!this.dataDialog.adjacent_tender) {
-        this.winnerAutocompletComponent.setWinner(this.data.winner);
+      if (!this.dataDialog.adjacent_tender && !this.dataDialog.plan) {
+        this.winnerAutocompletComponent.setWinnerById(Number(this.data.winner));
       }
 
     }
   }
 
   onChangeWinner(t: any) {
-    if (typeof t !== "string") {
+    if (typeof t !== "string" && t != undefined) {
+
       this.data.winner = t.name;
       this.innWinner = t.inn;
       //this.winnerAutocompletComponent.setWinner(t.name);
@@ -975,7 +1038,22 @@ export class TenderDialogComponent implements OnInit {
           }
         }
       );
-    } else {
+    }
+    else if(this.dataDialog.plan){
+      this.dialog.open(DeleteTenderComponent, {data: this.data}).afterClosed().subscribe(result => {
+          if (result) {
+            this.api.deletePlanTender(this.data.id).subscribe(data => {
+                this.dialog.open(ErrorDialogComponent, {data: 'Удалил'});
+              },
+              err => {
+                this.dialog.open(ErrorDialogComponent, {data: err});
+              });
+            this.data.id = null;
+          }
+        }
+      );
+    }
+    else {
       this.dialog.open(DeleteTenderComponent, {data: this.data}).afterClosed().subscribe(result => {
           if (result) {
             this.api.deleteTender(this.data.id).subscribe(data => {
@@ -1006,7 +1084,9 @@ export class TenderDialogComponent implements OnInit {
     tender: this.dataDialog.id_tender,
     users: []
   };
-
+  getURL(id_tender:string){
+    return environment.url+"/tender/"+id_tender;
+  }
   defaultComment() {
     this.users = [];
     this.ChangeComment = {

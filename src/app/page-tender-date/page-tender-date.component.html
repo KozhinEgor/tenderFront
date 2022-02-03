@@ -20,8 +20,8 @@
       <fieldset >
         <legend>Сохранненые поиски</legend>
 
-          <app-save-parametrs (Change)="ChangeSaveParameters($event)"></app-save-parametrs>
-
+          <app-save-parametrs (Change)="ChangeSaveParameters($event)" [private_search]="private_search"></app-save-parametrs>
+        <mat-slide-toggle color="primary" [(ngModel)]="private_search" (change)="ChangePrivate()">Приватные поиски</mat-slide-toggle>
       </fieldset>
 <!--      Date-->
       <fieldset >
@@ -31,7 +31,13 @@
           <mat-slide-toggle color="primary" [(ngModel)]="dublicate" >Показывать дубликаты!</mat-slide-toggle>
         </section>
         <section>
-          <mat-slide-toggle color="primary" [(ngModel)]="adjacent_tender" (change)="changeColumn()">Тендеры из смежных отраслей!</mat-slide-toggle>
+          <mat-slide-toggle color="primary" [(ngModel)]="plan_schedule" [disabled]="adjacent_tender" (change)="changeColumn()" >План График</mat-slide-toggle>
+        </section>
+        <section>
+          <mat-slide-toggle color="primary" [(ngModel)]="realized"  *ngIf="plan_schedule" >Не реализованные</mat-slide-toggle>
+        </section>
+        <section>
+          <mat-slide-toggle color="primary" [(ngModel)]="adjacent_tender" (change)="changeColumn()" [disabled]="plan_schedule">Тендеры из смежных отраслей!</mat-slide-toggle>
         </section>
       </fieldset>
 <!--      Type-->
@@ -174,13 +180,13 @@
 <!--      </mat-form-field>-->
     </mat-expansion-panel>
   </mat-accordion>
-  <button class="saveFile" mat-stroked-button (click)="saveSearch()">Сохранить поиск</button>
+  <button class="saveFile" mat-stroked-button (click)="saveSearch()" [disabled]="userSaveSearch !== user.nickname">Сохранить поиск</button>
   <button class="default" mat-stroked-button (click)="getFile()">Вывод в файл</button>
   <button class="default" mat-stroked-button (click)="default()">Сбросить все значения</button>
-  <button class="show" mat-flat-button color="primary" (click)="showTables()">Показать таблицу</button>
+  <button class="show" mat-flat-button color="primary" (click)="showTables()" [disabled] = "load">Показать таблицу</button>
 </div>
 
 
 
-<app-tender-table [displayedColumns]="displayedColumns" [dataSource]="dataSource" [adjacent_tender] = adjacent_tender></app-tender-table>
+<app-tender-table [displayedColumns]="displayedColumns" [dataSource]="dataSource" [adjacent_tender] = adjacent_tender [plan]="plan_schedule"></app-tender-table>
 

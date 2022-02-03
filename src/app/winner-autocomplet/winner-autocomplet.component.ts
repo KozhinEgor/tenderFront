@@ -14,6 +14,7 @@ import {ErrorDialogComponent} from "../error-dialog/error-dialog.component";
 })
 export class WinnerAutocompletComponent implements OnInit {
   @Input() flag:boolean = true;
+  @Input() id:number = null;
   @Output() Change = new EventEmitter<number>();
   myControl = new FormControl();
   options: Company[] = [];
@@ -25,12 +26,18 @@ export class WinnerAutocompletComponent implements OnInit {
     this.update()
   }
   setWinner(name: string){
-
+  if (name !== null && name !== undefined){
     for( let win of this.options){
-      if(win.name === name){
+      if(win.name === name ){
         this.myControl.setValue(win);
       }
     }
+  }
+
+  }
+  setWinnerById(id:number){
+
+    this.myControl.setValue(this.options.find(op => op.id === id));
   }
   displayFn(winner: Company): string {
     return winner && winner.name ? winner.name : '';
@@ -56,19 +63,15 @@ export class WinnerAutocompletComponent implements OnInit {
           map(value => typeof value === 'string' ? value : value.name),
           map(winner => winner ? this._filter(winner) : this.options.slice())
         );
+      if(this.id !== null){
+        this.setWinnerById(this.id);
+        this.id = null;
+      }
     },
       error => {
         if(error === 'Unknown Error'){this.dialog.open(ErrorDialogComponent, {data: "Ошибка загрузки \"победителей\": Обратитесь к администратору" });}
         else{this.dialog.open(ErrorDialogComponent, {data: "Ошибка загрузки \"победителей\": " + error});}
 
       });
-  }
-  select(): void {
-
-    if(this.flag){
-      console.log(this.flag);
-      this.myControl.setValue('');
-    }
-
   }
 }

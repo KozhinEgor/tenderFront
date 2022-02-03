@@ -1,7 +1,7 @@
 <div class="fixActionRow">
 <mat-dialog-content >
   <mat-tab-group mat-align-tabs="center"  [selectedIndex]="selected.value" (selectedIndexChange)="selected.setValue($event); changeTab()">
-    <mat-tab label="Основная информация и продукты" *ngIf="!dataDialog.adjacent_tender">
+    <mat-tab label="Основная информация и продукты" *ngIf="!dataDialog.adjacent_tender && !dataDialog.plan">
       <div class = "rowHeader">
         <div class = "id">{{data.id}}</div>
         <div class = "name_tender"> <a href="{{ data.bico_tender }}" target="_blank">{{data.name_tender}}</a> </div>
@@ -179,10 +179,10 @@
 
     <mat-tab>
       <ng-template mat-tab-label><span [matBadge] = CountComment *ngIf="CountComment !== 0">Комментарии</span><span *ngIf="CountComment === 0">Комментарии</span></ng-template>
-      <div *ngIf="dataDialog.adjacent_tender" class="rowComment">
+      <div *ngIf="dataDialog.adjacent_tender && dataDialog.plan" class="rowComment">
         <h2>Данный раздел доступен с основными тендерами</h2>
       </div>
-      <div *ngIf="!dataDialog.adjacent_tender">
+      <div *ngIf="!dataDialog.adjacent_tender  && !dataDialog.plan">
         <div class="rowComment">
           <mat-chip-list  aria-label="Выбранные пользователя для оповещения">
             <mat-chip *ngFor="let user of users" [selectable]="selectable"
@@ -235,10 +235,22 @@
 
     <mat-tab label="Изменение тенедера" >
       <button mat-flat-button color="warn" (click)="deleteTender()" ><mat-icon>delete_outline</mat-icon> Удалить</button>
-      <div class = "rowChange">
-        <section>
-          <mat-slide-toggle color="primary" [(ngModel)]="data.dublicate" >Дубликат!</mat-slide-toggle>
-        </section>
+      <span *ngIf="data.tender_plan != null">Планы графики этого тендера: {{data.tender_plan}}
+      </span>
+      <span *ngIf="data.tender_dublicate != null">
+        Дубликаты тендера:
+        <span *ngFor="let id_tender of data.tender_dublicate.split('/ /')" >
+          <a [href]="getURL(id_tender)" target="_blank">{{id_tender}}</a>
+        </span>
+      </span>
+      <div class = "rowChange" >
+        <div *ngIf="!dataDialog.adjacent_tender && !dataDialog.plan" style="width: 200px">
+          <input matInput  placeholder="ID нового тендера"  [(ngModel)]="newTender" type="number" *ngIf="!data.dublicate">
+          <button mat-button (click)="dublicate(data.id, newTender)" *ngIf="!data.dublicate">Дубликат</button>
+          <button mat-button (click)="deleteDublicate()" *ngIf="data.dublicate">Не дубликат</button>
+        </div>
+
+
 
         <span style="padding-right: 10px;padding-left: 10px">ID:</span>
         <mat-form-field style="width: 90%; padding-bottom: 0px" >
@@ -324,7 +336,7 @@
           <mat-icon>edit</mat-icon>
         </button>
       </div>
-      <div class = "rowChange" *ngIf="!dataDialog.adjacent_tender">
+      <div class = "rowChange" *ngIf="!dataDialog.adjacent_tender  && !dataDialog.plan">
         Победитель:
         <button mat-icon-button color="primary" aria-label="Создать нового победителя" (click)="AddWinner()">
           <mat-icon>add</mat-icon>
@@ -346,7 +358,7 @@
   </mat-tab-group>
 
 </mat-dialog-content>
-<div class="spacer"></div>
+  <div class="spacer"></div>
 <mat-dialog-actions align="end">
   <button mat-button (click)="setprice()">Посчитать цену</button>
   <button mat-button (click)="Save()" [disabled]="data.id == null">Сохранить</button>

@@ -1,67 +1,51 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {MatSort} from '@angular/material/sort';
-import {MatPaginator} from '@angular/material/paginator';
-import {MatTableDataSource} from '@angular/material/table';
-import {ApiService} from '../api.service';
-import {DataRangeComponent} from '../data-range/data-range.component';
-import {saveAs} from 'file-saver';
-
+import {UserAutocompletComponent} from "../user-autocomplet/user-autocomplet.component";
 import {
+  Comment,
   Company,
   Post,
   Product,
   ProductCategory,
   ProductReceived,
   ReceivedJson, SearchParameters,
-  Type, User,
+  Type,
+  User,
   Vendor
-} from '../classes';
-import {FormControl, Validators} from '@angular/forms';
-import {CustomAutocompletComponent} from '../custom-autocomplet/custom-autocomplet.component';
-import {WinnerAutocompletComponent} from '../winner-autocomplet/winner-autocomplet.component';
-import {MatDialog} from '@angular/material/dialog';
-import {animate, state, style, transition, trigger} from "@angular/animations";
-import {VendorCodeAutocompleatComponent} from "../vendor-code-autocompleat/vendor-code-autocompleat.component";
-import {ProductCategoryAutocompletComponent} from "../product-category-autocomplet/product-category-autocomplet.component";
+} from "../classes";
+import {ApiService} from "../api.service";
+import {MatDialog} from "@angular/material/dialog";
+import {AuthenticationService} from "../service/authentication.service";
+import {ActivatedRoute} from "@angular/router";
 import {ErrorDialogComponent} from "../error-dialog/error-dialog.component";
-import {MatChipInputEvent} from "@angular/material/chips";
-import {COMMA, ENTER, SPACE} from "@angular/cdk/keycodes";
+import {AddDialogTenderComponent, TenderDialogComponent} from "../tender-table/tender-table.component";
+
+
+import {MatTableDataSource} from "@angular/material/table";
+import {CustomAutocompletComponent} from "../custom-autocomplet/custom-autocomplet.component";
+import {WinnerAutocompletComponent} from "../winner-autocomplet/winner-autocomplet.component";
 import {ContryAutocompletComponent} from "../contry-autocomplet/contry-autocomplet.component";
-import {VendorAutocompletComponent} from "../vendor-autocomplet/vendor-autocomplet.component";
-import {of} from "rxjs";
-import {CategoryProductComponent} from "../category-product/category-product.component";
-import {SubcategoryAutocompletComponent} from "../subcategory-autocomplet/subcategory-autocomplet.component";
+import {DataRangeComponent} from "../data-range/data-range.component";
 import {VendorCodeCheckboxComponent} from "../vendor-code-checkbox/vendor-code-checkbox.component";
 import {ProductCategoryCheckboxComponent} from "../product-category-checkbox/product-category-checkbox.component";
 import {VendorCheckboxComponent} from "../vendor-checkbox/vendor-checkbox.component";
 import {SubcategoryCheckboxComponent} from "../subcategory-checkbox/subcategory-checkbox.component";
+import {CategoryProductComponent} from "../category-product/category-product.component";
 import {TypeProductOrderComponent} from "../type-product-order/type-product-order.component";
-import {AuthenticationService} from "../service/authentication.service";
 import {SaveParametrsComponent} from "../save-parametrs/save-parametrs.component";
 import {RegionSelectedComponent} from "../region-selected/region-selected.component";
 import {DistrictSelectedComponent} from "../district-selected/district-selected.component";
-
-
-export interface group {
-  name: string;
-  nameru: string;
-}
+import {FormControl, Validators} from "@angular/forms";
+import {COMMA, ENTER, SPACE} from "@angular/cdk/keycodes";
+import {MatChipInputEvent} from "@angular/material/chips";
+import {group} from "../page-tender-date/page-tender-date.component";
 
 @Component({
-  selector: 'app-page-tender-date',
-  templateUrl: './page-tender-date.component.html',
-  styleUrls: ['./page-tender-date.component.scss'],
-  animations: [
-    trigger('detailExpand', [
-      state('collapsed', style({height: '0px', minHeight: '0'})),
-      state('expanded', style({height: '*'})),
-      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
-    ]),
-  ],
+  selector: 'app-page-set-winner',
+  templateUrl: './page-set-winner.component.html',
+  styleUrls: ['./page-set-winner.component.scss']
 })
-export class PageTenderDateComponent implements OnInit {
-  @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
-  @ViewChild(MatSort) sort: MatSort | null = null;
+export class PageSetWinnerComponent implements OnInit {
+
   dataSource = new MatTableDataSource<Post>();
 
   // @ViewChild(AutocompletTypeComponent)
@@ -71,7 +55,8 @@ export class PageTenderDateComponent implements OnInit {
 
   @ViewChild(WinnerAutocompletComponent)
   private winnerAutocomplet: WinnerAutocompletComponent;
-
+  @ViewChild('winnerChange')
+  private winnerChange: WinnerAutocompletComponent;
   @ViewChild(ContryAutocompletComponent)
   private contryAutocompletComponent: ContryAutocompletComponent
   @ViewChild(DataRangeComponent)
@@ -105,29 +90,17 @@ export class PageTenderDateComponent implements OnInit {
   displayedColumnsTender: string[] = [];
   displayedColumnsAdjacentTender: string[] = [];
   adjacent_tender: boolean = false;
-  realized: boolean = false;
-  AllColums: group[] = [{name: 'id', nameru: 'ID'},
-    {name: 'nameTender', nameru: 'Название тендера'},
-    {name: 'customer', nameru: 'Заказчик'},
-    {name: 'typetender', nameru: 'Тип тендера'},
-    {name: 'sum', nameru: 'Сумма'},
-    {name: 'dateStart', nameru: 'Дата начала'},
-    {name: 'dateFinish', nameru: 'Дата окончания'},
-    {name: 'product', nameru: 'Продукты'},
-    {name: 'winner', nameru: 'Победитель'},
-    {name: 'winSum', nameru: 'Сумма победителя'}];
-  Colums: group[];
+  private_search: boolean = false;
   visible = true;
   selectable = true;
   removable = true;
   addOnBlur = true;
-  load: boolean = false;
   // @ts-ignore
   readonly separatorKeysCodes = [ENTER, COMMA, SPACE] as const;
   ids: number[] = [];
   numberShow = false;
-  plan_schedule: boolean = false;
-  private_search: boolean = false;
+numberTenerInList: number = 0;
+countTenderInList: number;
 
   add(event: MatChipInputEvent): void {
     let value = (event.value || '').trim();
@@ -239,17 +212,6 @@ export class PageTenderDateComponent implements OnInit {
     }
   }
 
-  user:User;
-
-  constructor(private api: ApiService, public dialog: MatDialog,private authenticationService: AuthenticationService) {
-    for (let index = 0; index < this.AllColums.length - 2; index++) {
-      this.ChoseColums.push(this.AllColums[index]);
-      this.displayedColumns.push(this.AllColums[index].name);
-    }
-    this.Colums = this.AllColums;
-    this.user = this.authenticationService.userValue;
-
-  }
 
   country: number;
 
@@ -279,9 +241,6 @@ export class PageTenderDateComponent implements OnInit {
     this.numberShow = false;
     this.product = [];
     this.adjacent_tender = false;
-    this.plan_schedule = false;
-    this.changeColumn();
-    this.Colums = this.AllColums;
     this.contryAutocompletComponent.myControl.setValue('');
     this.dataRange.range.setValue({dateStart: null, dateFinish: null});
     this.regionSelectedComponent.myControl.enable();
@@ -295,9 +254,9 @@ export class PageTenderDateComponent implements OnInit {
     this.vendorCodeCheckboxComponent.myControl.disable();
     this.vendorCheckboxComponent.myControl.setValue([]);
     this.subcategoryCheckboxComponent.myControl.setValue([]);
-    //this.typeProductOrderComponent.type = "Год";
+    this.typeProductOrderComponent.type = "Год";
     this.productCategoryCheckboxComponent.ChangeCategoryProduct('');
-    this.realized = false;
+
     this.saveParametrsComponent.myControl.setValue('');
   }
 
@@ -360,7 +319,7 @@ export class PageTenderDateComponent implements OnInit {
           subcategory: this.subcategoryCheckboxComponent.myControl.value == []? null : this.subcategoryCheckboxComponent.myControl.value,
           category_product:this.categoryProductComponent.category_product
         });
-
+        console.log(this.product);
         this.productCategoryCheckboxComponent.myControl.setValue([]);
         if (this.vendorCheckboxComponent.myControl.value !== null && this.vendorCheckboxComponent.myControl.value !== []) {
           this.vendorCheckboxComponent.myControl.setValue([]);
@@ -385,8 +344,8 @@ export class PageTenderDateComponent implements OnInit {
   }
 
   showTables(): void {
-    this.load = true;
-    if (!this.adjacent_tender && !this.plan_schedule) {
+    this.numberTenerInList = 0;
+    if (!this.adjacent_tender) {
       if ((this.productCategoryCheckboxComponent.myControl.value !== undefined && this.productCategoryCheckboxComponent.myControl.value !== null && this.productCategoryCheckboxComponent.myControl.value.length !== 0  && this.productCategoryCheckboxComponent.myControl.value !== [])
         || (this.vendorCheckboxComponent.myControl.value !== undefined && this.vendorCheckboxComponent.myControl.value !== null && this.vendorCheckboxComponent.myControl.value.length !== 0 && this.vendorCheckboxComponent.myControl.value !== [])
         || (this.vendorCodeCheckboxComponent.myControl.value  !== undefined && this.vendorCodeCheckboxComponent.myControl.value !== null && this.vendorCodeCheckboxComponent.myControl.value.length !== 0 && this.vendorCodeCheckboxComponent.myControl.value !== [])
@@ -423,9 +382,9 @@ export class PageTenderDateComponent implements OnInit {
       product: this.product,
       districts: this.districtSelectedComponent.myControl.value !== null? this.districtSelectedComponent.myControl.value:null,
       regions: this.regionSelectedComponent.myControl.value !== null? this.regionSelectedComponent.myControl.value:null,
-      plan_schedule:this.plan_schedule,
-      adjacent_tender: this.adjacent_tender,
-      realized: this.realized,
+      plan_schedule:false,
+      adjacent_tender: false,
+      realized: false,
       private_search: false
     }
     // if (this.adjacent_tender) {
@@ -437,44 +396,23 @@ export class PageTenderDateComponent implements OnInit {
     //         this.dialog.open(ErrorDialogComponent, {data: 'Найдено 0 тендеров'});
     //       } else {
     //         this.dataSource = new MatTableDataSource<Post>(posts);
-    //         this.dataSource.paginator = this.paginator;
-    //         this.dataSource.sort = this.sort;
+    //
     //       }
     //
     //     },
     //     error => {
     //       this.dialog.open(ErrorDialogComponent, {data: 'Ошибка' + error});
     //     });
-    // }
-    // else if (this.plan_schedule){
-    //   this.api.getPlanTenderWithParametrs(json).subscribe(posts => {
-    //
-    //       if (posts.length === 0) {
-    //         this.dataSource = new MatTableDataSource<Post>(posts)
-    //         this.dialog.open(ErrorDialogComponent, {data: 'Найдено 0 тендеров'});
-    //       } else {
-    //         this.dataSource = new MatTableDataSource<Post>(posts);
-    //         this.dataSource.paginator = this.paginator;
-    //         this.dataSource.sort = this.sort;
-    //       }
-    //
-    //     },
-    //     error => {
-    //       this.dialog.open(ErrorDialogComponent, {data: 'Ошибка' + error});
-    //     });
-    // }
-    // else {
+    // } else {
       this.api.getPostWithParametrs(json).subscribe(posts => {
 
           if (posts.length === 0) {
             this.dataSource = new MatTableDataSource<Post>(posts)
             this.dialog.open(ErrorDialogComponent, {data: 'Найдено 0 тендеров'});
-            this.load = false;
           } else {
             this.dataSource = new MatTableDataSource<Post>(posts);
-            this.dataSource.paginator = this.paginator;
-            this.dataSource.sort = this.sort;
-            this.load = false;
+            this.countTenderInList = posts.length;
+            this.showTender(posts[0].id);
           }
 
         },
@@ -483,121 +421,11 @@ export class PageTenderDateComponent implements OnInit {
         });
     // }
   }
-
-  getFile() {
-    const json: ReceivedJson = {
-      dateStart: this.dataRange.getDateStart(),
-      dateFinish: this.dataRange.getDateFinish(),
-      dublicate: this.dublicate,
-      quarter: null,
-      typeExclude: this.TypeExclude,
-      type: this.types,
-      customExclude: this.CustomExclude,
-      custom: this.customers,
-      innCustomer: this.innCustomer,
-      country: this.country,
-      winnerExclude: this.WinnersExclude,
-      winner: this.winners,
-      minSum: this.minSum.value,
-      maxSum: this.maxSum.value,
-      ids: this.ids,
-      bicotender: this.number_bico,
-      numberShow: this.numberShow,
-      product: this.product,
-      districts: this.districtSelectedComponent.myControl.value !== null? this.districtSelectedComponent.myControl.value:null,
-      regions: this.regionSelectedComponent.myControl.value !== null? this.regionSelectedComponent.myControl.value:null,
-      plan_schedule: this.plan_schedule,
-      realized: this.realized
-    }
-    if (this.adjacent_tender) {
-      this.api.getFileAdjacentTender(json).subscribe(
-        blob => {
-          saveAs(blob, "Tender.xlsx");
-        },
-        error => {
-          this.dialog.open(ErrorDialogComponent, {data: "Ошибка" + error});
-        }
-      );
-    } else {
-      this.api.getFileTender(json).subscribe(
-        blob => {
-          saveAs(blob, "Tender.xlsx");
-        },
-        error => {
-          this.dialog.open(ErrorDialogComponent, {data: "Ошибка" + error});
-        }
-      );
-    }
-
-  }
-
   ngOnInit(): void {
 
   }
 
-  changeColumn() {
-    this.realized = false;
-    // this.adjacent_tender = !this.adjacent_tender;
-    if (this.adjacent_tender || this.plan_schedule) {
-      if(this.adjacent_tender){
-        this.Colums = this.AllColums.slice(0, 7);
-      }
-      else {
-        this.Colums = this.AllColums.slice(0, 6);
-      }
-      if (this.isSelected(this.AllColums[6]) && !this.adjacent_tender) {
-        this.toggleOffer(this.AllColums[6])
-      }
-      if (this.isSelected(this.AllColums[7])) {
-        this.toggleOffer(this.AllColums[7])
-      }
-      if (this.isSelected(this.AllColums[8])) {
-        this.toggleOffer(this.AllColums[8])
-      }
-      if (this.isSelected(this.AllColums[9])) {
-        this.toggleOffer(this.AllColums[9])
-      }
-      if(this.plan_schedule){
-        this.Colums.splice(this.Colums.length,0,{name: 'plan', nameru: 'План'});
-        this.ChoseColums.splice(this.ChoseColums.length,0,{name: 'plan', nameru: 'План'});
-        // this.toggleOffer({name: 'plan', nameru: 'План'});
-      }
-    }
 
-    else {
-      this.ChoseColums = [];
-      this.displayedColumns = [];
-      for (let index = 0; index < this.AllColums.length - 2; index++) {
-        this.ChoseColums.push(this.AllColums[index]);
-        this.displayedColumns.push(this.AllColums[index].name);
-      }
-      this.Colums = this.AllColums;
-    }
-    this.dataSource = new MatTableDataSource<Post>();
-    return this.adjacent_tender;
-  }
-
-  toggleOffer(offer: any): void {
-    const index = this.ChoseColums.indexOf(offer);
-    if (index >= 0) {
-      this.ChoseColums.splice(index, 1);
-
-      const indexDisplay = this.displayedColumns.indexOf(offer.name);
-      this.displayedColumns.splice(indexDisplay, 1);
-    }
-    else {
-      this.ChoseColums.push(offer);
-      if(offer.name === 'plan'){
-        this.displayedColumns.splice(this.displayedColumns.length, 0, offer.name);
-      }
-      else{
-        const indexDisplay = this.AllColums.indexOf(offer);
-        this.displayedColumns.splice(indexDisplay, 0, offer.name);
-      }
-
-    }
-    this.displayedColumns = this.displayedColumns;
-  }
 
   isSelected(offer: any): boolean {
 
@@ -605,7 +433,8 @@ export class PageTenderDateComponent implements OnInit {
 
     return index >= 0;
   }
-
+  plan_schedule = false;
+  realized= false;
   saveSearch(){
     let name: string;
     let id:number;
@@ -673,46 +502,44 @@ export class PageTenderDateComponent implements OnInit {
         data =>{
           this.saveParametrsComponent.setOprions(data);
           this.dialog.open(ErrorDialogComponent, {data: 'Сохранил'});},
-    error => {
-      this.dialog.open(ErrorDialogComponent, {data: 'Ошибка' + error});
-    }
+        error => {
+          this.dialog.open(ErrorDialogComponent, {data: 'Ошибка' + error});
+        }
       );
     }
   }
-userSaveSearch:string;
+  userSaveSearch:string;
   ChangeSaveParameters(saveParameters: any) {
-      if(typeof saveParameters !=="string"){
-        this.dataRange.range.setValue({dateStart:saveParameters.dateStart !== null?new Date(saveParameters.dateStart):null, dateFinish:saveParameters.dateFinish != null?new Date(saveParameters.dateFinish):null});
-          this.dublicate = saveParameters.dublicate;
-          this.TypeExclude = saveParameters.typeExclude;
-          this.types = saveParameters.type;
-        this.CustomExclude = saveParameters.customExclude;
-        this.customers = saveParameters.custom;
-        this.innCustomer = saveParameters.innCustomer;
-        this.country = saveParameters.country;
-        this.contryAutocompletComponent.setContryById(saveParameters.country);
-           this.WinnersExclude = saveParameters.winnerExclude;
-          this.winners = saveParameters.winner;
-          this.minSum.setValue(saveParameters.minSum);
-          this.maxSum.setValue(saveParameters.maxSum);
-          if(saveParameters.ids !== null){this.add(saveParameters.ids);}
-          if(saveParameters.bicotender !== null){this.addBicoNumber(saveParameters.bicotender)};
-          this.numberShow = saveParameters.numberShow;
-          this.product = saveParameters.product;
-           this.regionSelectedComponent.setRegions(saveParameters.regions);
-          this.districtSelectedComponent.setDistrict(saveParameters.districts);
-          this.userSaveSearch = saveParameters.nickname;
-      }
-    else{
-        this.userSaveSearch = this.user.nickname;
-      }
+    if(typeof saveParameters !=="string"){
+      this.dataRange.range.setValue({dateStart:saveParameters.dateStart !== null?new Date(saveParameters.dateStart):null, dateFinish:saveParameters.dateFinish != null?new Date(saveParameters.dateFinish):null});
+      this.dublicate = saveParameters.dublicate;
+      this.TypeExclude = saveParameters.typeExclude;
+      this.types = saveParameters.type;
+      this.CustomExclude = saveParameters.customExclude;
+      this.customers = saveParameters.custom;
+      this.innCustomer = saveParameters.innCustomer;
+      this.country = saveParameters.country;
+      this.contryAutocompletComponent.setContryById(saveParameters.country);
+      this.WinnersExclude = saveParameters.winnerExclude;
+      this.winners = saveParameters.winner;
+      this.minSum.setValue(saveParameters.minSum);
+      this.maxSum.setValue(saveParameters.maxSum);
+      if(saveParameters.ids !== null){this.add(saveParameters.ids);}
+      if(saveParameters.bicotender !== null){this.addBicoNumber(saveParameters.bicotender)};
+      this.numberShow = saveParameters.numberShow;
+      this.product = saveParameters.product;
+      this.regionSelectedComponent.setRegions(saveParameters.regions);
+      this.districtSelectedComponent.setDistrict(saveParameters.districts);
+      this.userSaveSearch = saveParameters.nickname;
     }
+    else{
+      this.userSaveSearch = this.user.nickname;
+    }
+  }
   ChangePrivate(){
     this.saveParametrsComponent.setOprions(this.saveParametrsComponent.options);
   }
-
   regionsSelected: boolean = false;
-
   ChangeRegion(regions: any) {
 
     if(regions !== null && regions.length !== 0) {
@@ -720,8 +547,8 @@ userSaveSearch:string;
       this.regionsSelected = true;
       this.innCustomer = '';
 
-        this.contryAutocompletComponent.myControl.setValue('');
-        this.contryAutocompletComponent.myControl.disable();
+      this.contryAutocompletComponent.myControl.setValue('');
+      this.contryAutocompletComponent.myControl.disable();
 
 
       this.customAutocomplet.myControl.disable();
@@ -739,14 +566,13 @@ userSaveSearch:string;
 
     }
   }
-
   ChangeDistrict(district: any) {
 
     if(district !== null && district.length !== 0) {
       this.regionsSelected = true;
       this.innCustomer = '';
-        this.contryAutocompletComponent.myControl.setValue('');
-        this.contryAutocompletComponent.myControl.disable();
+      this.contryAutocompletComponent.myControl.setValue('');
+      this.contryAutocompletComponent.myControl.disable();
 
       this.customAutocomplet.myControl.disable();
       this.regionSelectedComponent.myControl.disable();
@@ -754,16 +580,193 @@ userSaveSearch:string;
       this.customers = [];
     }
     else{
-        if(this.regionSelectedComponent.myControl.value !== null && this.regionSelectedComponent.myControl.value.length < 1) {
-          this.regionsSelected = false;
-          if (!this.contryAutocompletComponent.myControl.enabled) {
-            this.contryAutocompletComponent.myControl.enable();
-          }
-          this.customAutocomplet.myControl.enable();
-          this.regionSelectedComponent.myControl.enable();
+      if(this.regionSelectedComponent.myControl.value !== null && this.regionSelectedComponent.myControl.value.length < 1) {
+        this.regionsSelected = false;
+        if (!this.contryAutocompletComponent.myControl.enabled) {
+          this.contryAutocompletComponent.myControl.enable();
         }
+        this.customAutocomplet.myControl.enable();
+        this.regionSelectedComponent.myControl.enable();
+      }
 
     }
   }
-}
+  @ViewChild(UserAutocompletComponent)
+  private userAutocompletComponent: UserAutocompletComponent;
+  user: User;
+  ChangeComment: Comment = {
+    id: null,
+    text: '',
+    usr: null,
+    user: '',
+    date: null,
+    tender: null,
+    users: []
+  };
+  data: Post = {
+    id: 0,
+    name_tender: '',
+    number_tender: '',
+    bico_tender: '',
+    gos_zakupki: '',
+    price: 0,
+    currency: '',
+    rate: 0,
+    date_start: Date.prototype,
+    sum: 0,
+    date_finish: Date.prototype,
+    date_tranding: Date.prototype,
+    full_sum: 0,
+    win_sum: 0,
+    typetender: '',
+    winner: '',
+    customer: '',
+    inn: '',
+    product: '',
+    dublicate: false,
+    country: '',
+    winner_inn: '',
+    winner_country: '',
+    plan: false,
+    tender_plan: '',
+    tender_dublicate: ''
+  };
+  comments: Comment[];
+  color: string[] = ['#FFCC33', '#FF9933', '#FF6600', '#FF3300', '#FF6666', '#CC3333', '#FF0066', '#FF0099', '#FF33CC', '#FF66FF', '#CC66CC', '#CC00FF', '#9933FF', '#9966FF', '#9999FF', '#6666FF', '#3300FF', '#3366FF', '#0066FF',
+    '#3399FF', '#33CCFF', '#66CCCC', '#66FFFF', '#33FFCC', '#00CC99', '#00FF99', '#33FF66', '#66CC66', '#00FF00', '#33FF00', '#66CC00', '#99CC66', '#CCFF33', '#CCCC33', '#CCCCCC'];
+  UserColor = new Map();
+  users: User[] = [];
+  load = false;
+  constructor(private api: ApiService,
+              public dialog: MatDialog,
+              private authenticationService: AuthenticationService,
+              private route: ActivatedRoute) {
+    this.user = this.authenticationService.userValue;
+  }
+winner:number;
+  showTender(id:number){
+    this.api.getTenderByIdForSetWinner(id).subscribe(data => {
+        if(data === null){
+          this.dialog.open(ErrorDialogComponent, {data: "Возможно Тендер удален или ошибка на сервере. "})
+        }
+        this.data = data;
 
+        if(this.winnerChange !== undefined){
+          this.winnerChange.setWinnerById(Number(this.data.winner));
+        }
+        else {
+          this.winner = Number(this.data.winner);
+        }
+        this.defaultComment();
+      },
+      error => {
+        this.dialog.open(ErrorDialogComponent, {data: "Возможно Тендер удален или ошибка на сервере. " + error})
+      });
+    this.api.getComments(id).subscribe(comment => {
+        this.comments = comment;
+        this.setcolor();
+      },
+      error => {
+        this.dialog.open(ErrorDialogComponent, {data: "Ошибка  " + error})
+      }
+    )
+  }
+  showTenderToEdit() {
+    this.dialog.open(TenderDialogComponent, {
+      width: '80%',
+      height: '90%',
+      data: {adjacent_tender: false, id_tender: this.data.id, plan:false}
+    }).afterClosed().subscribe(result => {
+      location.reload();
+    });
+  }
+
+  setcolor() {
+    for (var a of this.comments) {
+      if (!this.UserColor.has(a.usr)) {
+        this.UserColor.set(a.usr, this.color[Math.floor(Math.random() * this.color.length)]);
+      }
+    }
+  }
+  removeUser(user: User) {
+    const index = this.users.indexOf(user);
+    if (index >= 0) {
+      this.users.splice(index, 1);
+    }
+  }
+  ChangeUser(user: any) {
+    if (typeof user !== "string") {
+      this.users.push(user);
+
+      this.userAutocompletComponent.myControl.setValue('');
+    }
+  }
+  addComment() {
+    this.ChangeComment.usr = this.user.id;
+    this.ChangeComment.user = this.user.nickname;
+    for (var u of this.users) {
+      this.ChangeComment.users.push(u.id);
+    }
+    this.api.postComments(this.ChangeComment).subscribe(comment => {
+        this.comments = comment;
+        this.UserColor = new Map();
+        this.setcolor();
+      },
+      error => {
+        this.dialog.open(ErrorDialogComponent, {data: "Ошибка  " + error})
+      }
+    )
+
+    this.defaultComment();
+  }
+  defaultComment() {
+    this.users = [];
+    this.ChangeComment = {
+      id: null,
+      text: '',
+      usr: null,
+      user: '',
+      date: null,
+      tender: this.data.id,
+      users: []
+    };
+  }
+  save(){
+    console.log(this.data)
+    this.api.SaveTender(this.data).subscribe(data => {
+
+      this.dialog.open(ErrorDialogComponent, {data: 'Сохранил'});
+        this.data = data;
+      },
+      err => {
+        this.dialog.open(ErrorDialogComponent, {data: "Ошибка " + err});
+      });
+  }
+  next(){
+    this.numberTenerInList=this.numberTenerInList+1;
+    this.showTender(this.dataSource.data[this.numberTenerInList].id)
+  }
+  previous(){
+    this.numberTenerInList=this.numberTenerInList-1;
+    this.showTender(this.dataSource.data[this.numberTenerInList].id)
+  }
+  ChangeWinnerInTender(winner: any) {
+    if (typeof winner !== "string") {
+      this.data.winner = winner.id;
+    }
+  }
+  AddWinner() {
+    this.dialog.open(AddDialogTenderComponent, {data: {type: 'winner'}}).afterClosed().subscribe(() => this.winnerChange.update());
+
+  }
+  ChangeWinnerInDB() {
+    this.dialog.open(AddDialogTenderComponent, {
+      data: {
+        id: this.winnerChange.myControl.value.id,
+        inn: this.winnerChange.myControl.value.inn,
+        name: this.winnerChange.myControl.value.name,
+        type: 'winner'
+      }
+    }).afterClosed().subscribe(() => this.winnerChange.update());
+  }
+}

@@ -6,7 +6,7 @@
 }
 .mat-column-id, .mat-column-id, .mat-column-nameTender, .mat-column-numberTender,.mat-column-bicoTender, .mat-column-gosZakupki, .mat-column-price,
 .mat-column-currency, .mat-column-rate, .mat-column-sum, .mat-column-typetender,.mat-column-fullSum, .mat-column-winSum, .mat-column-dateFinish,
-.mat-column-dateStart, .mat-column-winner, .mat-column-customer, .mat-column-product{
+.mat-column-dateStart, .mat-column-winner, .mat-column-customer, .mat-column-product, .mat-column-plan{
   padding: 0px 5px 0px 5px;
   font-size: 12px;
 

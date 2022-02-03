@@ -42,6 +42,26 @@
     <button (click)="number_bicoAdjacent = []" mat-stroked-button color="basic" class = "ApiButton">Очистить</button>
   </fieldset>
   <fieldset class="fieldset">
+    <legend>Загрузить по номерам Бикотендера План графики тендеров</legend>
+    <mat-form-field class="example-chip-list">
+      <mat-label>Номера Бикотендера</mat-label>
+      <mat-chip-list #chipListBicoPlan aria-label="Выбранные Номера Бикотендера">
+        <mat-chip *ngFor="let number of number_bicoPlan" [selectable]="selectable"
+                  [removable]="removable" (removed)="removeBicoNumberPlan(number)">
+          {{number}}
+          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+        </mat-chip>
+        <input placeholder="Номер бикотендера..."
+               [matChipInputFor]="chipListBicoPlan"
+               [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+               [matChipInputAddOnBlur]="addOnBlur"
+               (matChipInputTokenEnd)="addBicoNumberPlan($event)" >
+      </mat-chip-list>
+    </mat-form-field>
+    <button (click)="loadTenderPlan()" mat-flat-button color="primary" class = "ApiButton" [disabled]="dis">Загрузить</button>
+    <button (click)="number_bicoPlan = []" mat-stroked-button color="basic" class = "ApiButton">Очистить</button>
+  </fieldset>
+  <fieldset class="fieldset">
     <legend>Загрузить из файла</legend>
 
       <button (click)="fileInput.click()" mat-flat-button color="primary" class = "SelectButton">Выбрать файл</button>
@@ -52,4 +72,40 @@
   </fieldset>
 
 </div>
-<app-tender-table [displayedColumns]="displayedColumns" [dataSource]="dataSource" [adjacent_tender] = "adjacent_tender"></app-tender-table>
+<div *ngIf="!adjacent_tender && !plan_schedule">
+  <div *ngFor="let tenders1 of tenders">
+  <div *ngFor="let tender of tenders1" class="OneTender">
+    <mat-card class="cardTender">
+      <mat-card-header style="border-radius: 3px;" [ngClass]="{'plan': tender.plan, 'dublicate':tender.dublicate}">
+        <!-- #FC5A62 - красный #FCD05A - желтый-->
+        <mat-card-title>
+          {{tender.name_tender}}
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{tender.id}}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <p style="padding-top: 5px">
+          {{tender.customer}} {{tender.inn}}
+        </p>
+        <p>
+          {{ tender.date_start | date:'dd.MM.yyyy HH:mm:ss': "UTC"}} - {{ tender.date_finish| date:'dd.MM.yyyy HH:mm:ss': "UTC"}}
+        </p>
+        <p>
+          {{tender.full_sum | currency : tender.currency :'symbol': '1.2-2':'ru'}}
+        </p>
+        <p *ngIf="tender.product !== null">
+          {{tender.product}}
+        </p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button (click)="getdublicate(tender.id)" [disabled]="tender.plan">Найти похожие тендеры</button>
+        <button mat-button (click)="dublicate(tender.id, tenders1[0].id)" [disabled]="tender.plan">Дубликат</button>
+        <button mat-button [disabled]="!tender.plan" (click)="plan(tender.id, tenders1[0].id)">"План график" тендера</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+  </div>
+</div>
+<app-tender-table [displayedColumns]="displayedColumns" [dataSource]="dataSource" [adjacent_tender] = "adjacent_tender" [plan]="plan_schedule" *ngIf="adjacent_tender || plan_schedule"></app-tender-table>

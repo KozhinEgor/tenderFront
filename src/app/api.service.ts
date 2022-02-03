@@ -51,7 +51,7 @@ export class ApiService {
     // {"id","nameTender","numberTender","bicoTender","gosZakupki" "price","currency","rate","sum","dateStart","dateFinish","fullSum","winSum","typetender","winner","customer"}
   }
 
-  getPostWithParametrs(json: ReceivedJson) {
+  getPostWithParametrs(json: SearchParameters) {
     //const body = {dateStart: '2020-10-01T00:00:00Z', dateFinish: '2020-10-10T12:00:00Z'};
     // {dateStart: '', dateFinish: '', type: '%', custom: '%', winner: '%', minSum: 0, maxSum: 999999999999}
     return this.http.post(this.host + '/demo/Tender', json).pipe(
@@ -67,18 +67,35 @@ export class ApiService {
     );
   }
 
+  getPlanTenderWithParametrs(json: ReceivedJson) {
+    //const body = {dateStart: '2020-10-01T00:00:00Z', dateFinish: '2020-10-10T12:00:00Z'};
+    // {dateStart: '', dateFinish: '', type: '%', custom: '%', winner: '%', minSum: 0, maxSum: 999999999999}
+    return this.http.post(this.host + '/demo/PlanTender', json).pipe(
+      map(posts => posts as Post[])
+    );
+  }
+
   getTenderById(id: number) {
     return this.http.get(this.host + '/demo/TenderByID/' + id).pipe(
       map(data => data as Post)
     )
   }
-
+  getTenderByIdForSetWinner(id: number) {
+    return this.http.get(this.host + '/demo/TenderByIDForSetWinner/' + id).pipe(
+      map(data => data as Post)
+    )
+  }
   getAdjacentTenderById(id: number) {
     return this.http.get(this.host + '/demo/AdjacentTenderByID/' + id).pipe(
       map(data => data as Post)
     )
   }
 
+  getPlanTenderByID(id: number) {
+    return this.http.get(this.host + '/demo/PlanTenderByID/' + id).pipe(
+      map(data => data as Post)
+    )
+  }
   getFileTender(json: ReceivedJson) {
     return this.http.post(this.host + '/demo/FileTender', json, {responseType: 'blob'}
     );
@@ -106,7 +123,12 @@ export class ApiService {
       map(string => string as StringAnswer)
     );
   }
+  deletePlanTender(tender: number) {
 
+    return this.http.get(this.host + '/demo/DeletePlanTender/' + tender).pipe(
+      map(string => string as StringAnswer)
+    );
+  }
   getSaveProduct(product: Product, category: number) {
     //const body = {dateStart: '2020-10-01T00:00:00Z', dateFinish: '2020-10-10T12:00:00Z'};
     // {dateStart: '', dateFinish: '', type: '%', custom: '%', winner: '%', minSum: 0, maxSum: 999999999999}
@@ -380,7 +402,10 @@ export class ApiService {
 
     return this.http.post(this.host + '/demo/saveAdjacentTender', json).pipe(map(data => data as Post))
   }
+  SavePlanTender(json: Post) {
 
+    return this.http.post(this.host + '/demo/savePlanTender', json).pipe(map(data => data as Post))
+  }
   getFooter(ids: number[]) {
     return this.http.post(this.host + '/demo/getFooter', ids).pipe(
       map(status => status as string)
@@ -408,12 +433,18 @@ export class ApiService {
 
   loadTender(json: number[]) {
     return this.http.post(this.host + '/demo/loadTender', json).pipe(
-      map(posts => posts as Post[])
+      map(posts => posts as [Post[]])
     );
   }
 
   loadTenderAdjacent(json: number[]) {
     return this.http.post(this.host + '/demo/loadTenderAdjacent', json).pipe(
+      map(posts => posts as Post[])
+    );
+  }
+
+  loadTenderPlan(json: number[]) {
+    return this.http.post(this.host + '/demo/loadTenderPlan', json).pipe(
       map(posts => posts as Post[])
     );
   }
@@ -517,6 +548,7 @@ export class ApiService {
       map(parameters => parameters as SearchParameters[])
     );
   }
+
   save_SaveParameters(searchparametrs:SearchParameters) {
     return this.http.post(this.host + '/demo/save_SaveParameters', searchparametrs).pipe(
       map(parameters => parameters as SearchParameters[])
@@ -538,5 +570,25 @@ export class ApiService {
     return this.http.get(this.host + '/demo/District' ).pipe(
       map(districts => districts as District[])
     );
+  }
+  setDublicate(id:number,id_d:number){
+    return this.http.get(this.host + '/demo/setDublicate/'+id+'/'+id_d).pipe(
+      map(data => data as StringAnswer)
+    )
+  }
+  setPlane(id:number,id_d:number){
+    return this.http.get(this.host + '/demo/setPlane/'+id+'/'+id_d).pipe(
+      map(data => data as StringAnswer)
+    )
+  }
+  deleteDublicate(id:number){
+    return this.http.get(this.host + '/demo/deleteDublicate/'+id).pipe(
+      map(data => data as StringAnswer)
+    )
+  }
+  getDublicate(id: number){
+    return this.http.get(this.host + '/demo/getDublicate/'+id).pipe(
+      map(posts => posts as Post[])
+    )
   }
 }

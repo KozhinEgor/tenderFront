@@ -20,6 +20,7 @@
       <a mat-list-item routerLink="/tender-without-orders"(click)="drawer.close()"><span [matBadge] = CountTender >Тендеры без продуктов</span></a>
       <a mat-list-item routerLink="/users"(click)="drawer.close()" *ngIf=" user !==null && user.role === 'ROLE_ADMIN'">Пользователи</a>
       <a mat-list-item routerLink="/company"(click)="drawer.close()" *ngIf=" user !==null && user.role !== 'ROLE_USER'">Компании</a>
+      <a mat-list-item routerLink="/setWinner"(click)="drawer.close()" *ngIf=" user !==null && user.role !== 'ROLE_USER'">Добавление Победителей</a>
     </mat-list>
   </mat-drawer>
   <mat-drawer-content>

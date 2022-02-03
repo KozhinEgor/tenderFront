@@ -55,7 +55,10 @@ export class PageTenderComponent implements OnInit {
     dublicate: false,
     country: '',
     winner_inn: '',
-    winner_country: ''
+    winner_country: '',
+    plan: false,
+    tender_plan: '',
+    tender_dublicate: ''
   };
   comments: Comment[];
   color: string[] = ['#FFCC33', '#FF9933', '#FF6600', '#FF3300', '#FF6666', '#CC3333', '#FF0066', '#FF0099', '#FF33CC', '#FF66FF', '#CC66CC', '#CC00FF', '#9933FF', '#9966FF', '#9999FF', '#6666FF', '#3300FF', '#3366FF', '#0066FF',
@@ -98,7 +101,7 @@ ngOnInit() {
     this.dialog.open(TenderDialogComponent, {
       width: '80%',
       height: '90%',
-      data: {adjacent_tender: false, id_tender: this.id}
+      data: {adjacent_tender: false, id_tender: this.id, plan:false}
     }).afterClosed().subscribe(result => {
       location.reload();
     });

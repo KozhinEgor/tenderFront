@@ -68,7 +68,6 @@ export class ProductReportComponent implements OnInit {
   @ViewChild(MatSort) sorting: MatSort;
   q: Quarter_count[] = null;
 
-
   tabs:ProductCategory[] = [];
   selected = new FormControl(0);
 
@@ -103,7 +102,7 @@ export class ProductReportComponent implements OnInit {
   minSum = new FormControl(1, [Validators.max(999999999999), Validators.min(0)]);
   maxSum = new FormControl('', [Validators.max(999999999999), Validators.min(0)]);
   innCustomer: string = '';
-
+  plan_schedule: boolean = false;
   visible = true;
   selectable = true;
   removable = true;
@@ -249,12 +248,15 @@ export class ProductReportComponent implements OnInit {
     this.vendor_code = null;
     this.contryAutocompletComponent.myControl.setValue('');
     this.dataRange.range.setValue({dateStart:null,dateFinish:null});
-
+    this.regionSelectedComponent.myControl.enable();
+    this.districtSelectedComponent.myControl.enable();
+    this.regionSelectedComponent.myControl.setValue([]);
+    this.districtSelectedComponent.myControl.setValue([]);
     this.categoryProductComponent.category_product = "";
     this.categoryProductComponent.setCategory_product('');
     this.productCategoryCheckboxComponent.myControl.setValue([]);
     this.vendorCodeCheckboxComponent.myControl.setValue([]);
-    this.vendorCodeCheckboxComponent.myControl.disable();
+    if(this.vendorCodeCheckboxComponent.myControl.enabled)this.vendorCodeCheckboxComponent.myControl.disable();
     this.vendorCheckboxComponent.myControl.setValue([]);
     this.subcategoryCheckboxComponent.myControl.setValue([]);
     this.typeProductOrderComponent.type = "Год";
@@ -414,7 +416,9 @@ this.load= false
       numberShow: this.numberShow,
       product: this.product,
       districts: this.districtSelectedComponent.myControl.value !== null? this.districtSelectedComponent.myControl.value:null,
-      regions: this.regionSelectedComponent.myControl.value !== null? this.regionSelectedComponent.myControl.value:null
+      regions: this.regionSelectedComponent.myControl.value !== null? this.regionSelectedComponent.myControl.value:null,
+      plan_schedule: this.plan_schedule,
+      realized: false
     }
     this.api.fileQuarter(this.receivedJson).subscribe(blob => {
         saveAs(blob, "Report.xlsx");
@@ -455,9 +459,62 @@ this.load= false
       numberShow: this.numberShow,
       product: this.product,
       districts: this.districtSelectedComponent.myControl.value !== null? this.districtSelectedComponent.myControl.value:null,
-      regions: this.regionSelectedComponent.myControl.value !== null? this.regionSelectedComponent.myControl.value:null
+      regions: this.regionSelectedComponent.myControl.value !== null? this.regionSelectedComponent.myControl.value:null,
+      plan_schedule: this.plan_schedule,
+      realized: false
     }
     this.loadReport();
   }
+  regionsSelected: boolean = false;
+  ChangeRegion(regions: any) {
 
+    if(regions !== null && regions.length !== 0) {
+
+      this.regionsSelected = true;
+      this.innCustomer = '';
+
+      this.contryAutocompletComponent.myControl.setValue('');
+      this.contryAutocompletComponent.myControl.disable();
+
+
+      this.customAutocomplet.myControl.disable();
+      this.customers = [];
+      this.districtSelectedComponent.myControl.disable();
+      this.districtSelectedComponent.myControl.setValue([]);
+    }
+    else{
+      if(this.districtSelectedComponent.myControl.value !== null && this.districtSelectedComponent.myControl.value.length < 1) {
+        this.districtSelectedComponent.myControl.enable();
+        this.regionsSelected = false;
+        this.contryAutocompletComponent.myControl.enable();
+        this.customAutocomplet.myControl.enable();
+      }
+
+    }
+  }
+  ChangeDistrict(district: any) {
+
+    if(district !== null && district.length !== 0) {
+      this.regionsSelected = true;
+      this.innCustomer = '';
+      this.contryAutocompletComponent.myControl.setValue('');
+      this.contryAutocompletComponent.myControl.disable();
+
+      this.customAutocomplet.myControl.disable();
+      this.regionSelectedComponent.myControl.disable();
+      this.regionSelectedComponent.myControl.setValue([]);
+      this.customers = [];
+    }
+    else{
+      if(this.regionSelectedComponent.myControl.value !== null && this.regionSelectedComponent.myControl.value.length < 1) {
+        this.regionsSelected = false;
+        if (!this.contryAutocompletComponent.myControl.enabled) {
+          this.contryAutocompletComponent.myControl.enable();
+        }
+        this.customAutocomplet.myControl.enable();
+        this.regionSelectedComponent.myControl.enable();
+      }
+
+    }
+  }
 }

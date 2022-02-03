@@ -1,0 +1,46 @@
+ <div *ngIf="tenders !== null" class="fixActionRow">
+   <mat-dialog-content >
+  <div *ngFor="let tender of tenders" class="OneTender">
+    <mat-card class="cardTender" >
+      <mat-card-header style="border-radius: 3px;" [ngClass]="{'plan': tender.plan, 'dublicate':tender.dublicate}">
+        <!-- #FC5A62 - красный #FCD05A - желтый-->
+        <mat-card-title>
+          {{tender.name_tender}}
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{tender.id}}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <p style="padding-top: 5px">
+          {{tender.customer}} {{tender.inn}}
+        </p>
+        <p>
+          {{ tender.date_start | date:'dd.MM.yyyy HH:mm:ss': "UTC"}} - {{ tender.date_finish| date:'dd.MM.yyyy HH:mm:ss': "UTC"}}
+        </p>
+        <p>
+          {{tender.full_sum | currency : tender.currency :'symbol': '1.2-2':'ru'}}
+        </p>
+        <p *ngIf="tender.product !== null">
+          {{tender.product}}
+        </p>
+      </mat-card-content>
+
+
+    </mat-card>
+  </div>
+   </mat-dialog-content>
+   <div class="spacer"></div>
+   <mat-dialog-actions>
+   <mat-form-field style="width: 30%; padding-bottom: 0px"  disabled="true">
+     <mat-label>Основной тендер</mat-label>
+     <input matInput  placeholder="ID основного тендера" [(ngModel)]="id">
+   </mat-form-field>
+   <mat-form-field style="width: 30%; padding-bottom: 0px"  disabled="true">
+     <mat-label>Тендер дубликат</mat-label>
+     <input matInput  placeholder="ID тендера дубликата" [(ngModel)]="id_d">
+   </mat-form-field>
+   <button mat-flat-button (click)="dublicate()">Установить дубликат</button>
+     <button mat-button mat-dialog-close>Закрыть</button>
+   </mat-dialog-actions>
+ </div>
