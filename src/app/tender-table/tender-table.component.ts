@@ -3,7 +3,7 @@ import {animate, state, style, transition, trigger} from "@angular/animations";
 import {MatPaginator} from "@angular/material/paginator";
 import {MatSort} from "@angular/material/sort";
 import {MatTableDataSource} from "@angular/material/table";
-import {Company, Orders, OrdersDB, Post, Product, ProductCategory, User, Comment} from "../classes";
+import {Company, Orders, OrdersDB, Tender, Product, ProductCategory, User, Comment, SearchParameters} from "../classes";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {VendorCodeAutocompleatComponent} from "../vendor-code-autocompleat/vendor-code-autocompleat.component";
 import {ProductCategoryAutocompletComponent} from "../product-category-autocomplet/product-category-autocomplet.component";
@@ -22,8 +22,12 @@ import {SubcategoryAutocompletComponent} from "../subcategory-autocomplet/subcat
 import {CategoryProductComponent} from "../category-product/category-product.component";
 import {OptionsComponent} from "../options/options.component";
 import {ActivatedRoute} from "@angular/router";
-import {DublicateDialogComponent} from "../page-add-tender/page-add-tender.component";
+
 import {environment} from "../../environments/environment";
+import {startWith, switchMap, tap} from "rxjs/operators";
+import {merge} from "chart.js/helpers";
+import {DublicateDialogComponent} from "../dublicate-dialog/dublicate-dialog.component";
+import {helper} from "../helper";
 
 
 export interface CustomerWinner {
@@ -47,32 +51,32 @@ export interface CustomerWinner {
     ]),
   ],
 })
-export class TenderTableComponent implements OnInit, OnChanges {
+export class TenderTableComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() displayedColumns;
-  @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
-  @ViewChild(MatSort) sort: MatSort | null = null;
-
-  @Input() dataSource = new MatTableDataSource<Post>();
-  @Input() adjacent_tender: boolean;
-  @Input()plan:boolean;
-  expandedElement: Post | null;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort ;
+  @Input() searchParametrs:SearchParameters;
+  dataSource = new MatTableDataSource<Tender>();
+  show:boolean = false;
+  expandedElement: Tender | null;
   user: User;
-  totalCost: number = 0;
-  totalCount: number = 0;
-  totalCountFinish: number = 0;
-  totalCostFinish: number = 0;
+  totalCost: number = null;
+  totalCount: number = null;
+  totalCountFinish: number = null;
+  totalCostFinish: number = null;
   url:string;
-
-  constructor(public dialog: MatDialog, private api: ApiService, private authenticationService: AuthenticationService) {
+  isLoadingResults = false;
+  constructor(public dialog: MatDialog, private api: ApiService, private authenticationService: AuthenticationService, private helper:helper) {
     this.user = this.authenticationService.userValue;
     this.url = location.protocol;
   }
 
   showTender() {
+
     this.dialog.open(TenderDialogComponent, {
       width: '80%',
       height: '90%',
-      data: {adjacent_tender: this.adjacent_tender, id_tender: this.expandedElement.id, plan:this.plan}
+      data: {adjacent_tender: (this.searchParametrs.adjacent_tender === null?false:this.searchParametrs.adjacent_tender), id_tender: (this.expandedElement.id), plan:(this.searchParametrs.plan_schedule=== null?false:this.searchParametrs.plan_schedule)}
     }).afterClosed().subscribe(result => {
       this.expandedElement.price = result.price;
       this.expandedElement.product = result.product;
@@ -98,42 +102,95 @@ export class TenderTableComponent implements OnInit, OnChanges {
       if (result.id == null) {
         this.dataSource.data.splice(this.dataSource.data.indexOf(this.expandedElement), 1)
 
-        this.dataSource = new MatTableDataSource<Post>(this.dataSource.data);
+        this.dataSource = new MatTableDataSource<Tender>(this.dataSource.data);
         this.dataSource.sort = this.sort;
         this.dataSource.paginator = this.paginator
       }
     });
   }
 
+  ngAfterViewInit(){
+    this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
+    this.paginator.page
+      .pipe(
+        tap(() => {
+                this.isLoadingResults = true;
+                 this.getData();
+              })
+      )
+      .subscribe();
+    this.sort.sortChange
+      .pipe(
+        tap(() => {
+          this.isLoadingResults = true;
+          this.getData();
+        })
+      )
+      .subscribe();
+
+  }
+
   ngOnInit(): void {
 
   }
+ getData(){
+    if(this.show){
+      this.isLoadingResults = true;
+      this.api.getTenders({page:this.paginator.pageIndex,sortName:this.sort.active,sortDirection:this.sort.direction,pageSize:this.paginator.pageSize, searchParametrs:this.searchParametrs}).subscribe(data =>{
+        if(data.tenders.length === 0){
+          this.dialog.open(ErrorDialogComponent, { data: 'Найдено 0 тендеров'});
+          this.dataSource.data = [];
+          this.isLoadingResults = false;
+        }
+        else{
+          this.dataSource.data = data.tenders;
+          this.totalCount = data.withPrice;
+          this.totalCost = data.sumWithPrice;
+          this.totalCountFinish = data.withWinner;
+          this.totalCostFinish = data.sumWithWinner;
+          this.paginator.length= data.allCount;
+          this.isLoadingResults = false;
+        }
 
-  getTotal() {
-    for (let i = 0; i < this.dataSource.data.length; i++) {
-      if (this.dataSource.data[i].win_sum > 0) {
-
-        this.totalCountFinish++;
-        this.totalCostFinish = this.totalCostFinish + (this.dataSource.data[i].win_sum * this.dataSource.data[i].rate);
-      }
-      if (this.dataSource.data[i].sum !== 0) {
-        this.totalCount++;
-        this.totalCost = this.totalCost + this.dataSource.data[i].sum;
-      }
+      },
+        err => {
+          this.isLoadingResults = false;
+          this.dataSource.data = [];
+          this.dialog.open(ErrorDialogComponent, { data: "Ошибка " + err});
+        });
     }
-  }
+    else{
+      this.isLoadingResults = false;
+    }
+
+
+}
+
+  // getTotal() {
+  //   for (let i = 0; i < this.dataSource.data.length; i++) {
+  //     if (this.dataSource.data[i].win_sum > 0) {
+  //
+  //       this.totalCountFinish++;
+  //       this.totalCostFinish = this.totalCostFinish + (this.dataSource.data[i].win_sum * this.dataSource.data[i].rate);
+  //     }
+  //     if (this.dataSource.data[i].sum !== 0) {
+  //       this.totalCount++;
+  //       this.totalCost = this.totalCost + this.dataSource.data[i].sum;
+  //     }
+  //   }
+  // }
 
 getURL(id_tender:string){
   return environment.url+"/tender/"+id_tender;
 }
   ngOnChanges(): void {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-    this.totalCost = 0;
-    this.totalCount = 0;
-    this.totalCountFinish = 0;
-    this.totalCostFinish = 0;
-    this.getTotal();
+    // this.dataSource.paginator = this.paginator;
+    // this.dataSource.sort = this.sort;
+    this.totalCost = null;
+    this.totalCount = null;
+    this.totalCountFinish = null;
+    this.totalCostFinish = null;
+    // this.getTotal();
   }
 
 
@@ -238,7 +295,7 @@ export class DeleteProductComponent {
 })
 export class DeleteTenderComponent {
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: Post) {
+  constructor(@Inject(MAT_DIALOG_DATA) public data: Tender) {
   }
 
 }
@@ -299,12 +356,31 @@ export class TenderDialogComponent implements OnInit {
   editOrders = null;
   flag = false;
   orders: Orders[] = [];
-  ordersDB: OrdersDB[] = [];
+  ordersDB: OrdersDB={
+    id: null,
+    tender: null,
+    comment: '',
+    product: null,
+    number: null,
+    price: 0,
+    frequency: null,
+    usb: null,
+    vxi: null,
+    portable: null,
+    channel: null,
+    port: null,
+    form_factor: null,
+    purpose: null,
+    voltage: null,
+    current: null,
+    option: [],
+    options: null
+  };
   selected = new FormControl(0);
   comments: Comment[];
   color: string[] = ['#FFCC33', '#FF9933', '#FF6600', '#FF3300', '#FF6666', '#CC3333', '#FF0066', '#FF0099', '#FF33CC', '#FF66FF', '#CC66CC', '#CC00FF', '#9933FF', '#9966FF', '#9999FF', '#6666FF', '#3300FF', '#3366FF', '#0066FF',
     '#3399FF', '#33CCFF', '#66CCCC', '#66FFFF', '#33FFCC', '#00CC99', '#00FF99', '#33FF66', '#66CC66', '#00FF00', '#33FF00', '#66CC00', '#99CC66', '#CCFF33', '#CCCC33', '#CCCCCC'];
-  data: Post = {
+  data: Tender = {
     id: 0,
     name_tender: '',
     number_tender: '',
@@ -336,7 +412,7 @@ export class TenderDialogComponent implements OnInit {
 
   default() {
     this.vendorAutocompletComponent.myControl.disable();
-    this.vendorCodeAutocompleatComponent.myControl.disable();
+    // this.vendorCodeAutocompleatComponent.myControl.disable();
     this.subcategoryAutocompletComponent.myControl.disable();
     this.dataSource = new MatTableDataSource<Orders>(this.orders);
     this.productCategoryAutocompletComponent.myControl.setValue('');
@@ -368,38 +444,17 @@ export class TenderDialogComponent implements OnInit {
   }
 
   addProduct() {
-    let comment: string;
     if (this.number !== null) {
       if(this.vendorCodeAutocompleatComponent.myControl.value !== '' && this.vendorCodeAutocompleatComponent.myControl.value !== null &&this.vendorCodeAutocompleatComponent.myControl.value !== undefined){
       try {
-        if (this.vendorCodeAutocompleatComponent.myControl.value.vendor_code === 'Без артикула' || this.productCategoryAutocompletComponent.myControl.value.id === 7) {
-          comment = (this.parameters.includes('portable') && this.portable !== null && this.portable ? 'портативный ' : '')
-            + (this.parameters.includes('usb') && this.usb !== null && this.usb ? 'USB ' : '')
-            + (this.parameters.includes('vxi') && this.vxi !== null && this.vxi ? 'VXI ' : '')
-            + (this.parameters.includes('frequency') && this.frequency !== null && this.frequency !== 0? String(this.frequency) + 'ГГц ' : '')
-            + (this.parameters.includes('channel') && this.channel !== null && this.channel !== 0? String(this.channel) + 'кан. ' : '')
-            + (this.parameters.includes('port') && this.port !== null && this.port !== 0? String(this.port) + 'порта ' : '')
-            + (this.parameters.includes('form_factor') && this.form_factor !== null ? this.form_factor + ' ' : '')
-            + (this.parameters.includes('purpose') && this.purpose !== null ? this.purpose + ' ' : '')
-            + (this.parameters.includes('voltage') && this.voltage !== null  && this.voltage !== 0? String(this.voltage) + 'В ' : '')
-            + (this.parameters.includes('current') && this.current !== null && this.current !== 0? String(this.current) + 'А ' : '')
-            + (this.optionComponent.option !== null && this.optionComponent.option.value ? this.optionComponent.toString() : '')
-            + this.comment;
-            + this.comment;
-        } else {
-          comment =(this.optionComponent.option !== null && this.optionComponent.option.value ? this.optionComponent.toString() : '')
-            + this.comment;
-        }
-        this.ordersDB.push({
+
+        this.ordersDB= {
           id: null,
-          vendor: this.vendorCodeAutocompleatComponent.myControl.value.vendor_id ? this.vendorCodeAutocompleatComponent.myControl.value.vendor_id : null,
           tender: this.data.id,
-          product_category: this.productCategoryAutocompletComponent.myControl.value.id,
           comment: this.comment ? this.comment : '',
-          id_product: this.vendorCodeAutocompleatComponent.myControl.value.id,
+          product: this.vendorCodeAutocompleatComponent.myControl.value.id,
           number: this.number,
           price: this.price ? this.price : 0,
-          winprice: this.winprice ? this.winprice : 0,
           frequency: this.frequency !== -1 && this.frequency ? this.frequency : null,
           usb: this.usb,
           vxi: this.vxi,
@@ -410,20 +465,18 @@ export class TenderDialogComponent implements OnInit {
           purpose: this.purpose === '' ? null : this.purpose,
           voltage: this.voltage !== -1 && this.voltage ? this.voltage : null,
           current: this.current !== -1 && this.current ? this.current : null,
-          option: this.optionComponent.option.value,
-          options: this.optionComponent.option !== null && this.optionComponent.option.value ? this.optionComponent.toString() : ''
-        });
-        this.orders.push({
-          tender: this.data.id,
-          vendor: this.vendorAutocompletComponent.myControl.value !== '' && this.vendorAutocompletComponent.myControl.value !== null ? this.vendorAutocompletComponent.myControl.value.name : '',
-          product_category: this.productCategoryAutocompletComponent.myControl.value.category,
-          id_product: (this.vendorCodeAutocompleatComponent.myControl.value.subcategory !== null && this.vendorCodeAutocompleatComponent.myControl.value.subcategory !== '' ? this.vendorCodeAutocompleatComponent.myControl.value.subcategory : '') + ' ' + (this.vendorAutocompletComponent.myControl.value !== '' && this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value.name !== 'No vendor' ? this.vendorAutocompletComponent.myControl.value.name : '') + ' ' + (this.vendorCodeAutocompleatComponent.myControl.value.vendor_code === 'Без артикула' ? '' : this.vendorCodeAutocompleatComponent.myControl.value.vendor_code),
-          comment: comment ? comment : '',
-          number: this.number,
-          price: this.price !== null ? this.price : 0,
-          winprice: this.winprice !== null ? this.winprice : 0
-        });
-        this.default();
+          option: this.optionComponent.option.value === ''?[]:this.optionComponent.option.value,
+          options:  ''
+        };
+        this.api.addOrder(this.ordersDB).subscribe(
+          data => {
+            this.orders = data;
+            this.dataSource = new MatTableDataSource<Orders>(this.orders);
+            this.default();
+          },
+          err => {
+            this.dialog.open(ErrorDialogComponent, {data: "Ошибка " + err});
+          });
       } catch (e) {
         if (e instanceof TypeError) {
           (e.message);
@@ -439,61 +492,22 @@ export class TenderDialogComponent implements OnInit {
   deleteProduct(or: Orders) {
     const dialogRef = this.dialog.open(DeleteProductComponent, {data: or});
     dialogRef.afterClosed().subscribe(result => {
-      let indexDelete = this.orders.indexOf(or);
-      this.orders.splice(indexDelete, 1);
-      this.ordersDB.splice(indexDelete, 1);
-
-      if (!result) {
-        var index = null;
-        for (var i = 0; i < this.ordersDB.length; i++) {
-
-          if (this.ordersDB[i].id_product === 7 && this.ordersDB[i].product_category === 7) {
-            index = i;
-          }
-        }
-        if (index !== null) {
-          this.orders[index].number = this.orders[index].number + or.number;
-          this.orders[index].comment = '(' + String(Number(this.orders[index].comment.replace(/[^\d]/g, '')) + 1) + ' наименований)';
-
-          this.ordersDB[index].number = this.ordersDB[index].number + or.number;
-          this.ordersDB[index].comment = '(' + String(Number(this.ordersDB[index].comment.replace(/[^\d]/g, '')) + 1) + ' наименований)';
-        } else {
-          this.ordersDB.push({
-            id: null,
-            vendor: null,
-            tender: this.data.id,
-            product_category: 7,
-            comment: '(1 наименование)',
-            id_product: 7,
-            number: or.number,
-            price: 0,
-            winprice: 0,
-            frequency: null,
-            usb: null,
-            vxi: null,
-            portable: null,
-            channel: null,
-            port: null,
-            form_factor: null,
-            purpose: null,
-            voltage: null,
-            current: null,
-            option: [],
-            options: null
+      if(result !== null){
+        this.api.deleteOrder({'id':or.id,'result':result,'tender':or.tender}).subscribe(
+          data => {
+            this.orders = data;
+            this.dataSource = new MatTableDataSource<Orders>(this.orders);
+            this.default();
+          },
+          err => {
+            this.dialog.open(ErrorDialogComponent, {data: "Ошибка " + err});
           });
-          this.orders.push({
-            tender: this.data.id,
-            vendor: '',
-            product_category: 'Продукты',
-            id_product: 'Другое оборудование',
-            comment: '(1 наименование)',
-            number: or.number,
-            price: 0,
-            winprice: 0
-          });
-        }
       }
-      this.dataSource = new MatTableDataSource<Orders>(this.orders);
+      // let indexDelete = this.orders.indexOf(or);
+      // this.orders.splice(indexDelete, 1);
+      // this.ordersDB.splice(indexDelete, 1);
+      //
+
     });
 
   }
@@ -502,122 +516,93 @@ export class TenderDialogComponent implements OnInit {
 
     this.editOrders = this.orders.indexOf(or);
     this.productCategoryAutocompletComponent.myControl.setValue({
-      id: this.ordersDB[this.editOrders].product_category,
+      id: or.product_category_DB,
       category: or.product_category,
       category_en: null
     });
-    this.channel = this.ordersDB[this.editOrders].channel;
-    this.port = this.ordersDB[this.editOrders].port;
-    this.frequency = this.ordersDB[this.editOrders].frequency;
-    this.vxi = this.ordersDB[this.editOrders].vxi;
-    this.portable = this.ordersDB[this.editOrders].portable;
-    this.usb = this.ordersDB[this.editOrders].usb;
-    this.form_factor = this.ordersDB[this.editOrders].form_factor;
-    this.purpose = this.ordersDB[this.editOrders].purpose;
-    this.voltage = this.ordersDB[this.editOrders].voltage;
-    this.current = this.ordersDB[this.editOrders].current;
-    this.api.getVendorCodeById(this.ordersDB[this.orders.indexOf(or)].product_category, this.ordersDB[this.editOrders].id_product).subscribe(
-      product => {
-        this.vendorCodeAutocompleatComponent.myControl.setValue(product);
-      },
-      error => {
-        this.dialog.open(ErrorDialogComponent, {data: "Ошибка " + error})
-      }
-    );
-    this.comment = this.ordersDB[this.editOrders].comment;
-    this.number = this.ordersDB[this.editOrders].number;
-    this.price = this.ordersDB[this.editOrders].price;
-    this.optionComponent.selected_options = this.ordersDB[this.editOrders].options;
+    this.channel = or.channel;
+    this.port = or.port;
+    this.frequency = or.frequency;
+    this.vxi = or.vxi;
+    this.portable = or.portable;
+    this.usb = or.usb;
+    this.form_factor = or.form_factor;
+    this.purpose = or.purpose;
+    this.voltage = or.voltage;
+    this.current = or.current;
+    this.vendorCodeAutocompleatComponent.setProduct(or.product_DB);
+    this.comment = or.comment;
+    this.number = or.number;
+    this.price = or.price;
+    this.optionComponent.selected_options = or.options;
   }
 
   copyProduct(or: Orders) {
 
-    let copyOrders = this.orders.indexOf(or);
     this.productCategoryAutocompletComponent.myControl.setValue({
-      id: this.ordersDB[copyOrders].product_category,
+      id: or.product_category_DB,
       category: or.product_category,
       category_en: null
     });
-    this.channel = this.ordersDB[copyOrders].channel;
-    this.port = this.ordersDB[copyOrders].port;
-    this.frequency = this.ordersDB[copyOrders].frequency;
-    this.vxi = this.ordersDB[copyOrders].vxi;
-    this.portable = this.ordersDB[copyOrders].portable;
-    this.usb = this.ordersDB[copyOrders].usb;
-    this.form_factor = this.ordersDB[copyOrders].form_factor;
-    this.purpose = this.ordersDB[copyOrders].purpose;
-    this.voltage = this.ordersDB[copyOrders].voltage;
-    this.current = this.ordersDB[copyOrders].current;
-    this.api.getVendorCodeById(this.ordersDB[this.orders.indexOf(or)].product_category, this.ordersDB[copyOrders].id_product).subscribe(
-      product => {
-        this.vendorCodeAutocompleatComponent.myControl.setValue(product);
-      },
-      error => {
-        this.dialog.open(ErrorDialogComponent, {data: "Ошибка " + error})
-      }
-    );
-    this.comment = this.ordersDB[copyOrders].comment;
-    this.number = this.ordersDB[copyOrders].number;
-    this.price = this.ordersDB[copyOrders].price;
-    this.optionComponent.selected_options = this.ordersDB[copyOrders].options;
+    this.channel = or.channel;
+    this.port = or.port;
+    this.frequency = or.frequency;
+    this.vxi = or.vxi;
+    this.portable = or.portable;
+    this.usb = or.usb;
+    this.form_factor = or.form_factor;
+    this.purpose = or.purpose;
+    this.voltage = or.voltage;
+    this.current = or.current;
+    this.vendorCodeAutocompleatComponent.setProduct(or.product_DB);
+    this.comment = or.comment;
+    this.number = or.number;
+    this.price = or.price;
+    this.optionComponent.selected_options = or.options;
   }
 
   saveProduct() {
-    let comment: string;
     if (this.number !== null) {
       if(this.vendorCodeAutocompleatComponent.myControl.value !== '' && this.vendorCodeAutocompleatComponent.myControl.value !== null &&this.vendorCodeAutocompleatComponent.myControl.value !== undefined){
-    if (this.vendorCodeAutocompleatComponent.myControl.value.vendor_code === 'Без артикула' || this.productCategoryAutocompletComponent.myControl.value.id === 7) {
-      comment = (this.parameters.includes('portable') && this.portable !== null && this.portable ? 'портативный ' : '')
-        + (this.parameters.includes('usb') && this.usb !== null && this.usb ? 'USB ' : '')
-        + (this.parameters.includes('vxi') && this.vxi !== null && this.vxi ? 'VXI ' : '')
-        + (this.parameters.includes('frequency') && this.frequency !== null && this.frequency !== 0? String(this.frequency) + 'ГГц ' : '')
-        + (this.parameters.includes('channel') && this.channel !== null && this.channel !== 0? String(this.channel) + 'кан. ' : '')
-        + (this.parameters.includes('port') && this.port !== null && this.port !== 0? String(this.port) + 'порта ' : '')
-        + (this.parameters.includes('form_factor') && this.form_factor !== null ? this.form_factor + ' ' : '')
-        + (this.parameters.includes('purpose') && this.purpose !== null ? this.purpose + ' ' : '')
-        + (this.parameters.includes('voltage') && this.voltage !== null  && this.voltage !== 0? String(this.voltage) + 'В ' : '')
-        + (this.parameters.includes('current') && this.current !== null && this.current !== 0? String(this.current) + 'А ' : '')
-        + (this.optionComponent.option !== null && this.optionComponent.option.value ? this.optionComponent.toString() : '')
-        + this.comment;
-    } else {
-      comment = (this.optionComponent.option !== null && this.optionComponent.option.value ? this.optionComponent.toString() : '')
-        + this.comment;
-    }
-    this.orders[this.editOrders] = {
-      tender: this.data.id,
-      vendor: this.vendorAutocompletComponent.myControl.value !== '' && this.vendorAutocompletComponent.myControl.value !== null ? this.vendorAutocompletComponent.myControl.value.name : '',
-      product_category: this.productCategoryAutocompletComponent.myControl.value.category,
-      id_product: (this.vendorCodeAutocompleatComponent.myControl.value.subcategory !== null && this.vendorCodeAutocompleatComponent.myControl.value.subcategory !== '' ? this.vendorCodeAutocompleatComponent.myControl.value.subcategory : '') + ' ' + (this.vendorAutocompletComponent.myControl.value !== null && this.vendorAutocompletComponent.myControl.value !== '' && this.vendorAutocompletComponent.myControl.value.name !== 'No vendor' ? this.vendorAutocompletComponent.myControl.value.name : '') + ' ' + (this.vendorCodeAutocompleatComponent.myControl.value.vendor_code === 'Без артикула' ? '' : this.vendorCodeAutocompleatComponent.myControl.value.vendor_code),
-      comment: comment ? comment : '',
-      number: this.number,
-      price: this.price ? this.price : 0,
-      winprice: this.winprice ? this.winprice : 0
-    };
-    this.ordersDB[this.editOrders] = {
-      id: this.ordersDB[this.editOrders].id,
-      vendor: this.vendorCodeAutocompleatComponent.myControl.value.vendor_id ? this.vendorCodeAutocompleatComponent.myControl.value.vendor_id : null,
-      tender: this.data.id,
-      product_category: this.productCategoryAutocompletComponent.myControl.value.id,
-      comment: this.comment ? this.comment : '',
-      id_product: this.vendorCodeAutocompleatComponent.myControl.value.id,
-      number: this.number,
-      price: this.price ? this.price : 0,
-      winprice: this.winprice ? this.winprice : 0,
-      frequency: this.frequency !== -1 && this.frequency ? this.frequency : null,
-      usb: this.usb,
-      vxi: this.vxi,
-      portable: this.portable,
-      channel: this.channel !== -1 && this.channel ? this.channel : null,
-      port: this.port !== -1 && this.port ? this.port : null,
-      form_factor: this.form_factor === '' ? null : this.form_factor,
-      purpose: this.purpose === '' ? null : this.purpose,
-      voltage: this.voltage !== -1 && this.voltage ? this.voltage : null,
-      current: this.current !== -1 && this.current ? this.current : null,
-      option: this.optionComponent.option.value,
-      options: this.optionComponent.toString()
-    };
-    this.default();
-  }
+        try {
+          this.ordersDB= {
+            id: this.orders[this.editOrders].id,
+            tender: this.data.id,
+            comment: this.comment ? this.comment : '',
+            product: this.vendorCodeAutocompleatComponent.myControl.value.id,
+            number: this.number,
+            price: this.price ? this.price : 0,
+            frequency: this.frequency !== -1 && this.frequency ? this.frequency : null,
+            usb: this.usb,
+            vxi: this.vxi,
+            portable: this.portable,
+            channel: this.channel !== -1 && this.channel ? this.channel : null,
+            port: this.port !== -1 && this.port ? this.port : null,
+            form_factor: this.form_factor === '' ? null : this.form_factor,
+            purpose: this.purpose === '' ? null : this.purpose,
+            voltage: this.voltage !== -1 && this.voltage ? this.voltage : null,
+            current: this.current !== -1 && this.current ? this.current : null,
+            option: this.optionComponent.option.value=== ''?[]:this.optionComponent.option.value,
+            options:  ''
+          };
+          this.api.addOrder(this.ordersDB).subscribe(
+            data => {
+              this.orders = data;
+              this.dataSource = new MatTableDataSource<Orders>(this.orders);
+              this.default();
+            },
+            err => {
+              this.dialog.open(ErrorDialogComponent, {data: "Ошибка " + err});
+            });
+        } catch (e) {
+          if (e instanceof TypeError) {
+            (e.message);
+            this.dialog.open(ErrorDialogComponent, {data: 'Проверьте все значения, не подходит значениее в ' + e.message.substring(e.message.indexOf("\'") + 1, e.message.lastIndexOf("\'")) + ' значие должно быть выбранно из списка'})
+          } else {
+            this.dialog.open(ErrorDialogComponent, {data: e.message});
+          }
+        }
+      }
     }
   }
 
@@ -633,10 +618,10 @@ export class TenderDialogComponent implements OnInit {
       this.api.getColumnCategory(category.id).subscribe(
         data => this.parameters = data
       );
-      this.vendorCodeAutocompleatComponent.myControl.setValue('');
-      this.subcategoryAutocompletComponent.setSubCategory(this.productCategoryAutocompletComponent.myControl.value.id);
+
+
       this.vendorAutocompletComponent.myControl.enable();
-      this.vendorCodeAutocompleatComponent.myControl.enable();
+      // this.vendorCodeAutocompleatComponent.myControl.enable();
       this.subcategoryAutocompletComponent.myControl.enable();
       if (this.productCategoryAutocompletComponent.myControl.value.id === 7) {
         this.vendorAutocompletComponent.myControl.disable();
@@ -644,12 +629,18 @@ export class TenderDialogComponent implements OnInit {
         this.vendorAutocompletComponent.myControl.enable();
         this.vendorAutocompletComponent.start(category.id);
       }
-      this.vendorCodeAutocompleatComponent.start(category.id);
-    } else if (category === '') {
+      if(this.vendorCodeAutocompleatComponent.myControl.value === null || typeof this.vendorCodeAutocompleatComponent.myControl.value === "string"){
+        this.subcategoryAutocompletComponent.setSubCategory(this.productCategoryAutocompletComponent.myControl.value.id);
+        this.vendorCodeAutocompleatComponent.myControl.setValue('');
+        this.vendorCodeAutocompleatComponent.start(category.id);
+      }
+
+    }
+    else if (category === '') {
       this.vendorCodeAutocompleatComponent.myControl.setValue('');
       this.vendorAutocompletComponent.myControl.setValue('');
       this.subcategoryAutocompletComponent.myControl.setValue('');
-      this.vendorCodeAutocompleatComponent.myControl.disable();
+      // this.vendorCodeAutocompleatComponent.myControl.disable();
       this.vendorAutocompletComponent.myControl.disable();
       this.subcategoryAutocompletComponent.myControl.disable();
       this.vendorCodeAutocompleatComponent.start(0);
@@ -659,12 +650,14 @@ export class TenderDialogComponent implements OnInit {
   // this. !== this.vendorCodeAutocompleatComponent.myControl.value.? Math.max(this.,this.vendorCodeAutocompleatComponent.myControl.value.):this.;
   ChangeVendorCode(vendor_code: any) {
     if (vendor_code != null && typeof vendor_code !== 'string') {
-      ("here");
+      if(typeof this.productCategoryAutocompletComponent.myControl.value === 'string' || this.productCategoryAutocompletComponent.myControl.value === null){
+          this.productCategoryAutocompletComponent.setCategoryByID(vendor_code.product_category_id);
+      }
       if (!this.vendorAutocompletComponent.myControl.value && this.productCategoryAutocompletComponent.myControl.value.id !== 7) {
         this.vendorAutocompletComponent.setVendor(vendor_code.vendor);
-        this.subcategoryAutocompletComponent.setSubcategoryBYName(vendor_code.subcategory);
+        // this.subcategoryAutocompletComponent.setSubcategoryBYName(vendor_code.subcategory);
       }
-      this.optionComponent.getAllOptionByProduct(this.productCategoryAutocompletComponent.myControl.value.id, this.vendorCodeAutocompleatComponent.myControl.value.id);
+      // this.optionComponent.getAllOptionByProduct(this.productCategoryAutocompletComponent.myControl.value.id, this.vendorCodeAutocompleatComponent.myControl.value.id);
       this.channel = this.channel !== this.vendorCodeAutocompleatComponent.myControl.value.channel ? Math.max(this.channel, this.vendorCodeAutocompleatComponent.myControl.value.channel) : this.channel;
       this.port = this.port !== this.vendorCodeAutocompleatComponent.myControl.value.port ? Math.max(this.port, this.vendorCodeAutocompleatComponent.myControl.value.port) : this.port;
       this.frequency = this.frequency !== this.vendorCodeAutocompleatComponent.myControl.value.frequency ? Math.max(this.frequency, this.vendorCodeAutocompleatComponent.myControl.value.frequency) : this.frequency;
@@ -704,51 +697,14 @@ export class TenderDialogComponent implements OnInit {
 
   Save() {
 
-    var sum = 0;
-    for (var i = 0; i < this.ordersDB.length; i++) {
-      sum = sum + (this.ordersDB[i].number * this.ordersDB[i].price);
-    }
-    if (sum !== 0) {
-      this.data.price = parseFloat(sum.toFixed(2));
-      this.data.sum = this.data.price * this.data.rate;
-    }
 
-    if (this.ordersDB.length === 0) {
-
-
-      this.ordersDB.push({
-        id: null,
-        vendor: null,
-        tender: this.data.id,
-        product_category: null,
-        comment: '',
-        id_product: null,
-        number: null,
-        price: 0,
-        winprice: 0,
-        frequency: null,
-        usb: null,
-        vxi: null,
-        portable: null,
-        channel: null,
-        port: null,
-        form_factor: null,
-        purpose: null,
-        voltage: null,
-        current: null,
-        option: [],
-        options: null
-      });
-
-    }
-    let message: string = '';
     this.autocompletTypeComponent.setType(this.data.typetender);
     if (!this.dataDialog.adjacent_tender && !this.dataDialog.plan &&(
       this.winnerAutocompletComponent.myControl.value === undefined || this.winnerAutocompletComponent.myControl.value === null)) {
       this.winnerAutocompletComponent.setWinnerById(Number(this.data.winner));
     }
     this.customAutocompletComponent.setCustomer(this.data.customer);
-    let tender: Post = {
+    let tender: Tender = {
       id: this.data.id,
       name_tender: this.data.name_tender,
       number_tender: this.data.number_tender,
@@ -764,7 +720,7 @@ export class TenderDialogComponent implements OnInit {
       full_sum: this.data.full_sum,
       win_sum: this.data.win_sum,
       typetender: this.autocompletTypeComponent.myControl.value.id,
-      winner: this.dataDialog.adjacent_tender || this.dataDialog.plan &&(
+      winner: this.dataDialog.adjacent_tender || this.dataDialog.plan && (
         this.winnerAutocompletComponent.myControl.value === undefined || this.winnerAutocompletComponent.myControl.value === null)? null : this.winnerAutocompletComponent.myControl.value.id,
       customer: this.customAutocompletComponent.myControl.value.id,
       product: this.data.product,
@@ -800,30 +756,13 @@ export class TenderDialogComponent implements OnInit {
         });
     }
     else {
-      let prod: string = null;
-      let flag: boolean = false;
-
-      this.api.addOrders(this.ordersDB).subscribe(
-        data => {
-
-          prod = data.name;
-          if (flag) {
-            this.data.product = data.name;
-            this.dialog.open(ErrorDialogComponent, {data: 'Сохранил'});
-          }
-          flag = true;
-        },
-        err => {
-          this.dialog.open(ErrorDialogComponent, {data: "Ошибка " + err});
-        });
       this.api.SaveTender(tender).subscribe(data => {
-          if (flag) {
+
             this.dialog.open(ErrorDialogComponent, {data: 'Сохранил'});
-          }
+
           this.data = data;
           this.winnerAutocompletComponent.setWinnerById(Number(this.data.winner));
-          this.data.product = prod;
-          flag = true;
+
         },
         err => {
           this.dialog.open(ErrorDialogComponent, {data: "Ошибка " + err});
@@ -847,7 +786,8 @@ export class TenderDialogComponent implements OnInit {
     else if(this.dataDialog.plan === true){
       this.api.getPlanTenderByID(this.dataDialog.id_tender).subscribe(data => {
 
-          this.data = data
+          this.data = data;
+
         },
         error => {
           this.dialog.open(ErrorDialogComponent, {data: "Возможно Тендер удален или ошибка на сервере. " + error})
@@ -862,11 +802,10 @@ export class TenderDialogComponent implements OnInit {
           this.dialog.open(ErrorDialogComponent, {data: "Возможно Тендер удален или ошибка на сервере. " + error})
         });
       this.api.getOrdersByTender(this.dataDialog.id_tender).subscribe(order => {
-          this.orders = order.orders;
-          this.dataSource = new MatTableDataSource<Orders>(order.orders);
-          this.ordersDB = order.ordersDB;
+          this.orders = order;
+          this.dataSource = new MatTableDataSource<Orders>(order);
           this.vendorAutocompletComponent.myControl.disable();
-          this.vendorCodeAutocompleatComponent.myControl.disable();
+
           this.subcategoryAutocompletComponent.myControl.disable();
         },
         error => {
@@ -933,8 +872,8 @@ export class TenderDialogComponent implements OnInit {
 
   setprice() {
     var sum = 0;
-    for (var i = 0; i < this.ordersDB.length; i++) {
-      sum = sum + (this.ordersDB[i].number * this.ordersDB[i].price);
+    for (var i = 0; i < this.orders.length; i++) {
+      sum = sum + (this.orders[i].number * this.orders[i].price);
     }
     this.data.price = sum;
     this.data.sum = this.data.price * this.data.rate;
@@ -950,11 +889,11 @@ export class TenderDialogComponent implements OnInit {
   }
 
   changeTab() {
-    if ((this.selected.value === 2 && !this.dataDialog.adjacent_tender && !this.dataDialog.plan) || (this.selected.value === 1 && this.dataDialog.adjacent_tender && !this.dataDialog.plan)) {
+    if ((this.selected.value === 2 && !this.dataDialog.adjacent_tender && !this.dataDialog.plan) || (this.selected.value === 1 && (this.dataDialog.adjacent_tender || this.dataDialog.plan))) {
       this.autocompletTypeComponent.setType(this.data.typetender);
       this.customAutocompletComponent.setCustomer(this.data.customer);
       this.contryAutocompletComponent.myControl.disable();
-      if (!this.dataDialog.adjacent_tender && !this.dataDialog.plan) {
+      if (!this.dataDialog.adjacent_tender && !this.dataDialog.plan && (this.winnerAutocompletComponent.myControl.value === '' || this.winnerAutocompletComponent.myControl.value === null || this.winnerAutocompletComponent.myControl.value === undefined)) {
         this.winnerAutocompletComponent.setWinnerById(Number(this.data.winner));
       }
 

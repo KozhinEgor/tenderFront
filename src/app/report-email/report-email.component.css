@@ -1,0 +1,48 @@
+.mat-column-customer {
+max-width: 300px;
+  min-width: 200px;
+}
+.mat-column-select,.mat-column-customer, .mat-column-number, .mat-column-price, .mat-column-full_sum, .mat-column-expandedDetail{
+  padding: 0px 5px 0px 5px;
+  font-size: 12px;
+
+}
+.mat-column-select{
+  text-align: center;
+  width: 10px;
+}
+.mat-column-number{
+  text-align: center;
+}
+.mat-column-price{
+  text-align: center;
+}
+.mat-column-full_sum{
+  text-align: center;
+}
+tr.example-detail-row {
+  height: 0;
+}
+
+
+
+.example-element-row td {
+  border-bottom-width: 0;
+}
+
+.example-element-detail {
+  overflow: hidden;
+
+}
+
+.example-element-description {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+
+}
+.expandedROW{
+  padding: 0px 5px 0px 5px;
+  font-size: 12px;
+}

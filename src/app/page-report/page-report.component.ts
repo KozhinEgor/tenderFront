@@ -2,7 +2,7 @@ import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {MatTableDataSource} from '@angular/material/table';
 import {
   Company,
-  Post,
+  Tender,
   Product,
   ProductCategory, ProductReceived, ReceivedJson,
   ReportQuarter,

@@ -3,7 +3,7 @@ import {Injectable} from '@angular/core';
 import {map} from 'rxjs/operators';
 import {environment} from "../environments/environment";
 import {
-  Post,
+  Tender,
   Type,
   ReceivedJson,
   Company,
@@ -29,7 +29,7 @@ import {
   Report,
   SearchParameters,
   Region,
-  District
+  District, CriteriaEmailReport, EmailReport, Orders, deleteOrder, searchTender, Tenders
 } from './classes';
 
 
@@ -45,7 +45,7 @@ export class ApiService {
   getPosts() {
     // http://localhost:8081/demo/getAll
     return this.http.get(this.host + '/demo/Tender').pipe(
-      map(posts => posts as Post[])
+      map(posts => posts as Tender[])
     );
     // tslint:disable-next-line:max-line-length
     // {"id","nameTender","numberTender","bicoTender","gosZakupki" "price","currency","rate","sum","dateStart","dateFinish","fullSum","winSum","typetender","winner","customer"}
@@ -55,7 +55,15 @@ export class ApiService {
     //const body = {dateStart: '2020-10-01T00:00:00Z', dateFinish: '2020-10-10T12:00:00Z'};
     // {dateStart: '', dateFinish: '', type: '%', custom: '%', winner: '%', minSum: 0, maxSum: 999999999999}
     return this.http.post(this.host + '/demo/Tender', json).pipe(
-      map(posts => posts as Post[])
+      map(posts => posts as Tender[])
+    );
+  }
+
+  getTenders(json: searchTender) {
+    //const body = {dateStart: '2020-10-01T00:00:00Z', dateFinish: '2020-10-10T12:00:00Z'};
+    // {dateStart: '', dateFinish: '', type: '%', custom: '%', winner: '%', minSum: 0, maxSum: 999999999999}
+    return this.http.post(this.host + '/demo/Tenders', json).pipe(
+      map(posts => posts as Tenders)
     );
   }
 
@@ -63,7 +71,7 @@ export class ApiService {
     //const body = {dateStart: '2020-10-01T00:00:00Z', dateFinish: '2020-10-10T12:00:00Z'};
     // {dateStart: '', dateFinish: '', type: '%', custom: '%', winner: '%', minSum: 0, maxSum: 999999999999}
     return this.http.post(this.host + '/demo/AdjacentTender', json).pipe(
-      map(posts => posts as Post[])
+      map(posts => posts as Tender[])
     );
   }
 
@@ -71,32 +79,32 @@ export class ApiService {
     //const body = {dateStart: '2020-10-01T00:00:00Z', dateFinish: '2020-10-10T12:00:00Z'};
     // {dateStart: '', dateFinish: '', type: '%', custom: '%', winner: '%', minSum: 0, maxSum: 999999999999}
     return this.http.post(this.host + '/demo/PlanTender', json).pipe(
-      map(posts => posts as Post[])
+      map(posts => posts as Tender[])
     );
   }
 
   getTenderById(id: number) {
     return this.http.get(this.host + '/demo/TenderByID/' + id).pipe(
-      map(data => data as Post)
+      map(data => data as Tender)
     )
   }
   getTenderByIdForSetWinner(id: number) {
     return this.http.get(this.host + '/demo/TenderByIDForSetWinner/' + id).pipe(
-      map(data => data as Post)
+      map(data => data as Tender)
     )
   }
   getAdjacentTenderById(id: number) {
     return this.http.get(this.host + '/demo/AdjacentTenderByID/' + id).pipe(
-      map(data => data as Post)
+      map(data => data as Tender)
     )
   }
 
   getPlanTenderByID(id: number) {
     return this.http.get(this.host + '/demo/PlanTenderByID/' + id).pipe(
-      map(data => data as Post)
+      map(data => data as Tender)
     )
   }
-  getFileTender(json: ReceivedJson) {
+  getFileTender(json: SearchParameters) {
     return this.http.post(this.host + '/demo/FileTender', json, {responseType: 'blob'}
     );
   }
@@ -129,10 +137,10 @@ export class ApiService {
       map(string => string as StringAnswer)
     );
   }
-  getSaveProduct(product: Product, category: number) {
+  getSaveProduct(product: Product) {
     //const body = {dateStart: '2020-10-01T00:00:00Z', dateFinish: '2020-10-10T12:00:00Z'};
     // {dateStart: '', dateFinish: '', type: '%', custom: '%', winner: '%', minSum: 0, maxSum: 999999999999}
-    return this.http.post(this.host + '/demo/saveProduct/' + category, product).pipe(
+    return this.http.post(this.host + '/demo/saveProduct', product).pipe(
       map(product => product as Product[])
     );
   }
@@ -306,7 +314,7 @@ export class ApiService {
 
   addTender(uploadData: any) {
     return this.http.post(this.host + '/demo/addTender', uploadData).pipe(
-      map(posts => posts as Post[])
+      map(posts => posts as Tender[])
     );
   }
 
@@ -354,13 +362,19 @@ export class ApiService {
 
   getOrdersByTender(tender: number) {
     return this.http.get(this.host + '/demo/OrdersByTender/' + tender).pipe(
-      map(order => order as OrdersReceived)
+      map(order => order as Orders[])
     );
   }
 
-  addOrders(json: OrdersDB[]) {
+  addOrder(json: OrdersDB) {
     return this.http.post(this.host + '/demo/addOrders', json).pipe(
-      map(data => data as StringAnswer)
+      map(data => data as Orders[])
+    );
+  }
+
+  deleteOrder(json: deleteOrder) {
+    return this.http.post(this.host + '/demo/deleteOrders/', json).pipe(
+      map(data => data as Orders[])
     );
   }
 
@@ -378,12 +392,17 @@ export class ApiService {
 
   getTenderWithoutOrders() {
     return this.http.get(this.host + '/demo/TenderWithoutOrders').pipe(
-      map(posts => posts as Post[]));
+      map(posts => posts as Tender[]));
+  }
+
+  getTenderWithoutOrdersForHome() {
+    return this.http.get(this.host + '/demo/TenderWithoutOrdersForHome').pipe(
+      map(posts => posts as Tender[]));
   }
 
   getTendernoDocumentation() {
     return this.http.get(this.host + '/demo/TendernoDocumentation').pipe(
-      map(posts => posts as Post[]));
+      map(posts => posts as Tender[]));
   }
 
   getVendor(category: number) {
@@ -393,18 +412,18 @@ export class ApiService {
     );
   }
 
-  SaveTender(json: Post) {
+  SaveTender(json: Tender) {
 
-    return this.http.post(this.host + '/demo/saveTender', json).pipe(map(data => data as Post))
+    return this.http.post(this.host + '/demo/saveTender', json).pipe(map(data => data as Tender))
   }
 
-  SaveAdjacentTender(json: Post) {
+  SaveAdjacentTender(json: Tender) {
 
-    return this.http.post(this.host + '/demo/saveAdjacentTender', json).pipe(map(data => data as Post))
+    return this.http.post(this.host + '/demo/saveAdjacentTender', json).pipe(map(data => data as Tender))
   }
-  SavePlanTender(json: Post) {
+  SavePlanTender(json: Tender) {
 
-    return this.http.post(this.host + '/demo/savePlanTender', json).pipe(map(data => data as Post))
+    return this.http.post(this.host + '/demo/savePlanTender', json).pipe(map(data => data as Tender))
   }
   getFooter(ids: number[]) {
     return this.http.post(this.host + '/demo/getFooter', ids).pipe(
@@ -414,7 +433,7 @@ export class ApiService {
 
   getTenderOnProduct(tenderProduct: TenderonProduct) {
     return this.http.post(this.host + '/demo/TenderOnProduct/', tenderProduct).pipe(
-      map(posts => posts as Post[])
+      map(posts => posts as Tender[])
     );
   }
 
@@ -433,19 +452,19 @@ export class ApiService {
 
   loadTender(json: number[]) {
     return this.http.post(this.host + '/demo/loadTender', json).pipe(
-      map(posts => posts as [Post[]])
+      map(posts => posts as [Tender[]])
     );
   }
 
   loadTenderAdjacent(json: number[]) {
     return this.http.post(this.host + '/demo/loadTenderAdjacent', json).pipe(
-      map(posts => posts as Post[])
+      map(posts => posts as Tender[])
     );
   }
 
   loadTenderPlan(json: number[]) {
     return this.http.post(this.host + '/demo/loadTenderPlan', json).pipe(
-      map(posts => posts as Post[])
+      map(posts => posts as Tender[])
     );
   }
 
@@ -491,9 +510,15 @@ export class ApiService {
     )
   }
 
+  getCommentsForUser(user: number) {
+    return this.http.get(this.host + '/demo/getCommentsForUser/' + user).pipe(
+      map(comment => comment as Comment[])
+    )
+  }
+
   test() {
     return this.http.get(this.host + '/demo/Test').pipe(
-      map(comment => comment as Post[])
+      map(comment => comment as [])
     )
   }
 
@@ -588,7 +613,23 @@ export class ApiService {
   }
   getDublicate(id: number){
     return this.http.get(this.host + '/demo/getDublicate/'+id).pipe(
-      map(posts => posts as Post[])
+      map(posts => posts as Tender[])
+    )
+  }
+  postEmailReport(a:CriteriaEmailReport){
+
+    return this.http.post(this.host + '/demo/EmailReport',a).pipe(
+      map(posts => posts as EmailReport[])
+    )
+  }
+  getTopDiagrammHome(period:string){
+    return this.http.post(this.host + '/demo/getTopDiagrammHome',period).pipe(
+      map(comment => comment as [])
+    )
+  }
+  getBottomDiagrammHome(period:string){
+    return this.http.post(this.host + '/demo/getBottomDiagrammHome',period).pipe(
+      map(comment => comment as [])
     )
   }
 }

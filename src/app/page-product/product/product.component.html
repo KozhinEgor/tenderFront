@@ -14,17 +14,17 @@
     Заменить продукт
   </button>
   <button mat-raised-button color="basic" (click)="addProduct()" class="show_table"
-          [disabled]="user.role === 'ROLE_USER'">Добавить продукты из файла
+          [disabled]="user.role === 'ROLE_USER' || category_id == 0">Добавить продукты из файла
   </button>
-  <button mat-raised-button color="basic" (click)="changeProduct()" class="show_table"
-          [disabled]="user.role === 'ROLE_USER'">Сменить категорию у продуктов
-  </button>
+<!--  <button mat-raised-button color="basic" (click)="changeProduct()" class="show_table"-->
+<!--          [disabled]="user.role === 'ROLE_USER' || category_id == 0">Сменить категорию у продуктов-->
+<!--  </button>-->
   <button mat-raised-button color="primary" (click)="Clean()" class="show_table">Сбросить значения</button>
   <button mat-raised-button color="primary" (click)="File()" class="show_table">Загрузить в файл</button>
 
 </div>
-<div class="bodyContainer mat-elevation-z8">
-  <div class="tableContainer" *ngIf="columns.length != 0">
+<div class="bodyContainer mat-elevation-z8" *ngIf="category_id != 0">
+  <div class="tableContainer">
 
     <table mat-table matSort [dataSource]="dataSource">
 
@@ -45,19 +45,27 @@
     </table>
   </div>
 
-  <div class="Filter" *ngIf="columns.length != 0 ">
-    <div> В категории {{this.category.myControl.value.category}} всего {{this.dataSource.data.length}} записи</div>
+  <div class="Filter">
+    <div>
+      <span *ngIf="category_id != 0 && noUses == false"> В категории {{this.category.myControl.value.category}} всего {{this.dataSource.data.length}} записи</span>
+      <span *ngIf="category_id != 0 && noUses == true"> В категории {{this.category.myControl.value.category}} не используется {{this.dataSource.data.length}} записи</span>
+      <span *ngIf="category_id == 0 && noUses == false"> Всего {{this.dataSource.data.length}} продуктов</span>
+      <span *ngIf="category_id == 0 && noUses == true"> Не используется {{this.dataSource.data.length}} продуктов</span>
+    </div>
     <div>
       <mat-form-field class="filter">
         <mat-label>Поиск</mat-label>
         <input matInput (keyup)="applyFilter($event)" placeholder="Поиск" #input>
       </mat-form-field>
     </div>
-    <button mat-raised-button color="basic" (click)="showProductNoUses()" class="show_table">Неиспользуемые продукты
+    <button mat-raised-button color="basic" *ngIf="noUses == false" (click)="showProductNoUses()" class="show_table">
+      Неиспользуемые продукты
     </button>
-    <button mat-flat-button color="warn" (click)="DeleteProduct()" class="show_table"
-            *ngIf="noUses == true && user != null && user.role !== 'ROLE_USER'">Удалить продукты<br> которые
-      неиспользуются
+    <button mat-flat-button color="basic" (click)="showTables()" class="show_table" *ngIf="noUses == true">
+      Все продукты
+    </button>
+    <button mat-flat-button color="warn" (click)="DeleteProduct()" class="show_table" *ngIf="noUses == true && user != null && user.role !== 'ROLE_USER'">
+      Удалить продукты<br> которые неиспользуются
     </button>
   </div>
 
@@ -67,7 +75,7 @@
         <mat-label>Id</mat-label>
         <input matInput placeholder="Id" type="number" [(ngModel)]="product.id" [disabled]="true">
       </mat-form-field>
-      <app-subcategory-autocomplet *ngIf="columns.indexOf('subcategory') != -1" (Change)="ChangeSubCategory($event)" [categ]="this.category.myControl.value.id"></app-subcategory-autocomplet>
+      <app-subcategory-autocomplet *ngIf="columns.indexOf('subcategory') != -1" (Change)="ChangeSubCategory($event)" [categ]="category_id"></app-subcategory-autocomplet>
       <app-vendor-autocomplet (Change)="onChangeVendor($event)" *ngIf="columns.indexOf('vendor') != -1"
                               class="vendor Childmargin"></app-vendor-autocomplet>
 
@@ -116,17 +124,17 @@
         <mat-label>Назначение</mat-label>
         <input matInput placeholder="назначение" type="text" [(ngModel)]="product.purpose">
       </mat-form-field>
-      <app-options></app-options>
+<!--      <app-options></app-options>-->
     </div>
-    <div class="row">
-      <mat-form-field appearance="outline" class="Childmargin">
-      <mat-label>Создать опцию</mat-label>
-      <input matInput placeholder="Артикул опции" type="text" [(ngModel)]="option">
-      </mat-form-field>
-      <button mat-mini-fab color="primary" (click)="CreateOption()">
-        <mat-icon>add</mat-icon>
-      </button>
-    </div>
+<!--    <div class="row">-->
+<!--      <mat-form-field appearance="outline" class="Childmargin">-->
+<!--      <mat-label>Создать опцию</mat-label>-->
+<!--      <input matInput placeholder="Артикул опции" type="text" [(ngModel)]="option">-->
+<!--      </mat-form-field>-->
+<!--      <button mat-mini-fab color="primary" (click)="CreateOption()">-->
+<!--        <mat-icon>add</mat-icon>-->
+<!--      </button>-->
+<!--    </div>-->
     <div class="row">
       <button mat-flat-button color="primary" (click)="default()" style="position: center">Сбросить</button>
       <button mat-flat-button color="primary" (click)="saveProduct()" style="position: center">Сохранить</button>

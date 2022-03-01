@@ -2,10 +2,11 @@
   <button *ngIf="user" mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon" (click)="drawer.toggle(); getCount()">
     <mat-icon>menu</mat-icon>
   </button>
-  <span><a routerLink="/" class="nameApp" (click)="drawer.close()">My App</a></span>
+  <span><a routerLink="/" class="nameApp" (click)="drawer.close()">TAS</a></span>
+  <span></span>
   <span class="example-spacer"></span>
 
-  <a *ngIf="user" class="nav-item nav-link" (click)="logout()">Logout</a>
+  <a *ngIf="user" class="nav-item nav-link" (click)="logout()">{{user.nickname}}</a>
 </mat-toolbar>
 
 <mat-drawer-container class = "container" [hasBackdrop]="true">

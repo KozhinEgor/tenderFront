@@ -1,0 +1,339 @@
+<mat-horizontal-stepper linear labelPosition="bottom" #stepper (selectionChange)="stepChange($event.selectedIndex)">
+  <!--Период -->
+  <mat-step [stepControl]="range" [editable]="false" errorMessage="Период не заполнен">
+    <ng-template matStepLabel>Период</ng-template>
+    <mat-form-field appearance="outline"  >
+      <mat-label>Укажите период</mat-label>
+      <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+        <input matStartDate formControlName="dateStart" placeholder="Дата начала" required>
+        <input matEndDate formControlName="dateFinish" placeholder="Дата окончания" required>
+      </mat-date-range-input>
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-date-range-picker #picker  (closed)="dateRange()"></mat-date-range-picker>
+
+      <mat-error *ngIf="range.controls.dateStart.hasError('matDateStartDateInvalid')">Invalid start date</mat-error>
+      <mat-error *ngIf="range.controls.dateFinish.hasError('matDateFinishDateInvalid')">Invalid end date</mat-error>
+
+    </mat-form-field>
+    <div *ngIf="periodString != ''"[innerHTML]="periodString | safeHtml"></div>
+    <div>
+      <button mat-button matStepperNext>Следующий этап</button>
+    </div>
+  </mat-step>
+  <!--Тендеры с ценой -->
+  <mat-step optional>
+    <ng-template matStepLabel>Тендеры с ценой</ng-template>
+    <table mat-table [dataSource]="tenderSumTable" class="mat-elevation-z8" style="width: 97%;" multiTemplateDataRows>
+
+      <!-- Checkbox Column -->
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox (change)="$event ? masterToggletenderSum() : null; generateTenderSumString()"
+                        [checked]="tenderSum.hasValue() && isAllSelectedtenderSum()"
+                        [indeterminate]="tenderSum.hasValue() && !isAllSelectedtenderSum()"
+                        [aria-label]="checkboxLabeltenderSum()">
+          </mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <mat-checkbox (click)="$event.stopPropagation()"
+                        (change)="$event ? tenderSum.toggle(row) : null; generateTenderSumString()"
+                        [checked]="tenderSum.isSelected(row)"
+                        [aria-label]="checkboxLabeltenderSum(row)">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+
+      <!-- Customer Column -->
+      <ng-container matColumnDef="customer">
+        <th mat-header-cell *matHeaderCellDef> Заказчик </th>
+        <td mat-cell *matCellDef="let element"> {{element.customer}} </td>
+      </ng-container>
+
+      <!-- Number Column -->
+      <ng-container matColumnDef="number">
+        <th mat-header-cell *matHeaderCellDef> Количество тендеров </th>
+        <td mat-cell *matCellDef="let element"> {{element.number}} </td>
+      </ng-container>
+
+      <!-- Price Column -->
+      <ng-container matColumnDef="price">
+        <th mat-header-cell *matHeaderCellDef> Цена </th>
+        <td mat-cell *matCellDef="let element"> {{element.price | currency : 'RUB':'symbol': '1.2-2':'ru'}} </td>
+      </ng-container>
+
+      <!-- Full_sum Column -->
+      <ng-container matColumnDef="full_sum">
+        <th mat-header-cell *matHeaderCellDef> Полная стоимость </th>
+        <td mat-cell *matCellDef="let element"> {{element.full_sum | currency : element.currency:'symbol': '1.2-2':'ru'}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="expandedDetail">
+        <td mat-cell *matCellDef="let element" [attr.colspan]="['select','customer','number','price','full_sum'].length">
+          <div class="example-element-detail"
+               [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
+            <mat-list >
+              <mat-list-item *ngFor="let tender of element.tenderIn" class="expandedROW">
+                <p>
+              {{tender.typetender}} <b> {{tender.customer}}</b>: {{tender.name_tender.substring(tender.name_tender.indexOf('объявляет тендер:') != -1?tender.name_tender.indexOf('объявляет тендер:')+17: 0)}}.
+                <b>Сумма {{tender.price| currency : tender.currency:'symbol': '1.2-2':'ru'}}
+                <span *ngIf="tender.currency != 'RUB'"> (~ {{tender.sum| currency : "RUB":'symbol': '1.2-2':'ru'}})</span></b>, заявки до {{tender.date_finish | date:'dd.MM.yyyy': "UTC"}}
+                </p>
+              </mat-list-item>
+
+            </mat-list>
+          </div>
+
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="['select','customer','number','price','full_sum']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['select','customer','number','price','full_sum'];"
+          [class.example-expanded-row]="expandedElement === row"
+          (click)="expandedElement = expandedElement === row ? null : row">
+      </tr>
+      <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
+    </table>
+
+    <div *ngIf="tenderSumString != ''"[innerHTML]="tenderSumString | safeHtml" style="margin-top: 10px"></div>
+
+    <div>
+      <button mat-button matStepperPrevious>Предыдущий этап</button>
+      <button mat-button matStepperNext>Следующий этап</button>
+    </div>
+  </mat-step>
+  <!--Тендеры без цены-->
+  <mat-step optional>
+    <ng-template matStepLabel>Тендеры без цены</ng-template>
+    <table mat-table [dataSource]="tenderNoSumTable" class="mat-elevation-z8" style="width: 97%;" multiTemplateDataRows>
+
+      <!-- Checkbox Column -->
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox (change)="$event ? masterToggletenderNoSum() : null; generateTenderNoSumString()"
+                        [checked]="tenderNoSum.hasValue() && isAllSelectedtenderNoSum()"
+                        [indeterminate]="tenderNoSum.hasValue() && !isAllSelectedtenderNoSum()"
+                        [aria-label]="checkboxLabeltenderNoSum()">
+          </mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <mat-checkbox (click)="$event.stopPropagation()"
+                        (change)="$event ? tenderNoSum.toggle(row) : null; generateTenderNoSumString()"
+                        [checked]="tenderNoSum.isSelected(row)"
+                        [aria-label]="checkboxLabeltenderNoSum(row)">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+
+      <!-- Customer Column -->
+      <ng-container matColumnDef="customer">
+        <th mat-header-cell *matHeaderCellDef> Заказчик </th>
+        <td mat-cell *matCellDef="let element"> {{element.customer}} </td>
+      </ng-container>
+
+      <!-- Number Column -->
+      <ng-container matColumnDef="number">
+        <th mat-header-cell *matHeaderCellDef> Количество тендеров </th>
+        <td mat-cell *matCellDef="let element"> {{element.number}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="expandedDetail">
+        <td mat-cell *matCellDef="let element" [attr.colspan]="['select','customer','number','price','full_sum'].length">
+          <div class="example-element-detail"
+               [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
+            <mat-list >
+              <mat-list-item *ngFor="let tender of element.tenderIn" class="expandedROW">
+                <p>
+                  {{tender.typetender}} <b> {{tender.customer}}</b>: {{tender.name_tender.substring(tender.name_tender.indexOf('объявляет тендер:') != -1?tender.name_tender.indexOf('объявляет тендер:')+17: 0)}}.
+                  , заявки до {{tender.date_finish | date:'dd.MM.yyyy': "UTC"}}
+                </p>
+              </mat-list-item>
+
+            </mat-list>
+          </div>
+
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="['select','customer','number']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['select','customer','number'];"
+          [class.example-expanded-row]="expandedElement === row"
+          (click)="expandedElement = expandedElement === row ? null : row">
+      </tr>
+      <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
+    </table>
+
+    <div *ngIf="tenderNoSumString != ''"[innerHTML]="tenderNoSumString | safeHtml" style="margin-top: 10px"></div>
+
+    <div>
+      <button mat-button matStepperPrevious>Предыдущий этап</button>
+      <button mat-button matStepperNext>Следующий этап</button>
+    </div>
+  </mat-step>
+  <!--Поверка, калибровка и ремонт-->
+  <mat-step optional>
+    <ng-template matStepLabel>Поверка,калибровка и ремонт</ng-template>
+    <table mat-table [dataSource]="tenderPovTable" class="mat-elevation-z8" style="width: 97%;" multiTemplateDataRows>
+
+      <!-- Checkbox Column -->
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox (change)="$event ? masterToggletenderPov() : null; generateTenderPovString()"
+                        [checked]="tenderPov.hasValue() && isAllSelectedtenderPov()"
+                        [indeterminate]="tenderPov.hasValue() && !isAllSelectedtenderPov()"
+                        [aria-label]="checkboxLabeltenderPov()">
+          </mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <mat-checkbox (click)="$event.stopPropagation()"
+                        (change)="$event ? tenderPov.toggle(row) : null; generateTenderPovString()"
+                        [checked]="tenderPov.isSelected(row)"
+                        [aria-label]="checkboxLabeltenderPov(row)">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+
+      <!-- Customer Column -->
+      <ng-container matColumnDef="customer">
+        <th mat-header-cell *matHeaderCellDef> Заказчик </th>
+        <td mat-cell *matCellDef="let element"> {{element.customer}} </td>
+      </ng-container>
+
+      <!-- Number Column -->
+      <ng-container matColumnDef="number">
+        <th mat-header-cell *matHeaderCellDef> Количество тендеров </th>
+        <td mat-cell *matCellDef="let element"> {{element.number}} </td>
+      </ng-container>
+
+      <!-- Price Column -->
+      <ng-container matColumnDef="price">
+        <th mat-header-cell *matHeaderCellDef> Цена </th>
+        <td mat-cell *matCellDef="let element"> {{element.price | currency : 'RUB':'symbol': '1.2-2':'ru'}} </td>
+      </ng-container>
+
+      <!-- Full_sum Column -->
+      <ng-container matColumnDef="full_sum">
+        <th mat-header-cell *matHeaderCellDef> Полная стоимость </th>
+        <td mat-cell *matCellDef="let element"> {{element.full_sum | currency : element.currency:'symbol': '1.2-2':'ru'}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="expandedDetail">
+        <td mat-cell *matCellDef="let element" [attr.colspan]="['select','customer','number','price','full_sum'].length">
+          <div class="example-element-detail"
+               [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
+            <mat-list >
+              <mat-list-item *ngFor="let tender of element.tenderIn" class="expandedROW">
+                <p>
+                  {{tender.typetender}} <b> {{tender.customer}}</b>: {{tender.name_tender.substring(tender.name_tender.indexOf('объявляет тендер:') != -1?tender.name_tender.indexOf('объявляет тендер:')+17: 0)}}.
+                  <b>Сумма {{tender.price| currency : tender.currency:'symbol': '1.2-2':'ru'}}
+                    <span *ngIf="tender.currency != 'RUB'"> (~ {{tender.sum| currency : "RUB":'symbol': '1.2-2':'ru'}})</span></b>, заявки до {{tender.date_finish | date:'dd.MM.yyyy': "UTC"}}
+                </p>
+              </mat-list-item>
+
+            </mat-list>
+          </div>
+
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="['select','customer','number','price','full_sum']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['select','customer','number','price','full_sum'];"
+          [class.example-expanded-row]="expandedElement === row"
+          (click)="expandedElement = expandedElement === row ? null : row">
+      </tr>
+      <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
+    </table>
+
+    <div *ngIf="tenderPovString != ''"[innerHTML]="tenderPovString | safeHtml" style="margin-top: 10px"></div>
+
+    <div>
+      <button mat-button matStepperPrevious>Предыдущий этап</button>
+      <button mat-button matStepperNext>Следующий этап</button>
+    </div>
+  </mat-step>
+  <!--Тендеры из смежных отраслей-->
+  <mat-step optional>
+    <ng-template matStepLabel>Тендеры из смежных отраслей</ng-template>
+    <table mat-table [dataSource]="tenderAdjTable" class="mat-elevation-z8" style="width: 97%;" multiTemplateDataRows>
+
+      <!-- Checkbox Column -->
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox (change)="$event ? masterToggletenderAdj() : null; generateTenderAdjString()"
+                        [checked]="tenderAdj.hasValue() && isAllSelectedtenderPov()"
+                        [indeterminate]="tenderAdj.hasValue() && !isAllSelectedtenderAdj()"
+                        [aria-label]="checkboxLabeltenderAdj()">
+          </mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <mat-checkbox (click)="$event.stopPropagation()"
+                        (change)="$event ? tenderAdj.toggle(row) : null; generateTenderAdjString()"
+                        [checked]="tenderAdj.isSelected(row)"
+                        [aria-label]="checkboxLabeltenderAdj(row)">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+
+      <!-- Customer Column -->
+      <ng-container matColumnDef="customer">
+        <th mat-header-cell *matHeaderCellDef> Заказчик </th>
+        <td mat-cell *matCellDef="let element"> {{element.customer}} </td>
+      </ng-container>
+
+      <!-- Number Column -->
+      <ng-container matColumnDef="number">
+        <th mat-header-cell *matHeaderCellDef> Количество тендеров </th>
+        <td mat-cell *matCellDef="let element"> {{element.number}} </td>
+      </ng-container>
+
+      <!-- Price Column -->
+      <ng-container matColumnDef="price">
+        <th mat-header-cell *matHeaderCellDef> Цена </th>
+        <td mat-cell *matCellDef="let element"> {{element.price | currency : 'RUB':'symbol': '1.2-2':'ru'}} </td>
+      </ng-container>
+
+      <!-- Full_sum Column -->
+      <ng-container matColumnDef="full_sum">
+        <th mat-header-cell *matHeaderCellDef> Полная стоимость </th>
+        <td mat-cell *matCellDef="let element"> {{element.full_sum | currency : element.currency:'symbol': '1.2-2':'ru'}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="expandedDetail">
+        <td mat-cell *matCellDef="let element" [attr.colspan]="['select','customer','number','price','full_sum'].length">
+          <div class="example-element-detail"
+               [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
+            <mat-list >
+              <mat-list-item *ngFor="let tender of element.tenderIn" class="expandedROW">
+                <p>
+                  {{tender.typetender}} <b> {{tender.customer}}</b>: {{tender.name_tender.substring(tender.name_tender.indexOf('объявляет тендер:') != -1?tender.name_tender.indexOf('объявляет тендер:')+17: 0)}}.
+                  <b>Сумма {{tender.price| currency : tender.currency:'symbol': '1.2-2':'ru'}}
+                    <span *ngIf="tender.currency != 'RUB'"> (~ {{tender.sum| currency : "RUB":'symbol': '1.2-2':'ru'}})</span></b>, заявки до {{tender.date_finish | date:'dd.MM.yyyy': "UTC"}}
+                </p>
+              </mat-list-item>
+
+            </mat-list>
+          </div>
+
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="['select','customer','number','price','full_sum']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['select','customer','number','price','full_sum'];"
+          [class.example-expanded-row]="expandedElement === row"
+          (click)="expandedElement = expandedElement === row ? null : row">
+      </tr>
+      <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
+    </table>
+
+    <div *ngIf="tenderAdjString != ''"[innerHTML]="tenderAdjString | safeHtml" style="margin-top: 10px"></div>
+    <div>
+      <button mat-button matStepperPrevious>Предыдущий этап</button>
+      <button mat-button matStepperNext>Следующий этап</button>
+    </div>
+  </mat-step>
+  <!--Отчет-->
+  <mat-step>
+    <ng-template matStepLabel>Отчет</ng-template>
+    <div [innerHTML]="report | safeHtml"></div>
+    <div>
+      <button mat-button matStepperPrevious>Предыдущий этап</button>
+      <button mat-button (click)="stepper.reset()">Составить отчет заново</button>
+    </div>
+  </mat-step>
+</mat-horizontal-stepper>
+

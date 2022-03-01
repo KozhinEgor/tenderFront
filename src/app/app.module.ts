@@ -30,7 +30,7 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule } from '@angular/material/input';
 import {MAT_MOMENT_DATE_ADAPTER_OPTIONS, MatMomentDateModule, MomentDateAdapter} from '@angular/material-moment-adapter';
-import {MatPaginatorModule } from '@angular/material/paginator';
+import {MatPaginatorIntl, MatPaginatorModule} from '@angular/material/paginator';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatSortModule} from '@angular/material/sort';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
@@ -53,11 +53,9 @@ import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatListModule} from '@angular/material/list';
 import {
   AddDublicateDialogComponent,
-  DublicateDialogComponent,
   PageAddTenderComponent,
   PlanDialogComponent
 } from './page-add-tender/page-add-tender.component';
-import { GoogleChartsModule } from 'angular-google-charts';
 import { PageReportComponent } from './page-report/page-report.component';
 import { ProductCategoryAutocompletComponent } from './product-category-autocomplet/product-category-autocomplet.component';
 import { VendorCodeAutocompleatComponent } from './vendor-code-autocompleat/vendor-code-autocompleat.component';
@@ -100,11 +98,17 @@ import { RegionSelectedComponent } from './region-selected/region-selected.compo
 import { DistrictSelectedComponent } from './district-selected/district-selected.component';
 import { PageSetWinnerComponent } from './page-set-winner/page-set-winner.component';
 import {MatCardModule} from '@angular/material/card';
+import {ReportEmailComponent, SafeHtmlPipe} from './report-email/report-email.component';
+import {MatStepperModule} from '@angular/material/stepper';
+import { TestListComponent } from './test-list/test-list.component';
+import {GOOGLE_CHARTS_LAZY_CONFIG, GoogleChartsModule} from 'angular-google-charts';
+import {CustomMatPaginatorIntl} from "./CustomMatPaginatorIntl";
+import {DublicateDialogComponent} from "./dublicate-dialog/dublicate-dialog.component";
 
-
-
-
-
+// export const googleChartsConfigSubject = new ReplaySubject<GoogleChartsConfig>(1);
+//
+// // Call this from anywhere you want
+// googleChartsConfigSubject.next(config);
 
 const routes = [
   {path:'login', component: PageLoginComponent},
@@ -123,6 +127,8 @@ const routes = [
   {path: 'product/product', component: ProductComponent, canActivate: [AuthGuard]},
   {path: 'product/synonyms', component: SynonymsComponent, canActivate: [AuthGuard]},
   {path: 'setWinner', component: PageSetWinnerComponent, canActivate: [AuthGuard]},
+  {path: 'report-email', component: ReportEmailComponent, canActivate: [AuthGuard]},
+  {path: 'test', component: TestListComponent, canActivate: [AuthGuard]},
   {path: '**', redirectTo:'home'}
 ];
 
@@ -132,6 +138,7 @@ const routes = [
 
 @NgModule({
   declarations: [
+    SafeHtmlPipe,
     AppComponent,
     AutocompletTypeComponent,
     CustomAutocompletComponent,
@@ -183,9 +190,11 @@ const routes = [
     RegionSelectedComponent,
     DistrictSelectedComponent,
     PageSetWinnerComponent,
-    DublicateDialogComponent,
     PlanDialogComponent,
-    AddDublicateDialogComponent
+    AddDublicateDialogComponent,
+    ReportEmailComponent,
+    TestListComponent,
+    DublicateDialogComponent
   ],
   imports: [
     AppRoutingModule,
@@ -218,10 +227,10 @@ const routes = [
     MatToolbarModule,
     MatTabsModule,
     RouterModule.forRoot(routes),
-    GoogleChartsModule,
-    HttpClientModule, MatSelectModule
+    HttpClientModule, MatSelectModule, MatStepperModule,
+    GoogleChartsModule
   ],
-  providers: [{provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true}}, {provide: MAT_DATE_LOCALE, useValue: 'ru-RU'},{ provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }, { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }],
+  providers: [{provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS, useValue: {useUtc: true}}, {provide: MAT_DATE_LOCALE, useValue: 'ru-RU'},{ provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }, { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },{provide: MatPaginatorIntl, useClass:CustomMatPaginatorIntl}],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -8,7 +8,7 @@ import {saveAs} from 'file-saver';
 
 import {
   Company,
-  Post,
+  Tender,
   Product,
   ProductCategory,
   ProductReceived,
@@ -40,6 +40,7 @@ import {AuthenticationService} from "../service/authentication.service";
 import {SaveParametrsComponent} from "../save-parametrs/save-parametrs.component";
 import {RegionSelectedComponent} from "../region-selected/region-selected.component";
 import {DistrictSelectedComponent} from "../district-selected/district-selected.component";
+import {TenderTableComponent} from "../tender-table/tender-table.component";
 
 
 export interface group {
@@ -60,14 +61,17 @@ export interface group {
   ],
 })
 export class PageTenderDateComponent implements OnInit {
-  @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
-  @ViewChild(MatSort) sort: MatSort | null = null;
-  dataSource = new MatTableDataSource<Post>();
+  // @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
+  // @ViewChild(MatSort) sort: MatSort | null = null;
+  // dataSource = new MatTableDataSource<Tender>();
 
   // @ViewChild(AutocompletTypeComponent)
   // private autocompletType: AutocompletTypeComponent| undefined;
   @ViewChild(CustomAutocompletComponent)
   private customAutocomplet: CustomAutocompletComponent;
+
+  @ViewChild(TenderTableComponent)
+  private tenderTableComponent: TenderTableComponent;
 
   @ViewChild(WinnerAutocompletComponent)
   private winnerAutocomplet: WinnerAutocompletComponent;
@@ -94,12 +98,12 @@ export class PageTenderDateComponent implements OnInit {
   regionSelectedComponent:RegionSelectedComponent;
   @ViewChild(DistrictSelectedComponent)
   districtSelectedComponent:DistrictSelectedComponent;
-  expandedElement: Post | null;
+  expandedElement: Tender | null;
   panelOpenState = false;
   dublicate: boolean = true;
   minSum = new FormControl('', [Validators.max(999999999999), Validators.min(0)]);
   maxSum = new FormControl('', [Validators.max(999999999999), Validators.min(0)]);
-  innCustomer: string = '';
+  innCustomer: string[] = [];
   ChoseColums: group[] = [];
   displayedColumns: string[] = [];
   displayedColumnsTender: string[] = [];
@@ -128,6 +132,51 @@ export class PageTenderDateComponent implements OnInit {
   numberShow = false;
   plan_schedule: boolean = false;
   private_search: boolean = false;
+  types: Type[] = [];
+  TypeExclude: boolean = false;
+  customers: Company[] = [];
+  CustomExclude: boolean = false;
+  country: number = null;
+  winners: Company[] = [];
+  WinnersExclude: boolean = false;
+  number_bico: number[] = [];
+  category: ProductCategory = null;
+  vendor: Vendor = null;
+  vendor_code: Product = null;
+  product: ProductReceived[] = [];
+  searchParameters:SearchParameters = {
+    id: null,
+    nickname: null,
+    name: null,
+    ids_string: null,
+    dateStart: null,
+    dateFinish: null,
+    dublicate: this.dublicate,
+    quarter: null,
+    typeExclude: this.TypeExclude,
+    type: this.types,
+    customExclude: this.CustomExclude,
+    custom: this.customers,
+    innCustomer: this.innCustomer,
+    innString : null,
+    country: this.country,
+    winnerExclude: this.WinnersExclude,
+    winner: this.winners,
+    minSum: this.minSum.value,
+    maxSum: this.maxSum.value,
+    ids: this.ids,
+    bicotender: this.number_bico,
+    bicotender_string: null,
+    numberShow: this.numberShow,
+    product: this.product,
+    districts: null,
+    regions: null,
+    plan_schedule:this.plan_schedule,
+    adjacent_tender: this.adjacent_tender,
+    realized: this.realized,
+    private_search: false
+  };
+
 
   add(event: MatChipInputEvent): void {
     let value = (event.value || '').trim();
@@ -138,8 +187,10 @@ export class PageTenderDateComponent implements OnInit {
       for (let i of mas) {
         if (i !== '') {
           i = i.replace(/\D/g, '');
+          if(i !== ''){
+            this.ids.push(Number(i));
+          }
 
-          this.ids.push(Number(i));
         }
 
       }
@@ -148,6 +199,24 @@ export class PageTenderDateComponent implements OnInit {
 
 
     event.input.value = null;
+  }
+
+  addString(event:string){
+    let value = (event || '').trim();
+    let mas = value.split(/ |,|\.|;|:|\\|\//);
+    if (value) {
+      for (let i of mas) {
+        if (i !== '') {
+          i = i.replace(/\D/g, '');
+          if(i !== ''){
+            this.ids.push(Number(i));
+          }
+        }
+
+      }
+
+    }
+
   }
 
   remove(fruit: number): void {
@@ -158,7 +227,7 @@ export class PageTenderDateComponent implements OnInit {
     }
   }
 
-  number_bico: number[] = [];
+
 
   addBicoNumber(event: MatChipInputEvent): void {
     let value = (event.value || '').trim();
@@ -169,8 +238,9 @@ export class PageTenderDateComponent implements OnInit {
       for (let i of mas) {
         if (i !== '') {
           i = i.replace(/\D/g, '');
-
-          this.number_bico.push(Number(i));
+          if(i !== ''){
+            this.ids.push(Number(i));
+          }
         }
 
       }
@@ -180,7 +250,24 @@ export class PageTenderDateComponent implements OnInit {
     // Clear the input value
     event.input.value = null;
   }
+  addBicoNumberString(event: string): void {
+    let value = (event || '').trim();
+    let mas = value.split(/ |,|\.|;|:|\\|\//);
 
+    // Add our fruit
+    if (value) {
+      for (let i of mas) {
+        if (i !== '') {
+          i = i.replace(/\D/g, '');
+          if(i !== ''){
+            this.ids.push(Number(i));
+          }
+        }
+
+      }
+
+    }
+  }
   removeBicoNumber(fruit: number): void {
     const index = this.number_bico.indexOf(fruit);
 
@@ -189,8 +276,55 @@ export class PageTenderDateComponent implements OnInit {
     }
   }
 
-  types: Type[] = [];
-  TypeExclude: boolean = false;
+  addINN(event: MatChipInputEvent): void {
+    let value = (event.value || '').trim();
+    let mas = value.split(/ |,|\.|;|:|\\|\//);
+
+
+    if (value) {
+      for (let i of mas) {
+        if (i !== '') {
+          i = i.replace(/[^0-9 %]/gi, '');
+          if(i !== ''){
+            this.innCustomer.push(i);
+          }
+
+        }
+
+      }
+
+    }
+
+
+    event.input.value = null;
+  }
+
+  addINNString(event:string): void {
+    let value = (event|| '').trim();
+    let mas = value.split(/ |,|\.|;|:|\\|\//);
+
+
+    if (value) {
+      for (let i of mas) {
+        if (i !== '') {
+          i = i.replace(/[^0-9 %]/gi, '');
+          if(i !== ''){
+            this.innCustomer.push(i);
+          }
+        }
+      }
+    }
+  }
+
+  removeINN(inn: string): void {
+    const index = this.innCustomer.indexOf(inn);
+
+    if (index >= 0) {
+      this.innCustomer.splice(index, 1);
+    }
+  }
+
+
 
   ChangeType(type: any) {
     if (typeof type !== "string") {
@@ -205,8 +339,7 @@ export class PageTenderDateComponent implements OnInit {
     }
   }
 
-  customers: Company[] = [];
-  CustomExclude: boolean = false;
+
 
   ChangeCustom(customer: any) {
     if (typeof customer !== "string") {
@@ -222,8 +355,7 @@ export class PageTenderDateComponent implements OnInit {
     }
   }
 
-  winners: Company[] = [];
-  WinnersExclude: boolean = false;
+
 
   ChangeWinner(winner: any) {
     if (typeof winner !== "string") {
@@ -251,7 +383,7 @@ export class PageTenderDateComponent implements OnInit {
 
   }
 
-  country: number;
+
 
   ChangeCountry(country: any) {
     if(typeof country !=="string"){
@@ -268,7 +400,7 @@ export class PageTenderDateComponent implements OnInit {
     this.types = [];
     this.CustomExclude = false;
     this.customers = [];
-    this.innCustomer = '';
+    this.innCustomer = [];
     this.country = null;
     this.WinnersExclude = false;
     this.winners = [];
@@ -299,18 +431,11 @@ export class PageTenderDateComponent implements OnInit {
     this.productCategoryCheckboxComponent.ChangeCategoryProduct('');
     this.realized = false;
     this.saveParametrsComponent.myControl.setValue('');
+
   }
 
-  category: ProductCategory = null;
-  vendor: Vendor = null;
-  vendor_code: Product = null;
-  product: ProductReceived[] = [];
 
-  ChangeBigCategory(bigCategory: any) {
-    if (bigCategory != null && typeof bigCategory !== 'string') {
-      this.product.push({category: null, vendor: null, vendor_code: null, big_category: bigCategory, subcategory: null,category_product: null,});
-    }
-  }
+
 
 
   ChangeCategoryProduct(categoryProduct: any) {
@@ -356,7 +481,6 @@ export class PageTenderDateComponent implements OnInit {
           category: this.productCategoryCheckboxComponent.myControl.value == [] ? null : this.productCategoryCheckboxComponent.myControl.value,
           vendor: this.vendorCheckboxComponent.myControl.value == [] ? null : this.vendorCheckboxComponent.myControl.value,
           vendor_code: this.vendorCodeCheckboxComponent.myControl.value == [] ? null : (this.vendorCodeCheckboxComponent.myControl.value),
-          big_category: null,
           subcategory: this.subcategoryCheckboxComponent.myControl.value == []? null : this.subcategoryCheckboxComponent.myControl.value,
           category_product:this.categoryProductComponent.category_product
         });
@@ -385,7 +509,7 @@ export class PageTenderDateComponent implements OnInit {
   }
 
   showTables(): void {
-    this.load = true;
+
     if (!this.adjacent_tender && !this.plan_schedule) {
       if ((this.productCategoryCheckboxComponent.myControl.value !== undefined && this.productCategoryCheckboxComponent.myControl.value !== null && this.productCategoryCheckboxComponent.myControl.value.length !== 0  && this.productCategoryCheckboxComponent.myControl.value !== [])
         || (this.vendorCheckboxComponent.myControl.value !== undefined && this.vendorCheckboxComponent.myControl.value !== null && this.vendorCheckboxComponent.myControl.value.length !== 0 && this.vendorCheckboxComponent.myControl.value !== [])
@@ -397,7 +521,8 @@ export class PageTenderDateComponent implements OnInit {
     }
 
 
-    const json: SearchParameters = {
+
+    this.searchParameters = {
       id: null,
       nickname: null,
       name: null,
@@ -411,6 +536,7 @@ export class PageTenderDateComponent implements OnInit {
       customExclude: this.CustomExclude,
       custom: this.customers,
       innCustomer: this.innCustomer,
+      innString : null,
       country: this.country,
       winnerExclude: this.WinnersExclude,
       winner: this.winners,
@@ -428,15 +554,19 @@ export class PageTenderDateComponent implements OnInit {
       realized: this.realized,
       private_search: false
     }
+    this.tenderTableComponent.searchParametrs =this.searchParameters;
+    this.tenderTableComponent.show = true;
+    this.tenderTableComponent.paginator.pageIndex = 0;
+    this.tenderTableComponent.getData();
     // if (this.adjacent_tender) {
     //
     //   this.api.getAdjacentTenderWithParametrs(json).subscribe(posts => {
     //
     //       if (posts.length === 0) {
-    //         this.dataSource = new MatTableDataSource<Post>(posts)
+    //         this.dataSource = new MatTableDataSource<Tender>(posts)
     //         this.dialog.open(ErrorDialogComponent, {data: 'Найдено 0 тендеров'});
     //       } else {
-    //         this.dataSource = new MatTableDataSource<Post>(posts);
+    //         this.dataSource = new MatTableDataSource<Tender>(posts);
     //         this.dataSource.paginator = this.paginator;
     //         this.dataSource.sort = this.sort;
     //       }
@@ -450,10 +580,10 @@ export class PageTenderDateComponent implements OnInit {
     //   this.api.getPlanTenderWithParametrs(json).subscribe(posts => {
     //
     //       if (posts.length === 0) {
-    //         this.dataSource = new MatTableDataSource<Post>(posts)
+    //         this.dataSource = new MatTableDataSource<Tender>(posts)
     //         this.dialog.open(ErrorDialogComponent, {data: 'Найдено 0 тендеров'});
     //       } else {
-    //         this.dataSource = new MatTableDataSource<Post>(posts);
+    //         this.dataSource = new MatTableDataSource<Tender>(posts);
     //         this.dataSource.paginator = this.paginator;
     //         this.dataSource.sort = this.sort;
     //       }
@@ -464,28 +594,37 @@ export class PageTenderDateComponent implements OnInit {
     //     });
     // }
     // else {
-      this.api.getPostWithParametrs(json).subscribe(posts => {
 
-          if (posts.length === 0) {
-            this.dataSource = new MatTableDataSource<Post>(posts)
-            this.dialog.open(ErrorDialogComponent, {data: 'Найдено 0 тендеров'});
-            this.load = false;
-          } else {
-            this.dataSource = new MatTableDataSource<Post>(posts);
-            this.dataSource.paginator = this.paginator;
-            this.dataSource.sort = this.sort;
-            this.load = false;
-          }
 
-        },
-        error => {
-          this.dialog.open(ErrorDialogComponent, {data: 'Ошибка' + error});
-        });
+
+      // this.api.getPostWithParametrs(json).subscribe(posts => {
+      //
+      //     if (posts.length === 0) {
+      //       this.dataSource = new MatTableDataSource<Tender>(posts)
+      //       this.dialog.open(ErrorDialogComponent, {data: 'Найдено 0 тендеров'});
+      //       this.load = false;
+      //     }
+      //     else {
+      //       this.dataSource = new MatTableDataSource<Tender>(posts);
+      //       this.dataSource
+      //       this.load = false;
+      //     }
+      //
+      //   },
+      //   error => {
+      //     this.dialog.open(ErrorDialogComponent, {data: 'Ошибка' + error});
+      //   });
+
     // }
   }
 
+
   getFile() {
-    const json: ReceivedJson = {
+    const json: SearchParameters = {
+      id: typeof this.saveParametrsComponent.myControl.value === "string"? null: this.saveParametrsComponent.myControl.value.id,
+      nickname: this.user.nickname,
+      name: typeof this.saveParametrsComponent.myControl.value === "string"? this.saveParametrsComponent.myControl.value: this.saveParametrsComponent.myControl.value.name,
+      ids_string: null,
       dateStart: this.dataRange.getDateStart(),
       dateFinish: this.dataRange.getDateFinish(),
       dublicate: this.dublicate,
@@ -495,6 +634,7 @@ export class PageTenderDateComponent implements OnInit {
       customExclude: this.CustomExclude,
       custom: this.customers,
       innCustomer: this.innCustomer,
+      innString : null,
       country: this.country,
       winnerExclude: this.WinnersExclude,
       winner: this.winners,
@@ -502,23 +642,18 @@ export class PageTenderDateComponent implements OnInit {
       maxSum: this.maxSum.value,
       ids: this.ids,
       bicotender: this.number_bico,
+      bicotender_string: null,
       numberShow: this.numberShow,
       product: this.product,
       districts: this.districtSelectedComponent.myControl.value !== null? this.districtSelectedComponent.myControl.value:null,
       regions: this.regionSelectedComponent.myControl.value !== null? this.regionSelectedComponent.myControl.value:null,
-      plan_schedule: this.plan_schedule,
-      realized: this.realized
+      plan_schedule:this.plan_schedule,
+      adjacent_tender: this.adjacent_tender,
+      realized: this.realized,
+      private_search: this.private_search
     }
-    if (this.adjacent_tender) {
-      this.api.getFileAdjacentTender(json).subscribe(
-        blob => {
-          saveAs(blob, "Tender.xlsx");
-        },
-        error => {
-          this.dialog.open(ErrorDialogComponent, {data: "Ошибка" + error});
-        }
-      );
-    } else {
+
+
       this.api.getFileTender(json).subscribe(
         blob => {
           saveAs(blob, "Tender.xlsx");
@@ -527,7 +662,7 @@ export class PageTenderDateComponent implements OnInit {
           this.dialog.open(ErrorDialogComponent, {data: "Ошибка" + error});
         }
       );
-    }
+
 
   }
 
@@ -573,7 +708,7 @@ export class PageTenderDateComponent implements OnInit {
       }
       this.Colums = this.AllColums;
     }
-    this.dataSource = new MatTableDataSource<Post>();
+    // this.dataSource = new MatTableDataSource<Tender>();
     return this.adjacent_tender;
   }
 
@@ -651,6 +786,7 @@ export class PageTenderDateComponent implements OnInit {
         customExclude: this.CustomExclude,
         custom: this.customers,
         innCustomer: this.innCustomer,
+        innString : null,
         country: this.country,
         winnerExclude: this.WinnersExclude,
         winner: this.winners,
@@ -688,19 +824,36 @@ userSaveSearch:string;
           this.types = saveParameters.type;
         this.CustomExclude = saveParameters.customExclude;
         this.customers = saveParameters.custom;
-        this.innCustomer = saveParameters.innCustomer;
+        if(saveParameters.innString !== null){
+          this.addINNString(saveParameters.innString)
+        }
+        else{
+          this.innCustomer = [];
+        }
         this.country = saveParameters.country;
         this.contryAutocompletComponent.setContryById(saveParameters.country);
            this.WinnersExclude = saveParameters.winnerExclude;
           this.winners = saveParameters.winner;
           this.minSum.setValue(saveParameters.minSum);
           this.maxSum.setValue(saveParameters.maxSum);
-          if(saveParameters.ids !== null){this.add(saveParameters.ids);}
-          if(saveParameters.bicotender !== null){this.addBicoNumber(saveParameters.bicotender)};
+          if(saveParameters.ids_string !== null){this.addString(saveParameters.ids_string);}
+          else{
+            this.ids = [];
+          }
+
+          if(saveParameters.bicotender_string !== null){this.addBicoNumberString(saveParameters.bicotender_string)}
+          else{
+            this.number_bico = [];
+          }
           this.numberShow = saveParameters.numberShow;
           this.product = saveParameters.product;
-           this.regionSelectedComponent.setRegions(saveParameters.regions);
-          this.districtSelectedComponent.setDistrict(saveParameters.districts);
+          if(saveParameters.regions !== null){
+            this.regionSelectedComponent.setRegions(saveParameters.regions);
+          }
+           if(saveParameters.districts !== null){
+             this.districtSelectedComponent.setDistrict(saveParameters.districts);
+           }
+
           this.userSaveSearch = saveParameters.nickname;
       }
     else{
@@ -718,7 +871,7 @@ userSaveSearch:string;
     if(regions !== null && regions.length !== 0) {
 
       this.regionsSelected = true;
-      this.innCustomer = '';
+      this.innCustomer = [];
 
         this.contryAutocompletComponent.myControl.setValue('');
         this.contryAutocompletComponent.myControl.disable();
@@ -744,7 +897,7 @@ userSaveSearch:string;
 
     if(district !== null && district.length !== 0) {
       this.regionsSelected = true;
-      this.innCustomer = '';
+      this.innCustomer = [];
         this.contryAutocompletComponent.myControl.setValue('');
         this.contryAutocompletComponent.myControl.disable();
 

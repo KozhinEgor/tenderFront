@@ -1,5 +1,5 @@
 import {Component, Inject, OnInit, ViewChild} from '@angular/core';
-import {Comment, Post, Product, ProductCategory, TenderonProduct, User} from "../classes";
+import {Comment, Tender, Product, ProductCategory, TenderonProduct, User} from "../classes";
 import {MatTableDataSource} from "@angular/material/table";
 import {ApiService} from "../api.service";
 import {MatPaginator} from "@angular/material/paginator";
@@ -32,7 +32,7 @@ export class PageTenderComponent implements OnInit {
     tender: null,
     users: []
   };
-  data: Post = {
+  data: Tender = {
     id: 0,
     name_tender: '',
     number_tender: '',

@@ -2,7 +2,7 @@ import {Component, Inject, OnInit, ViewChild} from '@angular/core';
 import {MatSort} from "@angular/material/sort";
 import {VendorAutocompletComponent} from "../../vendor-autocomplet/vendor-autocomplet.component";
 import {ProductCategoryAutocompletComponent} from "../../product-category-autocomplet/product-category-autocomplet.component";
-import {ChangeCategory, CreateTable, Post, Product, ProductCategory, Role, Type, User} from "../../classes";
+import {ChangeCategory, CreateTable, Tender, Product, ProductCategory, Role, Type, User} from "../../classes";
 import {MatTableDataSource} from "@angular/material/table";
 import {ApiService} from "../../api.service";
 import {AuthenticationService} from "../../service/authentication.service";
@@ -26,14 +26,16 @@ export class ProductComponent implements OnInit {
   @ViewChild(ProductCategoryAutocompletComponent) category: ProductCategoryAutocompletComponent
   @ViewChild(SubcategoryAutocompletComponent)
   private subcategoryAutocompletComponent: SubcategoryAutocompletComponent
-  @ViewChild(OptionsComponent)
-  private optionsComponent:OptionsComponent;
+  // @ViewChild(OptionsComponent)
+  // private optionsComponent:OptionsComponent;
   noUses: boolean = false;
   Category: ProductCategory = null;
   product: Product = {
     id: null,
     vendor_id: null,
     vendor_code: null,
+    product_category: null,
+    product_category_id: null,
     frequency: -1,
     usb: null,
     vxi: null,
@@ -54,20 +56,22 @@ export class ProductComponent implements OnInit {
   columns: string[] = [];
   user: User;
   columnLength: number;
-  option: string = null;
+  category_id: number = 0;
+  // option: string = null;
 
   constructor(private api: ApiService, private authenticationService: AuthenticationService, public dialog: MatDialog) {
     this.user = this.authenticationService.userValue;
   }
 
   ngOnInit(): void {
-
   }
 
   default() {
     this.product = {
       id: null,
       vendor_id: null,
+      product_category: null,
+      product_category_id: null,
       vendor_code: this.columns.includes("vendor_code") ? '' : null,
       frequency: this.columns.includes("frequency") ? null : null,
       usb: this.columns.includes("usb") ? false : null,
@@ -92,18 +96,17 @@ export class ProductComponent implements OnInit {
     if (this.columns.indexOf("subcategory") >= 0 && this.subcategoryAutocompletComponent !== undefined) {
       this.subcategoryAutocompletComponent.myControl.setValue('');
     }
-    if(this.optionsComponent !== undefined){
-      this.optionsComponent.option.setValue([]);
-    }
+    // if(this.optionsComponent !== undefined){
+    //   this.optionsComponent.option.setValue([]);
+    // }
 
   }
 
   showTables() {
-    if (this.category.myControl.value !== null) {
 
       this.noUses = false;
 
-      this.api.getVendorCode(this.category.myControl.value.id).subscribe(product => {
+      this.api.getVendorCode(this.category_id).subscribe(product => {
           if (product.length == 0) {
             this.dataSource = new MatTableDataSource();
             this.dialog.open(ErrorDialogComponent, {data: "Нет продуктов удовлетворяющих поиску"});
@@ -111,16 +114,19 @@ export class ProductComponent implements OnInit {
             this.dataSource = new MatTableDataSource(product);
             this.dataSource.sort = this.sort
             this.default();
-            this.optionsComponent.getAllOption();
+            // this.optionsComponent.getAllOption();
           }
         },
         error => {
           this.dialog.open(ErrorDialogComponent, {data: "Ошибка" + error});
           this.dataSource = new MatTableDataSource();
         });
-      this.api.getColumnCategory(this.category.myControl.value.id).subscribe(
+      this.api.getColumnCategory(this.category_id).subscribe(
         data => {
           this.columns = data;
+          if(this.category_id == 0){
+            this.columns.splice(0, 0, "product_category");
+          }
           if (this.user.role !== "ROLE_USER") {
             this.columns.splice(this.columns.length, 0, "options");
             this.columns.splice(this.columns.length, 0, "edit");
@@ -129,18 +135,18 @@ export class ProductComponent implements OnInit {
             this.columns.splice(this.columns.length, 0, "options");
             this.columnLength = this.columns.length;
           }
+          console.log(this.columns)
           this.default();
           // this.subcategoryAutocompletComponent.setSubCategory(this.category.myControl.value.id);
         }
-      )
+      );
 
     }
-  }
+
 
   showProductNoUses() {
-    if (this.category.myControl.value !== null && this.category.myControl.value !== '') {
       this.noUses = true;
-      this.api.getVendorCodeNoUses(this.category.myControl.value.id).subscribe(product => {
+      this.api.getVendorCodeNoUses(this.category_id).subscribe(product => {
           if (product.length == 0) {
             this.dataSource = new MatTableDataSource();
             this.columns = [];
@@ -156,7 +162,7 @@ export class ProductComponent implements OnInit {
           this.dialog.open(ErrorDialogComponent, {data: "Ошибка" + error});
           this.dataSource = new MatTableDataSource();
         });
-      this.api.getColumnCategory(this.category.myControl.value.id).subscribe(
+      this.api.getColumnCategory(this.category_id).subscribe(
         data => {
           this.columns = data;
           if (this.user.role !== "ROLE_USER") {
@@ -167,15 +173,13 @@ export class ProductComponent implements OnInit {
           }
         }
       );
-    } else {
-      this.dialog.open(ErrorDialogComponent, {data: "Выберите категорию"});
-    }
+
   }
 
   DeleteProduct() {
     this.noUses = true;
 
-    this.api.DeleteCodeNoUses(this.category.myControl.value.id).subscribe(product => {
+    this.api.DeleteCodeNoUses(this.category_id).subscribe(product => {
         this.dialog.open(ErrorDialogComponent, {data: "Удалил"});
         if (product.length == 0) {
           this.dataSource = new MatTableDataSource();
@@ -203,7 +207,7 @@ export class ProductComponent implements OnInit {
 
   onChange(t: any) {
     if (t != null && typeof t !== 'string') {
-
+this.category_id = t.id;
       this.showTables();
     }
   }
@@ -231,7 +235,7 @@ export class ProductComponent implements OnInit {
         this.subcategoryAutocompletComponent.setSubcategoryBYName(this.product.subcategory)
       }
 
-      this.optionsComponent.setOption(product.options)
+      // this.optionsComponent.setOption(product.options)
 
 
     }
@@ -252,8 +256,12 @@ export class ProductComponent implements OnInit {
   saveProduct() {
     if ((this.product.vendor_id !== null || this.columns.indexOf("vendor") <= 0) &&
       this.product.vendor_code !== null && this.product.vendor_code !== '') {
-      this.product.option = this.optionsComponent.option.value;
-      this.api.getSaveProduct(this.product, this.category.myControl.value.id).subscribe(product => {
+      if(this.product.vendor_id == null){
+        this.product.vendor_id = 1;
+      }
+      this.product.product_category_id = this.category.myControl.value.id;
+      // this.product.option = this.optionsComponent.option.value;
+      this.api.getSaveProduct(this.product).subscribe(product => {
           this.dialog.open(ErrorDialogComponent, {data: "Сохранил"});
           this.dataSource = new MatTableDataSource(product);
           this.dataSource.sort = this.sort
@@ -318,16 +326,16 @@ export class ProductComponent implements OnInit {
     }
   }
 
-  CreateOption(){
-    if(this.option !== null){
-      this.api.saveOption({id:null, name:this.option}).subscribe(
-        data => {
-        this.optionsComponent.options = data;
-        this.option = null;
-        }
-      )
-    }
-  }
+//   CreateOption(){
+//     if(this.option !== null){
+//       this.api.saveOption({id:null, name:this.option}).subscribe(
+//         data => {
+//         this.optionsComponent.options = data;
+//         this.option = null;
+//         }
+//       )
+//     }
+//   }
 }
 
 @Component({
@@ -420,15 +428,13 @@ export class ChangeCategoryComponent {
   }
 
   Change() {
-    if (this.category.myControl.value !== null && this.category.myControl.value !== ''
-      && this.newCategory.myControl.value !== null && this.newCategory.myControl.value !== ''
-      && this.vendorCodeAutocomplete.myControl.value !== null && this.vendorCodeAutocomplete.myControl.value !== ''
+    if (this.vendorCodeAutocomplete.myControl.value !== null && this.vendorCodeAutocomplete.myControl.value !== ''
       && this.newVendorCodeAutocomplete.myControl.value !== null && this.newVendorCodeAutocomplete.myControl.value !== '') {
 
       let json: ChangeCategory = {
-        category: this.category.myControl.value.id,
+        category: null,
         vendor_code: this.vendorCodeAutocomplete.myControl.value.id,
-        newCategory: this.newCategory.myControl.value.id,
+        newCategory: null,
         newVendor_code: this.newVendorCodeAutocomplete.myControl.value.id
       }
       this.api.ChangeCategory(json).subscribe(data => {

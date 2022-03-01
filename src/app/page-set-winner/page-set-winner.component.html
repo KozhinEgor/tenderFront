@@ -10,7 +10,7 @@
         <legend>Сохранненые поиски</legend>
 
         <app-save-parametrs (Change)="ChangeSaveParameters($event)"></app-save-parametrs>
-
+        <mat-slide-toggle color="primary" [(ngModel)]="private_search" (change)="ChangePrivate()">Приватные поиски</mat-slide-toggle>
       </fieldset>
       <!--      Date-->
       <fieldset >
@@ -49,8 +49,19 @@
         <app-custom-autocomplet (Change)="ChangeCustom($event)"></app-custom-autocomplet>
         <mat-form-field appearance="outline" >
           <mat-label>ИНН</mat-label>
-          <input matInput [(ngModel)]="innCustomer" type="text" onkeyup="this.value=this.value.replace(/[^0-9 %]/gi, '');"  [disabled]="regionsSelected">
-          <mat-error></mat-error>
+          <mat-chip-list #chipListINN aria-label="Выбранные ИНН">
+            <mat-chip *ngFor="let id of ids" [selectable]="selectable"
+                      [removable]="removable" (removed)="remove(id)">
+              {{id}}
+              <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+            </mat-chip>
+            <input placeholder="Id..."
+                   [matChipInputFor]="chipListINN"
+                   [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                   [matChipInputAddOnBlur]="addOnBlur"
+                   (matChipInputTokenEnd)="addINN($event)" >
+            <mat-error></mat-error>
+          </mat-chip-list>
         </mat-form-field>
         <app-contry-autocomplet (Change)="ChangeCountry($event)" ></app-contry-autocomplet>
         <app-region-selected (Change)="ChangeRegion($event)"></app-region-selected>

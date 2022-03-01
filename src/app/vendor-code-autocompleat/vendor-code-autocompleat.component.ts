@@ -22,9 +22,11 @@ export class VendorCodeAutocompleatComponent implements OnInit {
   options: Product[] = [];
   filteredOptions: Observable<Product[]> | undefined;
   vendor: string;
+  productCategory = 0;
   constructor(private api: ApiService, private dialog:MatDialog) {
   }
   public start(productCategory: number){
+    this.productCategory = productCategory;
     this.vendor = null;
     this.api.getVendorCode(productCategory).subscribe( product => {
       this.options = product;
@@ -47,6 +49,7 @@ export class VendorCodeAutocompleatComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.start(0);
   }
 
   displayFn(product: Product): string {
@@ -86,8 +89,11 @@ export class VendorCodeAutocompleatComponent implements OnInit {
   }
 
 
-  getProduct(): any{
-    return this.myControl.value != null ? this.myControl.value.id : '%';
+  setProduct(id: number): any{
+
+    this.myControl.setValue(this.options.find( option =>{
+      return option.id === id
+    }));
   }
   ChangeSubcategory(subcategory: string){
     this.subcategory = subcategory;

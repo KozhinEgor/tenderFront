@@ -2,3 +2,6 @@
   min-width: 100px;
   max-width: 150px;
 }
+.mat-option:nth-child(even){
+  background-color: #f6f6f6;
+}

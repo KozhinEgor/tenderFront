@@ -21,6 +21,7 @@ export class ProductCategoryAutocompletComponent implements OnInit {
   options: ProductCategory[] = [];
   filteredOptions: Observable<ProductCategory[]> | undefined;
   name: string = null;
+  id: number = null;
   categoryProduct: string;
   constructor(private api: ApiService, private dialog:MatDialog) {
   }
@@ -41,6 +42,10 @@ export class ProductCategoryAutocompletComponent implements OnInit {
         this.setCategory(this.name);
         this.name = null;
       }
+      if(this.id !== null){
+        this.setCategoryByID(this.id);
+        this.id = null;
+      }
     },
       error => {
         if(error === 'Unknown Error'){this.dialog.open(ErrorDialogComponent, {data: "Ошибка загрузки \"категорий товаров\" : Обратитесь к администратору"});}
@@ -50,8 +55,8 @@ export class ProductCategoryAutocompletComponent implements OnInit {
 
 
   }
-  public start(): void{
-  }
+
+
   displayFn(productCategory: ProductCategory): string {
     return productCategory && productCategory.category ? productCategory.category : '';
   }
@@ -60,8 +65,21 @@ export class ProductCategoryAutocompletComponent implements OnInit {
       for( let cont of this.options){
         if(cont.category == name){
           this.myControl.setValue(cont);
+          break;
         }
       }
+
+
+  }
+
+  setCategoryByID(id: number){
+    this.id = id;
+    for( let cont of this.options){
+      if(cont.id == id){
+        this.myControl.setValue(cont);
+        break;
+      }
+    }
 
 
   }
@@ -69,10 +87,7 @@ export class ProductCategoryAutocompletComponent implements OnInit {
     this.categoryProduct = categoryProduct;
     this.myControl.setValue(this.myControl.value? this.myControl.value:'');
   }
-  public _filterCategoryProduct(categoryProduct: string): ProductCategory[]{
-    const filterCategoryProduct = categoryProduct.toLowerCase();
-    return this.options.filter(option => option.category_product.toLowerCase().includes(filterCategoryProduct ));
-  }
+
   public _filter(category: string, categoryProduct: string): ProductCategory[] {
     const filterValue = category.toLowerCase();
     const filterCategoryProduct = categoryProduct.toLowerCase();

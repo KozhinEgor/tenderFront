@@ -1,4 +1,4 @@
-export interface Post {
+export interface Tender {
   id: number;
   name_tender: string;
   number_tender: string;
@@ -25,6 +25,23 @@ export interface Post {
   plan: boolean;
   tender_plan:string;
   tender_dublicate:string;
+}
+
+export interface Tenders{
+  tenders:Tender[];
+  allCount:number;
+  withPrice: number;
+  sumWithPrice:number;
+  withWinner: number;
+  sumWithWinner: number;
+}
+
+export interface searchTender{
+  page:number;
+  sortName:string;
+  sortDirection:string;
+  pageSize:number;
+  searchParametrs:SearchParameters;
 }
 
 export interface Type {
@@ -61,26 +78,49 @@ export interface ReportQuarter {
 }
 
 export interface Orders {
-  product_category: string;
-  vendor: string;
-  id_product: string;
+  id: number;
+  comment_DB: string;
+  comment: string;
   tender: number;
   number: number;
-  comment: string;
   price: number;
-  winprice: number;
+
+  product_category: string;
+  product_category_DB: number;
+  product_DB:number;
+  product:string;
+  vendor: string;
+  vendor_DB: number;
+  subcategory: string;
+  subcategory_DB: number;
+
+  frequency: number;
+  usb: boolean;
+  vxi: boolean;
+  portable: boolean;
+  channel: number;
+  port: number;
+  form_factor: string;
+  purpose: string;
+  voltage: number;
+  current: number;
+  option:Option[];
+  options: string;
+}
+
+export interface deleteOrder{
+  id:number;
+  result:boolean;
+  tender:number;
 }
 
 export interface OrdersDB {
   id: number;
-  vendor: number;
-  product_category: number;
-  id_product: number;
+  product: number;
   tender: number;
   number: number;
   comment: string;
   price: number;
-  winprice: number;
   frequency: number;
   usb: boolean;
   vxi: boolean;
@@ -111,6 +151,8 @@ export interface Product {
   id: number;
   vendor_id: number;
   vendor_code: string;
+  product_category: string;
+  product_category_id: number;
   vendor: string;
   frequency: number;
   usb: boolean;
@@ -158,7 +200,6 @@ export interface ProductReceived {
   vendor: Vendor[];
   vendor_code: Product[];
   subcategory: string[];
-  big_category: BigCategory;
 }
 
 export interface User {
@@ -173,6 +214,8 @@ export interface User {
 export enum Role {
   ROLE_ADMIN, ROLE_USER, ROLE_OPERATOR
 }
+
+
 
 export interface CreateTable {
   vendor: boolean;
@@ -236,7 +279,7 @@ export interface Option{
   name: string;
 }
 export interface ReportCriteria{
-  receivedJSON:ReceivedJson;
+  searchParameters:SearchParameters;
   interval:string;
 }
 export interface Report{
@@ -255,7 +298,7 @@ export interface ReceivedJson {
   type: Type[];
   customExclude: boolean;
   custom: Company[];
-  innCustomer: string;
+  innCustomer: string[];
   country: number;
   winnerExclude: boolean;
   winner: Company[];
@@ -283,7 +326,8 @@ export interface SearchParameters{
   type: Type[];
   customExclude: boolean;
   custom: Company[];
-  innCustomer: string;
+  innCustomer: string[];
+  innString:string;
   country: number;
   winnerExclude: boolean;
   winner: Company[];
@@ -311,3 +355,23 @@ export interface District{
   id: number;
   name: string;
 }
+export interface EmailReport {
+  name_tender:string;
+  date_start:Date;
+  date_finish:Date;
+  number:number;
+  numberWithPrice:number;
+  type_tender:string;
+  customer: string;
+  customer_id:number;
+  full_sum:number;
+  currency:string;
+  price:number;
+  tenderIn:Tender[];
+}
+export interface CriteriaEmailReport{
+  date_start:Date;
+  date_finish:Date;
+  id_step:number;
+}
+

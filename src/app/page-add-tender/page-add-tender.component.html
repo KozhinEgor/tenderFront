@@ -76,7 +76,7 @@
   <div *ngFor="let tenders1 of tenders">
   <div *ngFor="let tender of tenders1" class="OneTender">
     <mat-card class="cardTender">
-      <mat-card-header style="border-radius: 3px;" [ngClass]="{'plan': tender.plan, 'dublicate':tender.dublicate}">
+      <mat-card-header style="border-radius: 3px;" [ngClass]="{'plan': tender.plan, 'dublicate':tender.dublicate, 'noTender': tender.id == null}">
         <!-- #FC5A62 - красный #FCD05A - желтый-->
         <mat-card-title>
           {{tender.name_tender}}
@@ -100,12 +100,15 @@
         </p>
       </mat-card-content>
       <mat-card-actions>
-        <button mat-button (click)="getdublicate(tender.id)" [disabled]="tender.plan">Найти похожие тендеры</button>
-        <button mat-button (click)="dublicate(tender.id, tenders1[0].id)" [disabled]="tender.plan">Дубликат</button>
+        <button mat-button (click)="getdublicate(tender.id)" [disabled]="tender.plan || tender.id == null">Найти похожие тендеры</button>
+        <button mat-button (click)="dublicate(tender.id, tenders1[0].id)" [disabled]="tender.plan || tender.id == null">Дубликат</button>
         <button mat-button [disabled]="!tender.plan" (click)="plan(tender.id, tenders1[0].id)">"План график" тендера</button>
       </mat-card-actions>
     </mat-card>
   </div>
   </div>
 </div>
-<app-tender-table [displayedColumns]="displayedColumns" [dataSource]="dataSource" [adjacent_tender] = "adjacent_tender" [plan]="plan_schedule" *ngIf="adjacent_tender || plan_schedule"></app-tender-table>
+<app-tender-table [searchParametrs]="searchParameters" [displayedColumns]="displayedColumns"
+
+                  *ngIf="adjacent_tender || plan_schedule"></app-tender-table>
+<!--                  [dataSource]="dataSource" [adjacent_tender] = "adjacent_tender" [plan]="plan_schedule" -->

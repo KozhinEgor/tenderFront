@@ -1,3 +1,6 @@
 .mat-form-field{
   padding: 10px;
 }
+.mat-option:nth-child(even){
+  background-color: #f6f6f6;
+}

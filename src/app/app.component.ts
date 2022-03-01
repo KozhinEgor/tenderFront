@@ -12,7 +12,7 @@ import {HttpClient} from "@angular/common/http";
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'tender';
+  title = 'TAS';
   CountTender: number = null;
   user: User;
   constructor(private api: ApiService, private authenticationService: AuthenticationService, private http: HttpClient) {

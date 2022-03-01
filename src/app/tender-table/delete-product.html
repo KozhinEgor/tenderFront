@@ -2,14 +2,14 @@
   Как вы хотите удалить?
   <br>
   <span *ngIf="data.product_category === 'Продукты'">
-    {{data.id_product}} {{data.comment}} - {{data.number}}
+    {{data.product}} {{data.comment}} - {{data.number}}
   </span>
   <span *ngIf="data.product_category !== 'Продукты'">
-    {{ data.product_category}} {{data.id_product}} ({{data.comment}}) - {{data.number}}
+    {{ data.product_category}} {{data.product}} ({{data.comment}}) - {{data.number}}
   </span>
 
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button  [matDialogClose]="true" cdkFocusInitial>Удалить полностью</button>
-  <button mat-button  [matDialogClose]="false" cdkFocusInitial>Добавить в другое оборудование</button>
+  <button mat-button  [matDialogClose]="true">Удалить полностью</button>
+  <button mat-button  [matDialogClose]="false" >Добавить в другое оборудование</button>
 </mat-dialog-actions>

@@ -149,7 +149,7 @@
           <!-- Name Column -->
           <ng-container matColumnDef="id_product">
             <th mat-header-cell *matHeaderCellDef> Артикул </th>
-            <td mat-cell *matCellDef="let element"> {{element.id_product}} </td>
+            <td mat-cell *matCellDef="let element"> {{(element.vendor_DB!= 1?element.vendor+' ':'')+element.product}} </td>
           </ng-container>
 
           <!-- Weight Column -->
@@ -167,12 +167,12 @@
             <th mat-header-cell *matHeaderCellDef> Цена </th>
             <td mat-cell *matCellDef="let element"> {{element.price}} </td>
           </ng-container>
-          <ng-container matColumnDef="winprice">
-            <th mat-header-cell *matHeaderCellDef style="text-align: center"> Цена<br>победителя </th>
-            <td mat-cell *matCellDef="let element"> {{element.winprice}} </td>
-          </ng-container>
-          <tr mat-header-row *matHeaderRowDef="['copy','edit','product_category',  'id_product',  'comment',  'number',    'price',  'winprice', 'delete']"></tr>
-          <tr mat-row *matRowDef="let row; columns: ['copy','edit','product_category',  'id_product',  'comment',  'number',    'price',  'winprice', 'delete'];"></tr>
+<!--          <ng-container matColumnDef="winprice">-->
+<!--            <th mat-header-cell *matHeaderCellDef style="text-align: center"> Цена<br>победителя </th>-->
+<!--            <td mat-cell *matCellDef="let element"> {{element.winprice}} </td>-->
+<!--          </ng-container>-->
+          <tr mat-header-row *matHeaderRowDef="['copy','edit','product_category',  'id_product',  'comment',  'number',    'price', 'delete']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['copy','edit','product_category',  'id_product',  'comment',  'number',    'price', 'delete'];"></tr>
         </table>
       </div>
     </mat-tab >
@@ -246,7 +246,7 @@
       <div class = "rowChange" >
         <div *ngIf="!dataDialog.adjacent_tender && !dataDialog.plan" style="width: 200px">
           <input matInput  placeholder="ID нового тендера"  [(ngModel)]="newTender" type="number" *ngIf="!data.dublicate">
-          <button mat-button (click)="dublicate(data.id, newTender)" *ngIf="!data.dublicate">Дубликат</button>
+          <button mat-button (click)="dublicate(data.id, newTender)" *ngIf="!data.dublicate && newTender != data.id">Дубликат</button>
           <button mat-button (click)="deleteDublicate()" *ngIf="data.dublicate">Не дубликат</button>
         </div>
 

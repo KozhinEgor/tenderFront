@@ -3,7 +3,7 @@ import {UserAutocompletComponent} from "../user-autocomplet/user-autocomplet.com
 import {
   Comment,
   Company,
-  Post,
+  Tender,
   Product,
   ProductCategory,
   ProductReceived,
@@ -46,7 +46,7 @@ import {group} from "../page-tender-date/page-tender-date.component";
 })
 export class PageSetWinnerComponent implements OnInit {
 
-  dataSource = new MatTableDataSource<Post>();
+  dataSource = new MatTableDataSource<Tender>();
 
   // @ViewChild(AutocompletTypeComponent)
   // private autocompletType: AutocompletTypeComponent| undefined;
@@ -79,12 +79,12 @@ export class PageSetWinnerComponent implements OnInit {
   regionSelectedComponent:RegionSelectedComponent;
   @ViewChild(DistrictSelectedComponent)
   districtSelectedComponent:DistrictSelectedComponent;
-  expandedElement: Post | null;
+  expandedElement: Tender | null;
   panelOpenState = false;
   dublicate: boolean = true;
   minSum = new FormControl('', [Validators.max(999999999999), Validators.min(0)]);
   maxSum = new FormControl('', [Validators.max(999999999999), Validators.min(0)]);
-  innCustomer: string = '';
+  innCustomer: string[] = [];
   ChoseColums: group[] = [];
   displayedColumns: string[] = [];
   displayedColumnsTender: string[] = [];
@@ -111,8 +111,10 @@ countTenderInList: number;
       for (let i of mas) {
         if (i !== '') {
           i = i.replace(/\D/g, '');
+          if(i !== ''){
+            this.ids.push(Number(i));
+          }
 
-          this.ids.push(Number(i));
         }
 
       }
@@ -121,6 +123,24 @@ countTenderInList: number;
 
 
     event.input.value = null;
+  }
+
+  addString(event:string){
+    let value = (event || '').trim();
+    let mas = value.split(/ |,|\.|;|:|\\|\//);
+    if (value) {
+      for (let i of mas) {
+        if (i !== '') {
+          i = i.replace(/\D/g, '');
+          if(i !== ''){
+            this.ids.push(Number(i));
+          }
+        }
+
+      }
+
+    }
+
   }
 
   remove(fruit: number): void {
@@ -142,8 +162,9 @@ countTenderInList: number;
       for (let i of mas) {
         if (i !== '') {
           i = i.replace(/\D/g, '');
-
-          this.number_bico.push(Number(i));
+          if(i !== ''){
+            this.ids.push(Number(i));
+          }
         }
 
       }
@@ -153,12 +174,77 @@ countTenderInList: number;
     // Clear the input value
     event.input.value = null;
   }
+  addBicoNumberString(event: string): void {
+    let value = (event || '').trim();
+    let mas = value.split(/ |,|\.|;|:|\\|\//);
 
+    // Add our fruit
+    if (value) {
+      for (let i of mas) {
+        if (i !== '') {
+          i = i.replace(/\D/g, '');
+          if(i !== ''){
+            this.ids.push(Number(i));
+          }
+        }
+
+      }
+
+    }
+  }
   removeBicoNumber(fruit: number): void {
     const index = this.number_bico.indexOf(fruit);
 
     if (index >= 0) {
       this.number_bico.splice(index, 1);
+    }
+  }
+
+  addINN(event: MatChipInputEvent): void {
+    let value = (event.value || '').trim();
+    let mas = value.split(/ |,|\.|;|:|\\|\//);
+
+
+    if (value) {
+      for (let i of mas) {
+        if (i !== '') {
+          i = i.replace(/[^0-9 %]/gi, '');
+          if(i !== ''){
+            this.innCustomer.push(i);
+          }
+
+        }
+
+      }
+
+    }
+
+
+    event.input.value = null;
+  }
+
+  addINNString(event:string): void {
+    let value = (event|| '').trim();
+    let mas = value.split(/ |,|\.|;|:|\\|\//);
+
+
+    if (value) {
+      for (let i of mas) {
+        if (i !== '') {
+          i = i.replace(/[^0-9 %]/gi, '');
+          if(i !== ''){
+            this.innCustomer.push(i);
+          }
+        }
+      }
+    }
+  }
+
+  removeINN(inn: string): void {
+    const index = this.innCustomer.indexOf(inn);
+
+    if (index >= 0) {
+      this.innCustomer.splice(index, 1);
     }
   }
 
@@ -230,7 +316,7 @@ countTenderInList: number;
     this.types = [];
     this.CustomExclude = false;
     this.customers = [];
-    this.innCustomer = '';
+    this.innCustomer = [];
     this.country = null;
     this.WinnersExclude = false;
     this.winners = [];
@@ -265,11 +351,6 @@ countTenderInList: number;
   vendor_code: Product = null;
   product: ProductReceived[] = [];
 
-  ChangeBigCategory(bigCategory: any) {
-    if (bigCategory != null && typeof bigCategory !== 'string') {
-      this.product.push({category: null, vendor: null, vendor_code: null, big_category: bigCategory, subcategory: null,category_product: null,});
-    }
-  }
 
 
   ChangeCategoryProduct(categoryProduct: any) {
@@ -315,7 +396,6 @@ countTenderInList: number;
           category: this.productCategoryCheckboxComponent.myControl.value == [] ? null : this.productCategoryCheckboxComponent.myControl.value,
           vendor: this.vendorCheckboxComponent.myControl.value == [] ? null : this.vendorCheckboxComponent.myControl.value,
           vendor_code: this.vendorCodeCheckboxComponent.myControl.value == [] ? null : (this.vendorCodeCheckboxComponent.myControl.value),
-          big_category: null,
           subcategory: this.subcategoryCheckboxComponent.myControl.value == []? null : this.subcategoryCheckboxComponent.myControl.value,
           category_product:this.categoryProductComponent.category_product
         });
@@ -370,6 +450,7 @@ countTenderInList: number;
       customExclude: this.CustomExclude,
       custom: this.customers,
       innCustomer: this.innCustomer,
+      innString : null,
       country: this.country,
       winnerExclude: this.WinnersExclude,
       winner: this.winners,
@@ -392,10 +473,10 @@ countTenderInList: number;
     //   this.api.getAdjacentTenderWithParametrs(json).subscribe(posts => {
     //
     //       if (posts.length === 0) {
-    //         this.dataSource = new MatTableDataSource<Post>(posts)
+    //         this.dataSource = new MatTableDataSource<Tender>(posts)
     //         this.dialog.open(ErrorDialogComponent, {data: 'Найдено 0 тендеров'});
     //       } else {
-    //         this.dataSource = new MatTableDataSource<Post>(posts);
+    //         this.dataSource = new MatTableDataSource<Tender>(posts);
     //
     //       }
     //
@@ -407,10 +488,10 @@ countTenderInList: number;
       this.api.getPostWithParametrs(json).subscribe(posts => {
 
           if (posts.length === 0) {
-            this.dataSource = new MatTableDataSource<Post>(posts)
+            this.dataSource = new MatTableDataSource<Tender>(posts)
             this.dialog.open(ErrorDialogComponent, {data: 'Найдено 0 тендеров'});
           } else {
-            this.dataSource = new MatTableDataSource<Post>(posts);
+            this.dataSource = new MatTableDataSource<Tender>(posts);
             this.countTenderInList = posts.length;
             this.showTender(posts[0].id);
           }
@@ -480,6 +561,7 @@ countTenderInList: number;
         customExclude: this.CustomExclude,
         custom: this.customers,
         innCustomer: this.innCustomer,
+        innString : null,
         country: this.country,
         winnerExclude: this.WinnersExclude,
         winner: this.winners,
@@ -517,19 +599,27 @@ countTenderInList: number;
       this.types = saveParameters.type;
       this.CustomExclude = saveParameters.customExclude;
       this.customers = saveParameters.custom;
-      this.innCustomer = saveParameters.innCustomer;
+      if(saveParameters.innString !== null){
+        this.addINNString(saveParameters.innString)
+      }
+
       this.country = saveParameters.country;
       this.contryAutocompletComponent.setContryById(saveParameters.country);
       this.WinnersExclude = saveParameters.winnerExclude;
       this.winners = saveParameters.winner;
       this.minSum.setValue(saveParameters.minSum);
       this.maxSum.setValue(saveParameters.maxSum);
-      if(saveParameters.ids !== null){this.add(saveParameters.ids);}
-      if(saveParameters.bicotender !== null){this.addBicoNumber(saveParameters.bicotender)};
+      if(saveParameters.ids_string !== null){this.addString(saveParameters.ids_string);}
+      if(saveParameters.bicotender_string !== null){this.addBicoNumberString(saveParameters.bicotender_string)};
       this.numberShow = saveParameters.numberShow;
       this.product = saveParameters.product;
-      this.regionSelectedComponent.setRegions(saveParameters.regions);
-      this.districtSelectedComponent.setDistrict(saveParameters.districts);
+      if(saveParameters.regions !== null){
+        this.regionSelectedComponent.setRegions(saveParameters.regions);
+      }
+      if(saveParameters.districts !== null){
+        this.districtSelectedComponent.setDistrict(saveParameters.districts);
+      }
+
       this.userSaveSearch = saveParameters.nickname;
     }
     else{
@@ -545,7 +635,7 @@ countTenderInList: number;
     if(regions !== null && regions.length !== 0) {
 
       this.regionsSelected = true;
-      this.innCustomer = '';
+      this.innCustomer = [];
 
       this.contryAutocompletComponent.myControl.setValue('');
       this.contryAutocompletComponent.myControl.disable();
@@ -570,7 +660,7 @@ countTenderInList: number;
 
     if(district !== null && district.length !== 0) {
       this.regionsSelected = true;
-      this.innCustomer = '';
+      this.innCustomer = [];
       this.contryAutocompletComponent.myControl.setValue('');
       this.contryAutocompletComponent.myControl.disable();
 
@@ -603,7 +693,7 @@ countTenderInList: number;
     tender: null,
     users: []
   };
-  data: Post = {
+  data: Tender = {
     id: 0,
     name_tender: '',
     number_tender: '',

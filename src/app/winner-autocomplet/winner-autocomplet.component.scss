@@ -7,4 +7,6 @@
   white-space: normal !important;
   line-height: 1.5;
 }
-
+.mat-option:nth-child(even){
+  background-color: #f6f6f6;
+}

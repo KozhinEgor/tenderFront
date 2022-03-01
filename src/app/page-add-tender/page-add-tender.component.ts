@@ -1,12 +1,15 @@
-import {Component, Inject, OnInit} from '@angular/core';
-import {Post} from '../classes';
-import {MatTableDataSource} from '@angular/material/table';
+import {Component, Inject, OnInit, ViewChild} from '@angular/core';
+import {SearchParameters, Tender} from '../classes';
+
 import {ApiService} from '../api.service';
 
 import {MAT_DIALOG_DATA, MatDialog} from "@angular/material/dialog";
 import {ErrorDialogComponent} from "../error-dialog/error-dialog.component";
 import {MatChipInputEvent} from "@angular/material/chips";
 import {COMMA, ENTER, SPACE} from "@angular/cdk/keycodes";
+import {TenderTableComponent} from "../tender-table/tender-table.component";
+import {fakeAsync} from "@angular/core/testing";
+import {DublicateDialogComponent} from "../dublicate-dialog/dublicate-dialog.component";
 
 @Component({
   selector: 'app-page-add-tender',
@@ -14,8 +17,10 @@ import {COMMA, ENTER, SPACE} from "@angular/cdk/keycodes";
   styleUrls: ['./page-add-tender.component.scss'],
 })
 export class PageAddTenderComponent implements OnInit {
-   dataSource = new MatTableDataSource<Post>();
-   tenders:[Post[]];
+  @ViewChild(TenderTableComponent)
+  private tenderTableComponent: TenderTableComponent;
+
+   tenders:[Tender[]];
   load: boolean = false;
   arrayBuffer: any;
   upload_button = false;
@@ -24,6 +29,40 @@ export class PageAddTenderComponent implements OnInit {
   displayedColumns: string[] =[];
   adjacent_tender: boolean = false;
   plan_schedule:boolean = false;
+
+  searchParameters:SearchParameters = {
+    id: null,
+    nickname: null,
+    name: null,
+    ids_string: null,
+    dateStart: null,
+    dateFinish: null,
+    dublicate: null,
+    quarter: null,
+    typeExclude:null,
+    type: null,
+    customExclude: null,
+    custom: null,
+    innCustomer: null,
+    innString : null,
+    country: null,
+    winnerExclude: null,
+    winner: null,
+    minSum: null,
+    maxSum: null,
+    ids: null,
+    bicotender: null,
+    bicotender_string: null,
+    numberShow: null,
+    product: null,
+    districts: null,
+    regions: null,
+    plan_schedule: this.plan_schedule,
+    adjacent_tender: this.adjacent_tender,
+    realized: null,
+    private_search: null
+  };
+
     onFileChanged(event)
   {
     this.file = event.target.files[0];
@@ -38,7 +77,7 @@ export class PageAddTenderComponent implements OnInit {
     this.upload_button = true;
     try {
         this.api.addTender(uploadData).subscribe(posts => {
-        this.dataSource = new MatTableDataSource<Post>(posts) ;
+            // this.tenderTableComponent.dataSource.data = posts ;
 
       },
   error => {
@@ -236,13 +275,16 @@ export class PageAddTenderComponent implements OnInit {
           this.dis = false;
         }
         else if(posts.length === 0){
-          this.dataSource = new MatTableDataSource<Post>(posts)
+          // this.tenderTableComponent.dataSource.data = posts ;
           this.dialog.open(ErrorDialogComponent, { data: 'Найдено 0 тендеров'});
         }
         else{
           this.number_bicoAdjacent = [];
           localStorage.setItem('number_bicoAdjacent', '');
-          this.dataSource = new MatTableDataSource<Post>(posts) ;
+          this.tenderTableComponent.dataSource.data = posts ;
+          this.searchParameters.adjacent_tender = true;
+          this.searchParameters.plan_schedule = false;
+          this.tenderTableComponent.dataSource.paginator = this.tenderTableComponent.paginator;
         }
         this.dis = false;
       },
@@ -318,13 +360,16 @@ export class PageAddTenderComponent implements OnInit {
           this.dis = false;
         }
         else if(posts.length === 0){
-          this.dataSource = new MatTableDataSource<Post>(posts)
+          // this.tenderTableComponent.dataSource.data = posts ;
           this.dialog.open(ErrorDialogComponent, { data: 'Найдено 0 тендеров'});
         }
         else{
           this.number_bicoPlan;
           localStorage.setItem('number_bicoPlan', '');
-          this.dataSource = new MatTableDataSource<Post>(posts) ;
+          this.tenderTableComponent.dataSource.data = posts ;
+          this.searchParameters.adjacent_tender = false;
+          this.searchParameters.plan_schedule = true;
+          this.tenderTableComponent.dataSource.paginator = this.tenderTableComponent.paginator;
         }
         this.dis = false;
       },
@@ -340,22 +385,7 @@ export interface Data {
   id_d:number;
 }
 
-@Component({
-  selector: 'app-dublicate-dialog',
-  templateUrl: './dublicate-dialog.component.html'
-})
-export class DublicateDialogComponent {
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: Data,private api: ApiService, public dialog: MatDialog) {}
-  setDublicate(){
-   this.api.setDublicate(this.data.id,this.data.id_d).subscribe(data => {
-       this.dialog.open(ErrorDialogComponent, {data: "Сохранено"})
-     },
-     error => {
-       this.dialog.open(ErrorDialogComponent, {data: "Ошибка" + error});
-     });
-  }
-}
 
 @Component({
   selector: 'app-plan-dialog',
@@ -382,7 +412,7 @@ export class PlanDialogComponent {
 export class AddDublicateDialogComponent implements OnInit{
 id: number;
 id_d: number;
-tenders: Post[];
+tenders: Tender[];
   constructor(@Inject(MAT_DIALOG_DATA) public id_tender: Data,private api: ApiService, public dialog: MatDialog) {}
 
   ngOnInit() {

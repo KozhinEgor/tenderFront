@@ -66,10 +66,21 @@
           </mat-chip>
         </mat-chip-list>
         <app-custom-autocomplet (Change)="ChangeCustom($event)"></app-custom-autocomplet>
-        <mat-form-field appearance="outline" >
+        <mat-form-field>
           <mat-label>ИНН</mat-label>
-          <input matInput [(ngModel)]="innCustomer" type="text" onkeyup="this.value=this.value.replace(/[^0-9 %]/gi, '');"  [disabled]="regionsSelected">
-          <mat-error></mat-error>
+          <mat-chip-list #chipListINN aria-label="Выбранные ИНН">
+            <mat-chip *ngFor="let id of innCustomer" [selectable]="selectable"
+                      [removable]="removable" (removed)="removeINN(id)">
+              {{id}}
+              <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+            </mat-chip>
+            <input placeholder="Id..."
+                   [matChipInputFor]="chipListINN"
+                   [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                   [matChipInputAddOnBlur]="addOnBlur"
+                   (matChipInputTokenEnd)="addINN($event)" >
+            <mat-error></mat-error>
+          </mat-chip-list>
         </mat-form-field>
         <app-contry-autocomplet (Change)="ChangeCountry($event)" ></app-contry-autocomplet>
         <app-region-selected (Change)="ChangeRegion($event)"></app-region-selected>
@@ -79,7 +90,7 @@
         </section>
       </fieldset>
 <!--      Winner-->
-      <fieldset >
+      <fieldset  *ngIf="!adjacent_tender && !plan_schedule">
         <legend>Победитель</legend>
         <mat-chip-list  aria-label="Выбранные типы">
           <mat-chip *ngFor="let winner of winners" [selectable]="selectable"
@@ -145,7 +156,7 @@
         </mat-form-field>
       </fieldset>
 <!--      Product-->
-      <fieldset >
+      <fieldset *ngIf="!adjacent_tender && !plan_schedule">
         <legend>Продукты</legend>
 
         <mat-chip-list  aria-label="Выбранные продукты">
@@ -188,5 +199,5 @@
 
 
 
-<app-tender-table [displayedColumns]="displayedColumns" [dataSource]="dataSource" [adjacent_tender] = adjacent_tender [plan]="plan_schedule"></app-tender-table>
+<app-tender-table [displayedColumns]="displayedColumns" [searchParametrs]="searchParameters" ></app-tender-table>
 

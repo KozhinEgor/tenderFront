@@ -4,12 +4,12 @@ import {MatDialog} from "@angular/material/dialog";
 import {
   BigCategory,
   Company,
-  Post, Product,
+  Tender, Product,
   ProductCategory, ProductReceived, ReceivedJson, Report, ReportCriteria,
   ReportQuarter,
   ReportVendorQuarter,
   Type,
-  Vendor
+  Vendor, SearchParameters
 } from "../../classes";
 import {MatTableDataSource} from "@angular/material/table";
 import {MatSort} from "@angular/material/sort";
@@ -87,13 +87,13 @@ export class CompanyReportComponent implements OnInit {
   regionSelectedComponent:RegionSelectedComponent;
   @ViewChild(DistrictSelectedComponent)
   districtSelectedComponent:DistrictSelectedComponent;
-  expandedElement: Post | null;
+  expandedElement: Tender | null;
   panelOpenState = true;
   dublicate: boolean = false;
   quarter: boolean = false;
   minSum = new FormControl(1, [Validators.max(999999999999), Validators.min(0)]);
   maxSum = new FormControl('', [Validators.max(999999999999), Validators.min(0)]);
-  innCustomer: string = '';
+  innCustomer: string[] = [];
   plan_schedule: boolean = false;
   visible = true;
   selectable = true;
@@ -155,6 +155,35 @@ export class CompanyReportComponent implements OnInit {
 
     if (index >= 0) {
       this.number_bico.splice(index, 1);
+    }
+  }
+
+  addINN(event: MatChipInputEvent): void {
+    let value = (event.value || '').trim();
+    let mas = value.split(/ |,|\.|;|:|\\|\//);
+
+
+    if (value) {
+      for (let i of mas) {
+        if (i !== '') {
+          i = i.replace(/\D/g, '');
+
+          this.innCustomer.push(i);
+        }
+
+      }
+
+    }
+
+
+    event.input.value = null;
+  }
+
+  removeINN(inn: string): void {
+    const index = this.innCustomer.indexOf(inn);
+
+    if (index >= 0) {
+      this.innCustomer.splice(index, 1);
     }
   }
 
@@ -225,7 +254,7 @@ export class CompanyReportComponent implements OnInit {
     this.types =[];
     this.CustomExclude = false;
     this.customers = [];
-    this.innCustomer = '';
+    this.innCustomer = [];
     this.country = null;
     this.WinnersExclude = false;
     this.winners = [];
@@ -256,11 +285,7 @@ export class CompanyReportComponent implements OnInit {
   vendor: Vendor = null;
   vendor_code: Product = null;
   product: ProductReceived[] = [];
-  ChangeBigCategory(bigCategory: any) {
-    if (bigCategory != null && typeof bigCategory !== 'string') {
-      this.product.push({category: null, vendor: null, vendor_code: null, big_category: bigCategory, subcategory: null, category_product:null});
-    }
-  }
+
 
   ChangeCategoryProduct(categoryProduct: any) {
     if (categoryProduct != null) {
@@ -305,7 +330,6 @@ export class CompanyReportComponent implements OnInit {
           category: this.productCategoryCheckboxComponent.myControl.value == [] ? null : this.productCategoryCheckboxComponent.myControl.value,
           vendor: this.vendorCheckboxComponent.myControl.value == [] ? null : this.vendorCheckboxComponent.myControl.value,
           vendor_code: this.vendorCodeCheckboxComponent.myControl.value == [] ? null : (this.vendorCodeCheckboxComponent.myControl.value),
-          big_category: null,
           subcategory: this.subcategoryCheckboxComponent.myControl.value == []? null : this.subcategoryCheckboxComponent.myControl.value,
           category_product:this.categoryProductComponent.category_product
         });
@@ -332,13 +356,13 @@ export class CompanyReportComponent implements OnInit {
       this.product.splice(index, 1);
     }
   }
-  reportCriteria:ReportCriteria = {interval: 'Год', receivedJSON: null}
+  reportCriteria:ReportCriteria = {interval: 'Год', searchParameters: null}
   report:Report;
 
   loadReport(){
     this.reportCriteria = {interval: this.typeProductOrderComponent.type === null?'Год':this.typeProductOrderComponent.type
-      ,receivedJSON:this.receivedJson}
-    if(this.receivedJson == null){
+      ,searchParameters:this.searchParameters}
+    if(this.searchParameters == null){
       this.showOrder();
     }
   this.load = true;
@@ -383,7 +407,7 @@ export class CompanyReportComponent implements OnInit {
     }
   }
 
-  receivedJson:ReceivedJson = null;
+  searchParameters:SearchParameters = null;
   getFile(){
     this.dialog.open(ErrorDialogComponent,{data:"Фомирую файл!!! Дождитесь загрузки!!!!"});
     if ((this.productCategoryCheckboxComponent.myControl.value !== undefined && this.productCategoryCheckboxComponent.myControl.value !== null && this.productCategoryCheckboxComponent.myControl.value.length !== 0  && this.productCategoryCheckboxComponent.myControl.value !== [])
@@ -394,16 +418,21 @@ export class CompanyReportComponent implements OnInit {
 
       this.AddProduct();
     }
-    this.receivedJson = {
+    this.searchParameters = {
+      id: null,
+      nickname: null,
+      name: null,
+      ids_string: null,
       dateStart: this.dataRange.getDateStart(),
       dateFinish: this.dataRange.getDateFinish(),
       dublicate: this.dublicate,
-      quarter: this.quarter,
+      quarter: null,
       typeExclude: this.TypeExclude,
       type: this.types,
       customExclude: this.CustomExclude,
       custom: this.customers,
       innCustomer: this.innCustomer,
+      innString : null,
       country: this.country,
       winnerExclude: this.WinnersExclude,
       winner: this.winners,
@@ -411,14 +440,17 @@ export class CompanyReportComponent implements OnInit {
       maxSum: this.maxSum.value,
       ids: this.ids,
       bicotender: this.number_bico,
+      bicotender_string: null,
       numberShow: this.numberShow,
       product: this.product,
-      districts: this.districtSelectedComponent.myControl.value !== null? this.districtSelectedComponent.myControl.value:null,
-      regions: this.regionSelectedComponent.myControl.value !== null? this.regionSelectedComponent.myControl.value:null,
-      plan_schedule: this.plan_schedule,
-      realized: false
+      districts: null,
+      regions: null,
+      plan_schedule:this.plan_schedule,
+      adjacent_tender: false,
+      realized: false,
+      private_search: false
     }
-    this.api.fileQuarter(this.receivedJson).subscribe(blob => {
+    this.api.fileQuarter(this.searchParameters).subscribe(blob => {
         saveAs(blob, "Report.xlsx");
       },
       error => {
@@ -437,16 +469,21 @@ export class CompanyReportComponent implements OnInit {
       || (this.categoryProductComponent.category_product !== undefined && this.categoryProductComponent.category_product !== null && this.categoryProductComponent.category_product !== '')) {
       this.AddProduct();
     }
-    this.receivedJson = {
+    this.searchParameters = {
+      id: null,
+      nickname: null,
+      name: null,
+      ids_string: null,
       dateStart: this.dataRange.getDateStart(),
       dateFinish: this.dataRange.getDateFinish(),
       dublicate: this.dublicate,
-      quarter: this.quarter,
+      quarter: null,
       typeExclude: this.TypeExclude,
       type: this.types,
       customExclude: this.CustomExclude,
       custom: this.customers,
       innCustomer: this.innCustomer,
+      innString : null,
       country: this.country,
       winnerExclude: this.WinnersExclude,
       winner: this.winners,
@@ -454,14 +491,68 @@ export class CompanyReportComponent implements OnInit {
       maxSum: this.maxSum.value,
       ids: this.ids,
       bicotender: this.number_bico,
+      bicotender_string: null,
       numberShow: this.numberShow,
       product: this.product,
-      districts: this.districtSelectedComponent.myControl.value !== null? this.districtSelectedComponent.myControl.value:null,
-      regions: this.regionSelectedComponent.myControl.value !== null? this.regionSelectedComponent.myControl.value:null,
-      plan_schedule: this.plan_schedule,
-      realized: false
+      districts: null,
+      regions: null,
+      plan_schedule:this.plan_schedule,
+      adjacent_tender: false,
+      realized: false,
+      private_search: false
     }
     this.loadReport();
   }
+  regionsSelected: boolean = false;
+  ChangeRegion(regions: any) {
 
+    if(regions !== null && regions.length !== 0) {
+
+      this.regionsSelected = true;
+      this.innCustomer = [];
+
+      this.contryAutocompletComponent.myControl.setValue('');
+      this.contryAutocompletComponent.myControl.disable();
+
+
+      this.customAutocomplet.myControl.disable();
+      this.customers = [];
+      this.districtSelectedComponent.myControl.disable();
+      this.districtSelectedComponent.myControl.setValue([]);
+    }
+    else{
+      if(this.districtSelectedComponent.myControl.value !== null && this.districtSelectedComponent.myControl.value.length < 1) {
+        this.districtSelectedComponent.myControl.enable();
+        this.regionsSelected = false;
+        this.contryAutocompletComponent.myControl.enable();
+        this.customAutocomplet.myControl.enable();
+      }
+
+    }
+  }
+  ChangeDistrict(district: any) {
+
+    if(district !== null && district.length !== 0) {
+      this.regionsSelected = true;
+      this.innCustomer = [];
+      this.contryAutocompletComponent.myControl.setValue('');
+      this.contryAutocompletComponent.myControl.disable();
+
+      this.customAutocomplet.myControl.disable();
+      this.regionSelectedComponent.myControl.disable();
+      this.regionSelectedComponent.myControl.setValue([]);
+      this.customers = [];
+    }
+    else{
+      if(this.regionSelectedComponent.myControl.value !== null && this.regionSelectedComponent.myControl.value.length < 1) {
+        this.regionsSelected = false;
+        if (!this.contryAutocompletComponent.myControl.enabled) {
+          this.contryAutocompletComponent.myControl.enable();
+        }
+        this.customAutocomplet.myControl.enable();
+        this.regionSelectedComponent.myControl.enable();
+      }
+
+    }
+  }
 }

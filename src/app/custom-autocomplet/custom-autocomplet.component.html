@@ -5,10 +5,10 @@
     <mat-icon>close</mat-icon>
   </button>
 
-    <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" autoActiveFirstOption panelWidth="max-width:1000px" >
+    <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" panelWidth="max-width:1000px" >
       <mat-option *ngFor="let option of filteredOptions | async" [value]="option" class="name">
 
-        {{option.name}}
+        {{option.name}} {{option.inn}}
 
 
       </mat-option>

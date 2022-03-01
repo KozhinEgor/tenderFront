@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Inject, Input, OnInit, Output} from '@angular/core';
 import {FormControl} from "@angular/forms";
-import {Post, SearchParameters, User} from "../classes";
+import {Tender, SearchParameters, User} from "../classes";
 import {Observable} from "rxjs";
 import {ApiService} from "../api.service";
 import {MAT_DIALOG_DATA, MatDialog} from "@angular/material/dialog";

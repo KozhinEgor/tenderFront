@@ -1,11 +1,160 @@
-<mat-list >
-  <a mat-list-item routerLink="/" >Главная</a>
-  <a mat-list-item routerLink="/product" >Продукты</a>
-  <!--      <a mat-list-item routerLink="/tender"(click)="drawer.close()">Тендеры по продуктам</a>-->
-  <a mat-list-item routerLink="/tender-date">Поиск тендеров</a>
-  <a mat-list-item routerLink="/report">Отчеты</a>
-  <a mat-list-item routerLink="/add-tender" *ngIf="user !==null && user.role !== 'ROLE_USER'"><mat-icon>add_circle_outline</mat-icon> Добавить тендеры</a>
-  <a mat-list-item routerLink="/tender-without-orders">Тендеры без продуктов</a>
-  <a mat-list-item routerLink="/users" *ngIf="user!==null && user.role === 'ROLE_ADMIN'">Пользователи</a>
-  <a mat-list-item routerLink="/company" *ngIf=" user !==null && user.role !== 'ROLE_USER'">Компании</a>
-</mat-list>
+<!--<mat-list >-->
+<!--  <a mat-list-item routerLink="/" >Главная</a>-->
+<!--  <a mat-list-item routerLink="/product" >Продукты</a>-->
+<!--  &lt;!&ndash;      <a mat-list-item routerLink="/tender"(click)="drawer.close()">Тендеры по продуктам</a>&ndash;&gt;-->
+<!--  <a mat-list-item routerLink="/tender-date">Поиск тендеров</a>-->
+<!--  <a mat-list-item routerLink="/report">Отчеты</a>-->
+<!--  <a mat-list-item routerLink="/add-tender" *ngIf="user !==null && user.role !== 'ROLE_USER'"><mat-icon>add_circle_outline</mat-icon> Добавить тендеры</a>-->
+<!--  <a mat-list-item routerLink="/tender-without-orders">Тендеры без продуктов</a>-->
+<!--  <a mat-list-item routerLink="/users" *ngIf="user!==null && user.role === 'ROLE_ADMIN'">Пользователи</a>-->
+<!--  <a mat-list-item routerLink="/company" *ngIf=" user !==null && user.role !== 'ROLE_USER'">Компании</a>-->
+<!--</mat-list>-->
+<div class="layout">
+  <div class="left-column">
+    <div class="block-top mat-elevation-z4">
+      <div class="myPadding">Тендеры без продуктов</div>
+      <div class="table-container">
+        <table  mat-table [dataSource]="dataSource" multiTemplateDataRows class="table">
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef>ID</th>
+            <td mat-cell *matCellDef="let post"> {{ post.id }} </td>
+          </ng-container>
+          <ng-container matColumnDef="nameTender">
+            <th mat-header-cell *matHeaderCellDef>Название тендера</th>
+            <td mat-cell *matCellDef="let post" [ngClass]="{'dublicate':post.dublicate == true, 'noId': post.id == null}"> {{ post.name_tender }} </td>
+          </ng-container>
+          <ng-container matColumnDef="dateStart" >
+            <th mat-header-cell *matHeaderCellDef >Дата начала</th>
+            <td mat-cell *matCellDef="let post"> {{ post.date_start | date:'dd.MM.yyyy': "UTC" }} </td>
+          </ng-container>
+          <ng-container matColumnDef="edit">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let post">
+              <button *ngIf="user != null && user.role !== 'ROLE_USER'" mat-icon-button color="primary" aria-label="Изменить тендер" (click)="showTender(post.id)">
+                <mat-icon>edit</mat-icon>
+              </button></td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="['id','nameTender','dateStart','edit']; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['id','nameTender','dateStart','edit'];"></tr>
+        </table>
+      </div>
+
+    </div>
+    <div class="block-bottom mat-elevation-z4" >
+      <div class="myPadding">Комментарии</div>
+      <div class="rowComment">
+        <mat-list style=" width: 70%">
+          <mat-list-item *ngFor="let comment of comments" style="height: fit-content">
+            <div class="commentCard">
+              <div class="commentBody">
+
+                <div class="commentHeader">
+                  <div class="circle" tabindex="-1" [style.background-color]="UserColor.get(comment.usr)" ><div style="margin-top: 3px;margin-left: 9px;color: white">{{comment.user[0].toUpperCase()}}</div></div>
+                  <div class="commenterName">
+                    {{comment.user}}
+                  </div>
+                  <div class="timestamp">
+                    {{comment.date | date:'dd.MM.yyyy': "UTC"}}
+                  </div>
+                </div>
+                <div class = "content">
+                  {{comment.text}}
+                </div>
+              </div>
+            </div>
+          </mat-list-item>
+        </mat-list>
+      </div>
+
+    </div>
+
+  </div>
+  <div class="center-column">
+    <div class="block-top mat-elevation-z4">
+      <div class="myPadding">Количество упомнианий вендоров</div>
+      <div id="keysight_number" style="width: 100%; height: calc(100% - 26px);">
+        <google-chart  #keysight_number
+
+                      [type]="type_keysight_number"
+                      [data]="data_keysight_number"
+                      [columns]="columnNames_keysight_number"
+                      [options]="options_keysight_number"
+                      [width]="width_keysight_number"
+                      [height]="height_keysight_number">
+        </google-chart>
+      </div>
+    </div>
+    <div class="block-bottom mat-elevation-z4">
+      <div class="myPadding">Распределение по категориям продуктов</div>
+      <div id="category_number" style="width: 100%; height: calc(100% - 26px);">
+        <google-chart  #category_number
+
+                      [type]="type_category_number"
+                      [data]="data_category_number"
+                      [columns]="columnNames_category_number"
+                      [options]="options_category_number"
+                      [width]="width_category_number"
+                      [height]="height_category_number">
+        </google-chart>
+      </div>
+    </div>
+  </div>
+  <div class="right-column">
+    <div class="button-top mat-elevation-z4">
+      <div class="row" style="font-size: 12px">Тип вендоров</div>
+
+      <div class="row">
+        <div style="width: max-content" (click)="topSelect.open()">{{typeChartTop.value.name_ru}}</div>
+        <mat-select #topSelect [formControl]="typeChartTop" (ngModelChange)="changeTop()" style="padding-top: 15px">
+          <mat-option *ngFor="let top of typeChart" [value]="top">{{top.name_ru}}</mat-option>
+        </mat-select>
+      </div>
+
+    </div>
+    <div class="button-center mat-elevation-z4">
+
+      <div class="row" style="font-size: 12px">Период вендоров</div>
+
+      <div class="row">
+        <div style="width: max-content" (click)="topPeriod.open()">{{periodTop}}</div>
+        <mat-select #topPeriod [(ngModel)]="periodTop" (ngModelChange)="this.getTopDiagramm()" style="padding-top: 15px">
+          <mat-option value="Год">Год (365 дней)</mat-option>
+          <mat-option value="Квартал">Квартал (90 дней)</mat-option>
+          <mat-option value="Месяц">Месяц (30 дней)</mat-option>
+          <mat-option value="Неделя">Неделя (7 дней)</mat-option>
+        </mat-select>
+      </div>
+    </div>
+    <div class="button-center mat-elevation-z4">
+
+      <div class="row" style="font-size: 12px">Тип категорий</div>
+
+      <div class="row">
+        <div style="width: max-content" (click)="bottomSelect.open()">{{typeChartBottom.value.name_ru}}</div>
+        <mat-select #bottomSelect [formControl]="typeChartBottom" (ngModelChange)="changeBottom()" style="padding-top: 15px">
+          <mat-option *ngFor="let top of typeChart" [value]="top">{{top.name_ru}}</mat-option>
+        </mat-select>
+      </div>
+    </div>
+    <div class="button-center mat-elevation-z4">
+
+      <div class="row" style="font-size: 12px">Период категорий</div>
+
+      <div class="row">
+        <div style="width: max-content" (click)="bottomPeriod.open()">{{periodBottom}}</div>
+       <mat-select #bottomPeriod [(ngModel)]="periodBottom" (ngModelChange)="this.getBottomDiagramm()" style="padding-top: 15px">
+         <mat-option value="Год">Год (365 дней)</mat-option>
+         <mat-option value="Квартал">Квартал (90 дней)</mat-option>
+         <mat-option value="Месяц">Месяц (30 дней)</mat-option>
+         <mat-option value="Неделя">Неделя (7 дней)</mat-option>
+  </mat-select>
+      </div>
+    </div>
+    <div class="button-center mat-elevation-z4" routerLink="/tender-date"><div>Поиск тендеров</div></div>
+    <div class="button-center mat-elevation-z4" routerLink="/product"><div >Продукты</div></div>
+    <div class="button-center mat-elevation-z4" routerLink="/company"><div >Компании</div></div>
+    <div class="button-bottom mat-elevation-z4" routerLink="/report"><div >Отчеты</div></div>
+  </div>
+</div>
+

@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
   apiUrl : "www.rfmwtestmarket.ru/api",
-  url: "www.rfmwtestmarket.ru"
+  url: "http://www.rfmwtestmarket.ru"
 };
