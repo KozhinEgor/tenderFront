@@ -72,16 +72,16 @@ export class ReportEmailComponent implements OnInit {
   dateRange(){
 
     if((moment.isMoment(this.range.value.dateStart) && moment.isMoment(this.range.value.dateFinish))&&(this.range.value.dateStart !== null && this.range.value.dateFinish !== null))
-      console.log(this.range.value.dateStart);
-    console.log(this.range.value.dateFinish);
+
     this.api.postEmailReport({date_start:this.range.value.dateStart,date_finish:this.range.value.dateFinish,id_step:0}).subscribe(date=>{
         this.period=date;
-        this.periodString = "<p><b>Всего за период с "+ formatDate( this.period[0].date_start,'dd.MM.yyyy', "ru-RU") +" по "+formatDate( this.period[0].date_finish,'dd.MM.yyyy', "ru-RU") +"</b> " +
+        console.log(this.period[0].date_start);
+        this.periodString = "<p><b>Всего за период с "+ formatDate( this.period[0].date_start,this.period[0].date_start.substring(this.period[0].date_start.indexOf('-'),this.period[0].date_start.lastIndexOf('-')) === this.period[0].date_finish.substring(this.period[0].date_finish.indexOf('-'),this.period[0].date_finish.lastIndexOf('-'))?'dd':'dd MMMM', "ru-RU") +" по "+formatDate( this.period[0].date_finish,'dd MMMM', "ru-RU") +"</b> " +
           "было опубликовано <b>"+this.period[0].number+" " + this.helper.returnWord('тендер','','а','ов',this.period[0].number)+ " (из них "+this.period[0].numberWithPrice+" с объявленной начальной ценой)</b> " +
           "на контрольно-измерительное оборудование из конкурентных сегментов рынка " +
           "<b>на общую сумму "+(this.period[0].price/1000000).toFixed(2)+" млн.руб</b></p> <p>Для сравнения:<ul>"
         for(var a = 1;a<=5;a++){
-          this.periodString = this.periodString + "<li >за период с "+ formatDate( this.period[a].date_start,'dd.MM.yyyy', "ru-RU") +" по "+formatDate( this.period[a].date_finish,'dd.MM.yyyy', "ru-RU") +" " +
+          this.periodString = this.periodString + "<li >за период с "+ formatDate( this.period[a].date_start,this.period[a].date_start.substring(this.period[a].date_start.indexOf('-'),this.period[a].date_start.lastIndexOf('-')) === this.period[a].date_finish.substring(this.period[0].date_finish.indexOf('-'),this.period[0].date_finish.lastIndexOf('-'))?'dd':'dd MMMM', "ru-RU") +" по "+formatDate( this.period[a].date_finish,'dd MMMM', "ru-RU") +" " +
             "было опубликовано <b>"+this.period[a].number+" " + this.helper.returnWord('тендер','','а','ов',this.period[a].number)+ " (из них "+this.period[a].numberWithPrice+" с объявленной начальной ценой)</b> " +
             "на контрольно-измерительное оборудование из конкурентных сегментов рынка " +
             "<b>на общую сумму "+(this.period[a].price/1000000).toFixed(2)+" млн.руб</b></li>"
@@ -202,7 +202,7 @@ export class ReportEmailComponent implements OnInit {
     for (var emailReport of this.tenderSum.selected) {
 
       if(emailReport.number>1){
-        this.tenderSumString = this.tenderSumString+"<li>"+emailReport.number+" "+emailReport.type_tender+" <b>"+emailReport.customer+
+        this.tenderSumString = this.tenderSumString+"<li>"+emailReport.number+" "+ this.helper.returnWord('тендер','','а','ов',emailReport.number)+" <b>"+emailReport.customer+
           " на общую сумму "+formatCurrency(emailReport.price,'ru',getCurrencySymbol(emailReport.currency,"narrow","ru"),"RUB", '1.2-2')+" "+(emailReport.currency == "RUB"?"":"(~"+formatCurrency(emailReport.price,'ru',getCurrencySymbol(emailReport.currency,"narrow","ru"),"RUB", '1.2-2')+" ")+
           "</b><ul>"
         for(var a of emailReport.tenderIn){
@@ -250,7 +250,7 @@ export class ReportEmailComponent implements OnInit {
     for (var emailReport of this.tenderNoSum.selected) {
 
       if(emailReport.number>1){
-        this.tenderNoSumString  = this.tenderNoSumString +"<li>"+emailReport.number+" "+emailReport.type_tender+" <b>"+emailReport.customer+
+        this.tenderNoSumString  = this.tenderNoSumString +"<li>"+emailReport.number+" "+this.helper.returnWord('тендер','','а','ов',emailReport.number)+" <b>"+emailReport.customer+
           "</b><ul>"
         for(var a of emailReport.tenderIn){
           this.tenderNoSumString  = this.tenderNoSumString +"<li>"
@@ -296,7 +296,7 @@ export class ReportEmailComponent implements OnInit {
     for (var emailReport of this.tenderPov.selected) {
 
       if(emailReport.number>1){
-        this.tenderPovString = this.tenderPovString+"<li>"+emailReport.number+" "+emailReport.type_tender+" <b>"+emailReport.customer+
+        this.tenderPovString = this.tenderPovString+"<li>"+emailReport.number+" "+this.helper.returnWord('тендер','','а','ов',emailReport.number)+" <b>"+emailReport.customer+
           " на общую сумму "+formatCurrency(emailReport.price,'ru',getCurrencySymbol(emailReport.currency,"narrow","ru"),"RUB", '1.2-2')+" "+(emailReport.currency == "RUB"?"":"(~"+formatCurrency(emailReport.price,'ru',getCurrencySymbol(emailReport.currency,"narrow","ru"),"RUB", '1.2-2')+" ")+
           "</b><ul>"
         for(var a of emailReport.tenderIn){
@@ -344,7 +344,7 @@ export class ReportEmailComponent implements OnInit {
     for (var emailReport of this.tenderAdj.selected) {
 
       if(emailReport.number>1){
-        this.tenderAdjString = this.tenderAdjString+"<p>"+emailReport.number+" "+emailReport.type_tender+" <b>"+emailReport.customer+
+        this.tenderAdjString = this.tenderAdjString+"<p>"+emailReport.number+" "+this.helper.returnWord('тендер','','а','ов',emailReport.number)+" <b>"+emailReport.customer+
           " на общую сумму "+formatCurrency(emailReport.price,'ru',getCurrencySymbol(emailReport.currency,"narrow","ru"),"RUB", '1.2-2')+" "+(emailReport.currency == "RUB"?"":"(~"+formatCurrency(emailReport.price,'ru',getCurrencySymbol(emailReport.currency,"narrow","ru"),"RUB", '1.2-2')+" ")+
           "</b><ul>"
         for(var a of emailReport.tenderIn){

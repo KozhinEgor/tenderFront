@@ -149,7 +149,7 @@
           <!-- Name Column -->
           <ng-container matColumnDef="id_product">
             <th mat-header-cell *matHeaderCellDef> Артикул </th>
-            <td mat-cell *matCellDef="let element"> {{(element.vendor_DB!= 1?element.vendor+' ':'')+element.product}} </td>
+            <td mat-cell *matCellDef="let element"> {{(element.vendor_DB!= 1?element.vendor+' ':'')+(element.product !== 'Без артикула'?element.product:'')}} </td>
           </ng-container>
 
           <!-- Weight Column -->

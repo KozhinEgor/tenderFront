@@ -80,13 +80,16 @@
         <!-- #FC5A62 - красный #FCD05A - желтый-->
         <mat-card-title>
           {{tender.name_tender}}
+          <button mat-icon-button color="primary" aria-label="Изменить тендер" (click)="showTender(tender, tender.plan)">
+            <mat-icon>edit</mat-icon>
+          </button>
         </mat-card-title>
         <mat-card-subtitle>
           {{tender.id}}
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        <p style="padding-top: 5px">
+        <p style="padding-top: 5px" [ngClass]="{'noINN':tender.inn == 0}">
           {{tender.customer}} {{tender.inn}}
         </p>
         <p>
@@ -100,8 +103,8 @@
         </p>
       </mat-card-content>
       <mat-card-actions>
-        <button mat-button (click)="getdublicate(tender.id)" [disabled]="tender.plan || tender.id == null">Найти похожие тендеры</button>
-        <button mat-button (click)="dublicate(tender.id, tenders1[0].id)" [disabled]="tender.plan || tender.id == null">Дубликат</button>
+        <button mat-button (click)="getdublicate(tender)" [disabled]="tender.plan || tender.id == null">Найти похожие тендеры</button>
+        <button mat-button (click)="dublicate(tender, tenders1[0])" [disabled]="tender.plan || tender.id == null || tender == tenders1[0]">Дубликат</button>
         <button mat-button [disabled]="!tender.plan" (click)="plan(tender.id, tenders1[0].id)">"План график" тендера</button>
       </mat-card-actions>
     </mat-card>

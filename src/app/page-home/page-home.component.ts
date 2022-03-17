@@ -7,6 +7,7 @@ import {ApiService} from "../api.service";
 import {MatDialog} from "@angular/material/dialog";
 import {TenderDialogComponent} from "../tender-table/tender-table.component";
 import {FormControl} from "@angular/forms";
+import {environment} from "../../environments/environment";
 
 export interface Chart{
   name_ru:string;
@@ -116,7 +117,7 @@ getTopDiagramm(){
 
   this.data_category_number = data;
 
-  this.columnNames_category_number = ['Период','Количетсво'];
+  this.columnNames_category_number = ['Период','Количеcтво'];
   this.width_category_number = document.getElementById("category_number").offsetWidth - 5;
   this.height_category_number = document.getElementById("category_number").offsetHeight - 5;
 },
@@ -124,6 +125,10 @@ error => {
   this.dialog.open(ErrorDialogComponent, {data: "Ошибка  " + error})
 })
 }
+  getURL(tender:number){
+    return environment.url+"/tender/"+tender;
+  }
+
 @HostListener('window:resize',['$event'])
   onResize(event: any){
   this.width_keysight_number = document.getElementById("keysight_number").offsetWidth - 5;

@@ -7,9 +7,10 @@ import {MAT_DIALOG_DATA, MatDialog} from "@angular/material/dialog";
 import {ErrorDialogComponent} from "../error-dialog/error-dialog.component";
 import {MatChipInputEvent} from "@angular/material/chips";
 import {COMMA, ENTER, SPACE} from "@angular/cdk/keycodes";
-import {TenderTableComponent} from "../tender-table/tender-table.component";
+import {TenderDialogComponent, TenderTableComponent} from "../tender-table/tender-table.component";
 import {fakeAsync} from "@angular/core/testing";
 import {DublicateDialogComponent} from "../dublicate-dialog/dublicate-dialog.component";
+import {MatTableDataSource} from "@angular/material/table";
 
 @Component({
   selector: 'app-page-add-tender',
@@ -200,12 +201,115 @@ export class PageAddTenderComponent implements OnInit {
         this.dialog.open(ErrorDialogComponent, { data:"Ошибка на сервере: "+ error});
       })
   }
-  dublicate(id_d:number, id:number){
-    this.dialog.open(DublicateDialogComponent, {data:{id: id,id_d: id_d}})
+
+  dublicate(tender_d:Tender, tender:Tender){
+    this.dialog.open(DublicateDialogComponent, {data:{id: tender.id,id_d: tender_d.id}}).afterClosed().subscribe(rezult => {
+      this.api.getTenderById(tender.id).subscribe(data =>
+      {tender.price = data.price;
+        tender.product = data.product;
+        tender.win_sum = data.win_sum;
+        tender.full_sum = data.full_sum;
+        tender.sum = data.sum;
+        tender.currency = data.currency;
+        tender.rate = data.rate;
+        tender.customer = data.customer;
+        tender.name_tender = data.name_tender;
+        tender.dublicate = data.dublicate;
+        tender.typetender = data.typetender;
+        tender.inn = data.inn;
+        tender.winner = data.winner;
+        tender.date_tranding = data.date_tranding;
+        tender.gos_zakupki = data.gos_zakupki;
+        tender.bico_tender = data.bico_tender;
+        tender.number_tender = data.number_tender;
+        tender.id = data.id;
+        tender.country = data.country;
+        tender.date_finish = data.date_finish;
+        tender.date_start = data.date_start;
+      });
+      this.api.getTenderById(tender_d.id).subscribe(data =>
+      {tender_d.price = data.price;
+        tender_d.product = data.product;
+        tender_d.win_sum = data.win_sum;
+        tender_d.full_sum = data.full_sum;
+        tender_d.sum = data.sum;
+        tender_d.currency = data.currency;
+        tender_d.rate = data.rate;
+        tender_d.customer = data.customer;
+        tender_d.name_tender = data.name_tender;
+        tender_d.dublicate = data.dublicate;
+        tender_d.typetender = data.typetender;
+        tender_d.inn = data.inn;
+        tender_d.winner = data.winner;
+        tender_d.date_tranding = data.date_tranding;
+        tender_d.gos_zakupki = data.gos_zakupki;
+        tender_d.bico_tender = data.bico_tender;
+        tender_d.number_tender = data.number_tender;
+        tender_d.id = data.id;
+        tender_d.country = data.country;
+        tender_d.date_finish = data.date_finish;
+        tender_d.date_start = data.date_start;
+      });
+    })
   }
-  getdublicate(id:number){
-    this.dialog.open(AddDublicateDialogComponent, {height: '90%',data:{id: id, id_d:null}})
+  getdublicate(tender:Tender){
+    this.dialog.open(AddDublicateDialogComponent, {height: '90%',data:{id: tender.id, id_d:null}}).afterClosed().subscribe(rezult => {
+      this.api.getTenderById(tender.id).subscribe(data => {
+        tender.price = data.price;
+        tender.product = data.product;
+        tender.win_sum = data.win_sum;
+        tender.full_sum = data.full_sum;
+        tender.sum = data.sum;
+        tender.currency = data.currency;
+        tender.rate = data.rate;
+        tender.customer = data.customer;
+        tender.name_tender = data.name_tender;
+        tender.dublicate = data.dublicate;
+        tender.typetender = data.typetender;
+        tender.inn = data.inn;
+        tender.winner = data.winner;
+        tender.date_tranding = data.date_tranding;
+        tender.gos_zakupki = data.gos_zakupki;
+        tender.bico_tender = data.bico_tender;
+        tender.number_tender = data.number_tender;
+        tender.id = data.id;
+        tender.country = data.country;
+        tender.date_finish = data.date_finish;
+        tender.date_start = data.date_start;
+      });
+  });
   }
+  showTender(tender:Tender, plan: boolean) {
+
+    this.dialog.open(TenderDialogComponent, {
+      width: '80%',
+      height: '90%',
+      data: {adjacent_tender: false, id_tender: (tender.id), plan:plan}
+    }).afterClosed().subscribe(result => {
+      tender.price = result.price;
+      tender.product = result.product;
+      tender.win_sum = result.win_sum;
+      tender.full_sum = result.full_sum;
+      tender.sum = result.sum;
+      tender.currency = result.currency;
+      tender.rate = result.rate;
+      tender.customer = result.customer;
+      tender.name_tender = result.name_tender;
+      tender.dublicate = result.dublicate;
+      tender.typetender = result.typetender;
+      tender.inn = result.inn;
+      tender.winner = result.winner;
+      tender.date_tranding = result.date_tranding;
+      tender.gos_zakupki = result.gos_zakupki;
+      tender.bico_tender = result.bico_tender;
+      tender.number_tender = result.number_tender;
+      tender.id = result.id;
+      tender.country = result.country;
+      tender.date_finish = result.date_finish;
+      tender.date_start = result.date_start;
+    });
+  }
+
   plan(id_d:number, id:number){
     this.dialog.open(PlanDialogComponent, {data:{id: id,id_d: id_d}})
   }
@@ -416,7 +520,6 @@ tenders: Tender[];
   constructor(@Inject(MAT_DIALOG_DATA) public id_tender: Data,private api: ApiService, public dialog: MatDialog) {}
 
   ngOnInit() {
-    console.log(this.id_tender)
     this.api.getDublicate(this.id_tender.id).subscribe( data =>{
       this.tenders = data;
       },
@@ -424,7 +527,36 @@ tenders: Tender[];
       this.dialog.open(ErrorDialogComponent, {data: "Ошибка" + error});
     })
   }
+  showTender(tender:Tender) {
 
+    this.dialog.open(TenderDialogComponent, {
+      width: '80%',
+      height: '90%',
+      data: {adjacent_tender: false, id_tender: (tender.id), plan:false}
+    }).afterClosed().subscribe(result => {
+      tender.price = result.price;
+      tender.product = result.product;
+      tender.win_sum = result.win_sum;
+      tender.full_sum = result.full_sum;
+      tender.sum = result.sum;
+      tender.currency = result.currency;
+      tender.rate = result.rate;
+      tender.customer = result.customer;
+      tender.name_tender = result.name_tender;
+      tender.dublicate = result.dublicate;
+      tender.typetender = result.typetender;
+      tender.inn = result.inn;
+      tender.winner = result.winner;
+      tender.date_tranding = result.date_tranding;
+      tender.gos_zakupki = result.gos_zakupki;
+      tender.bico_tender = result.bico_tender;
+      tender.number_tender = result.number_tender;
+      tender.id = result.id;
+      tender.country = result.country;
+      tender.date_finish = result.date_finish;
+      tender.date_start = result.date_start;
+    });
+  }
   dublicate(){
     if(this.id !== 0 && this.id !== null &&
     this.id_d !== 0 && this.id_d !== null)

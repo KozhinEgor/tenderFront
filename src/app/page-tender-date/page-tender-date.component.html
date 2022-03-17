@@ -14,6 +14,8 @@
             </mat-chip>
 
           </mat-chip-list>
+          <span *ngIf="panelOpenState" class="help">Закрыть</span>
+          <div *ngIf="!panelOpenState" class="help">Открыть</div>
         </mat-panel-description>
       </mat-expansion-panel-header>
       <!-- save search_paramets-->

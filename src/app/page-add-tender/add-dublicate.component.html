@@ -1,11 +1,14 @@
  <div *ngIf="tenders !== null" class="fixActionRow">
-   <mat-dialog-content >
+   <mat-dialog-content>
   <div *ngFor="let tender of tenders" class="OneTender">
     <mat-card class="cardTender" >
       <mat-card-header style="border-radius: 3px;" [ngClass]="{'plan': tender.plan, 'dublicate':tender.dublicate}">
         <!-- #FC5A62 - красный #FCD05A - желтый-->
         <mat-card-title>
           {{tender.name_tender}}
+          <button mat-icon-button color="primary" aria-label="Изменить тендер" (click)="showTender(tender)">
+            <mat-icon>edit</mat-icon>
+          </button>
         </mat-card-title>
         <mat-card-subtitle>
           {{tender.id}}

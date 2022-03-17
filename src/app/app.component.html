@@ -15,11 +15,12 @@
       <a mat-list-item routerLink="/" (click)="drawer.close()">Главная</a>
       <a mat-list-item routerLink="/product" (click)="drawer.close()">Продукты</a>
 <!--      <a mat-list-item routerLink="/tender"(click)="drawer.close()">Тендеры по продуктам</a>-->
-      <a mat-list-item routerLink="/tender-date"(click)="drawer.close()">Поиск тендеров</a>
+      <a mat-list-item routerLink="/tender-date"(click)="drawer.close()"><mat-icon>search</mat-icon>Поиск тендеров</a>
       <a mat-list-item routerLink="/report"(click)="drawer.close()">Отчеты</a>
+      <a mat-list-item routerLink="/report-email"(click)="drawer.close()"><mat-icon>mail_outline</mat-icon>Еженедельный отчет</a>
       <a mat-list-item routerLink="/add-tender"(click)="drawer.close()" *ngIf=" user !==null && user.role !== 'ROLE_USER'"><mat-icon>add_circle_outline</mat-icon> Добавить тендеры</a>
       <a mat-list-item routerLink="/tender-without-orders"(click)="drawer.close()"><span [matBadge] = CountTender >Тендеры без продуктов</span></a>
-      <a mat-list-item routerLink="/users"(click)="drawer.close()" *ngIf=" user !==null && user.role === 'ROLE_ADMIN'">Пользователи</a>
+      <a mat-list-item routerLink="/users"(click)="drawer.close()" *ngIf=" user !==null && user.role === 'ROLE_ADMIN'"><mat-icon>person_outline</mat-icon>Пользователи</a>
       <a mat-list-item routerLink="/company"(click)="drawer.close()" *ngIf=" user !==null && user.role !== 'ROLE_USER'">Компании</a>
       <a mat-list-item routerLink="/setWinner"(click)="drawer.close()" *ngIf=" user !==null && user.role !== 'ROLE_USER'">Добавление Победителей</a>
     </mat-list>

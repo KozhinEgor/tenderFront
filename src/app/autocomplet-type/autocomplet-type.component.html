@@ -2,7 +2,7 @@
   <mat-form-field>
     <mat-label>Укажите тип</mat-label>
     <input type="text" matInput [formControl]="myControl" [matAutocomplete]="auto" (ngModelChange)="Change.emit(myControl.value)"/>
-    <button *ngIf="myControl.value !==''"   matSuffix mat-icon-button style="color: darkgrey" aria-label="Clear" (click)="myControl.setValue('')">
+    <button *ngIf="myControl.value !=='' && myControl.value  !== null && myControl.value  !== undefined"   matSuffix mat-icon-button style="color: darkgrey" aria-label="Clear" (click)="myControl.setValue('')">
       <mat-icon>close</mat-icon>
     </button>
     <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" autoActiveFirstOption (optionSelected)="select()">

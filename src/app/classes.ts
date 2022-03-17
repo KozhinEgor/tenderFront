@@ -357,8 +357,8 @@ export interface District{
 }
 export interface EmailReport {
   name_tender:string;
-  date_start:Date;
-  date_finish:Date;
+  date_start:string;
+  date_finish:string;
   number:number;
   numberWithPrice:number;
   type_tender:string;

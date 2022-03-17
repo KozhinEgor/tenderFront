@@ -100,11 +100,17 @@ export class TenderTableComponent implements OnInit, OnChanges, AfterViewInit {
       this.expandedElement.date_finish = result.date_finish;
       this.expandedElement.date_start = result.date_start;
       if (result.id == null) {
-        this.dataSource.data.splice(this.dataSource.data.indexOf(this.expandedElement), 1)
+        if(this.show){
+          this.getData();
+        }
+        else{
+          this.dataSource.data.splice(this.dataSource.data.indexOf(this.expandedElement), 1)
 
-        this.dataSource = new MatTableDataSource<Tender>(this.dataSource.data);
-        this.dataSource.sort = this.sort;
-        this.dataSource.paginator = this.paginator
+          this.dataSource = new MatTableDataSource<Tender>(this.dataSource.data);
+          this.dataSource.sort = this.sort;
+          this.dataSource.paginator = this.paginator
+        }
+
       }
     });
   }
@@ -135,6 +141,7 @@ export class TenderTableComponent implements OnInit, OnChanges, AfterViewInit {
   }
  getData(){
     if(this.show){
+
       this.isLoadingResults = true;
       this.api.getTenders({page:this.paginator.pageIndex,sortName:this.sort.active,sortDirection:this.sort.direction,pageSize:this.paginator.pageSize, searchParametrs:this.searchParametrs}).subscribe(data =>{
         if(data.tenders.length === 0){
