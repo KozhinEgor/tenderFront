@@ -3,7 +3,18 @@ import {animate, state, style, transition, trigger} from "@angular/animations";
 import {MatPaginator} from "@angular/material/paginator";
 import {MatSort} from "@angular/material/sort";
 import {MatTableDataSource} from "@angular/material/table";
-import {Company, Orders, OrdersDB, Tender, Product, ProductCategory, User, Comment, SearchParameters} from "../classes";
+import {
+  Company,
+  Orders,
+  OrdersDB,
+  Tender,
+  Product,
+  ProductCategory,
+  User,
+  Comment,
+  SearchParameters,
+  ChannelForTable
+} from "../classes";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {VendorCodeAutocompleatComponent} from "../vendor-code-autocompleat/vendor-code-autocompleat.component";
 import {ProductCategoryAutocompletComponent} from "../product-category-autocomplet/product-category-autocomplet.component";
@@ -139,6 +150,7 @@ export class TenderTableComponent implements OnInit, OnChanges, AfterViewInit {
   ngOnInit(): void {
 
   }
+
  getData(){
     if(this.show){
 
@@ -363,6 +375,10 @@ export class TenderDialogComponent implements OnInit {
   editOrders = null;
   flag = false;
   orders: Orders[] = [];
+  type_current = null;
+  accuracy = null;
+  channel_for_table:ChannelForTable[] = [];
+
   ordersDB: OrdersDB={
     id: null,
     tender: null,
@@ -381,7 +397,11 @@ export class TenderDialogComponent implements OnInit {
     voltage: null,
     current: null,
     option: [],
-    options: null
+    options: null,
+    channel_for_table: null,
+    type_current: null,
+    accuracy: null,
+    channel_for_table_str: null
   };
   selected = new FormControl(0);
   comments: Comment[];
@@ -432,8 +452,9 @@ export class TenderDialogComponent implements OnInit {
       this.subcategoryAutocompletComponent.myControl.setValue('');
     }
     this.vendorCodeAutocompleatComponent.myControl.setValue('');
-    this.optionComponent.option.setValue('');
-    this.optionComponent.options = [];
+    this.parameters = [];
+    // this.optionComponent.option.setValue('');
+    // this.optionComponent.options = [];
     this.channel = null;
     this.port = null;
     this.frequency = null;
@@ -448,13 +469,23 @@ export class TenderDialogComponent implements OnInit {
     this.number = null;
     this.price = null;
     this.editOrders = null;
+    this.type_current = null;
+    this.accuracy = null;
+    this.ChangeChannel();
   }
 
   addProduct() {
     if (this.number !== null) {
       if(this.vendorCodeAutocompleatComponent.myControl.value !== '' && this.vendorCodeAutocompleatComponent.myControl.value !== null &&this.vendorCodeAutocompleatComponent.myControl.value !== undefined){
       try {
-
+        let CFT: any = {};
+        if (this.channel > 0 && this.parameters.includes('channel_for_table')){
+          for(let c of this.channel_for_table){
+            if(c.value != 0){
+              CFT[c.name] =  c.value
+            }
+          }
+        }
         this.ordersDB= {
           id: null,
           tender: this.data.id,
@@ -472,13 +503,18 @@ export class TenderDialogComponent implements OnInit {
           purpose: this.purpose === '' ? null : this.purpose,
           voltage: this.voltage !== -1 && this.voltage ? this.voltage : null,
           current: this.current !== -1 && this.current ? this.current : null,
-          option: this.optionComponent.option.value === ''?[]:this.optionComponent.option.value,
-          options:  ''
+          option: [],
+          options:  '',
+          channel_for_table:<JSON>CFT,
+          type_current: this.type_current,
+          accuracy: this.accuracy !== -1 && this.accuracy ? this.accuracy : null,
+          channel_for_table_str: null
         };
         this.api.addOrder(this.ordersDB).subscribe(
           data => {
             this.orders = data;
             this.dataSource = new MatTableDataSource<Orders>(this.orders);
+
             this.default();
           },
           err => {
@@ -538,10 +574,19 @@ export class TenderDialogComponent implements OnInit {
     this.voltage = or.voltage;
     this.current = or.current;
     this.vendorCodeAutocompleatComponent.setProduct(or.product_DB);
-    this.comment = or.comment;
+    this.comment = or.comment_DB;
     this.number = or.number;
     this.price = or.price;
-    this.optionComponent.selected_options = or.options;
+    this.accuracy = or.accuracy;
+    this.type_current = or.type_current;
+    // this.optionComponent.selected_options = or.options;
+    this.channel_for_table = [];
+    if (this.channel > 0 && this.parameters.includes('channel_for_table')){
+      for(let i = 1; i<=this.channel;i++){
+          this.channel_for_table.push({name:'current'+i,value:or.channel_for_table['current'+i]})
+          this.channel_for_table.push({name:'voltage'+i,value:or.channel_for_table['voltage'+i]})
+      }
+    }
   }
 
   copyProduct(or: Orders) {
@@ -562,16 +607,34 @@ export class TenderDialogComponent implements OnInit {
     this.voltage = or.voltage;
     this.current = or.current;
     this.vendorCodeAutocompleatComponent.setProduct(or.product_DB);
-    this.comment = or.comment;
+    this.comment = or.comment_DB;
     this.number = or.number;
     this.price = or.price;
-    this.optionComponent.selected_options = or.options;
+    // this.optionComponent.selected_options = or.options;
+    this.channel_for_table = [];
+    if (this.channel > 0 && this.parameters.includes('channel_for_table')){
+      for(let i = 1; i<=this.channel;i++){
+
+          this.channel_for_table.push({name:'current'+i,value:or.channel_for_table['current'+i]})
+          this.channel_for_table.push({name:'voltage'+i,value:or.channel_for_table['voltage'+i]})
+
+      }
+    }
   }
 
   saveProduct() {
     if (this.number !== null) {
       if(this.vendorCodeAutocompleatComponent.myControl.value !== '' && this.vendorCodeAutocompleatComponent.myControl.value !== null &&this.vendorCodeAutocompleatComponent.myControl.value !== undefined){
         try {
+          let CFT: any= {};
+          if (this.channel > 0 && this.parameters.includes('channel_for_table')){
+            for(let c of this.channel_for_table){
+              if(c.value != 0){
+                CFT[c.name] =  c.value
+              }
+            }
+          }
+
           this.ordersDB= {
             id: this.orders[this.editOrders].id,
             tender: this.data.id,
@@ -589,8 +652,12 @@ export class TenderDialogComponent implements OnInit {
             purpose: this.purpose === '' ? null : this.purpose,
             voltage: this.voltage !== -1 && this.voltage ? this.voltage : null,
             current: this.current !== -1 && this.current ? this.current : null,
-            option: this.optionComponent.option.value=== ''?[]:this.optionComponent.option.value,
-            options:  ''
+            option: [],
+            options:  '',
+            channel_for_table:CFT,
+            type_current: this.type_current,
+            accuracy: this.accuracy !== -1 && this.accuracy ? this.accuracy : null,
+            channel_for_table_str: null
           };
           this.api.addOrder(this.ordersDB).subscribe(
             data => {
@@ -662,7 +729,7 @@ export class TenderDialogComponent implements OnInit {
       }
       if (!this.vendorAutocompletComponent.myControl.value && this.productCategoryAutocompletComponent.myControl.value.id !== 7) {
         this.vendorAutocompletComponent.setVendor(vendor_code.vendor);
-        // this.subcategoryAutocompletComponent.setSubcategoryBYName(vendor_code.subcategory);
+        this.subcategoryAutocompletComponent.setSubcategoryBYName(vendor_code.subcategory);
       }
       // this.optionComponent.getAllOptionByProduct(this.productCategoryAutocompletComponent.myControl.value.id, this.vendorCodeAutocompleatComponent.myControl.value.id);
       this.channel = this.channel !== this.vendorCodeAutocompleatComponent.myControl.value.channel ? Math.max(this.channel, this.vendorCodeAutocompleatComponent.myControl.value.channel) : this.channel;
@@ -702,13 +769,23 @@ export class TenderDialogComponent implements OnInit {
 
   }
 
+  ChangeChannel(){
+    this.channel_for_table = [];
+   if (this.channel > 0 && this.parameters.includes('channel_for_table')){
+     for(let i = 1; i<=this.channel;i++){
+       this.channel_for_table.push({name:'current'+i,value:0})
+       this.channel_for_table.push({name:'voltage'+i,value:0})
+     }
+    }
+  }
+
   Save() {
 
 
     this.autocompletTypeComponent.setType(this.data.typetender);
     if (!this.dataDialog.adjacent_tender && !this.dataDialog.plan &&(
       this.winnerAutocompletComponent.myControl.value === undefined || this.winnerAutocompletComponent.myControl.value === null)) {
-      this.winnerAutocompletComponent.setWinnerById(Number(this.data.winner));
+      this.winnerAutocompletComponent.setWinner(this.data.winner);
     }
     this.customAutocompletComponent.setCustomer(this.data.customer);
     let tender: Tender = {
@@ -768,7 +845,7 @@ export class TenderDialogComponent implements OnInit {
             this.dialog.open(ErrorDialogComponent, {data: 'Сохранил'});
 
           this.data = data;
-          this.winnerAutocompletComponent.setWinnerById(Number(this.data.winner));
+          this.winnerAutocompletComponent.setWinner(this.data.winner);
 
         },
         err => {
@@ -810,6 +887,7 @@ export class TenderDialogComponent implements OnInit {
         });
       this.api.getOrdersByTender(this.dataDialog.id_tender).subscribe(order => {
           this.orders = order;
+
           this.dataSource = new MatTableDataSource<Orders>(order);
           this.vendorAutocompletComponent.myControl.disable();
 
@@ -833,6 +911,11 @@ export class TenderDialogComponent implements OnInit {
     this.Char = this.user.nickname[0].toUpperCase();
   }
 
+  closeDialog() {
+
+    this.dialogRef.close(this.data);
+  }
+
   countComment() {
     this.api.getCountCommentByTender(this.dataDialog.id_tender).subscribe(count => {
         this.CountComment = count;
@@ -842,6 +925,7 @@ export class TenderDialogComponent implements OnInit {
       })
   }
   newTender:number;
+
   dublicate(id_d:number, id:number){
     this.dialog.open(DublicateDialogComponent, {data:{id: id,id_d: id_d}}).afterClosed().subscribe( date =>{
       this.api.getTenderById(this.dataDialog.id_tender).subscribe(data => {
@@ -853,6 +937,7 @@ export class TenderDialogComponent implements OnInit {
         });
     })
   }
+
   deleteDublicate(){
     this.newTender = null;
     this.api.deleteDublicate(this.data.id).subscribe(data => {
@@ -869,6 +954,7 @@ export class TenderDialogComponent implements OnInit {
         this.dialog.open(ErrorDialogComponent, {data: "Ошибка" + error});
       });
   }
+
   setcolor() {
     for (var a of this.comments) {
       if (!this.UserColor.has(a.usr)) {
@@ -901,7 +987,7 @@ export class TenderDialogComponent implements OnInit {
       this.customAutocompletComponent.setCustomer(this.data.customer);
       this.contryAutocompletComponent.myControl.disable();
       if (!this.dataDialog.adjacent_tender && !this.dataDialog.plan && (this.winnerAutocompletComponent.myControl.value === '' || this.winnerAutocompletComponent.myControl.value === null || this.winnerAutocompletComponent.myControl.value === undefined)) {
-        this.winnerAutocompletComponent.setWinnerById(Number(this.data.winner));
+        this.winnerAutocompletComponent.setWinner(this.data.winner);
       }
 
     }

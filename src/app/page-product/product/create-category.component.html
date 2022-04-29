@@ -52,6 +52,15 @@
     <mat-list-item>
       <mat-checkbox class="example-margin" [(ngModel)]="createTable.current">Ток</mat-checkbox>
     </mat-list-item>
+    <mat-list-item>
+      <mat-checkbox class="example-margin" [(ngModel)]="createTable.channel_for_table">Многоканальный: сила тока и напряжение</mat-checkbox>
+    </mat-list-item>
+    <mat-list-item>
+      <mat-checkbox class="example-margin" [(ngModel)]="createTable.type_current">Тип тока</mat-checkbox>
+    </mat-list-item>
+    <mat-list-item>
+      <mat-checkbox class="example-margin" [(ngModel)]="createTable.accuracy">Точность</mat-checkbox>
+    </mat-list-item>
   </mat-list>
   <mat-form-field appearance="fill">
     <mat-label>Подкатегории</mat-label>

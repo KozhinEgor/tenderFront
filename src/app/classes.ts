@@ -106,6 +106,10 @@ export interface Orders {
   current: number;
   option:Option[];
   options: string;
+  channel_for_table: JSON;
+   type_current: boolean;
+  accuracy: number;
+  channel_for_table_str: string;
 }
 
 export interface deleteOrder{
@@ -133,6 +137,10 @@ export interface OrdersDB {
   current: number;
   option:Option[];
   options: string;
+  channel_for_table: JSON;
+  type_current: boolean;
+  accuracy: number;
+  channel_for_table_str: string;
 }
 
 export interface OrdersReceived {
@@ -168,6 +176,11 @@ export interface Product {
   subcategory_id: number;
   option:Option[];
   options: string;
+  channel_for_table_mas: ChannelForTable[];
+  channel_for_table: JSON;
+  type_current: boolean;
+  accuracy: number;
+  channel_for_table_str: string;
 }
 
 export interface Vendor {
@@ -230,6 +243,9 @@ export interface CreateTable {
   voltage:  boolean;
   current:  boolean;
   subcategory: string[];
+  channel_for_table: boolean;
+  type_current: boolean;
+  accuracy: boolean;
   name: string;
   name_en: string;
   category;
@@ -373,5 +389,10 @@ export interface CriteriaEmailReport{
   date_start:Date;
   date_finish:Date;
   id_step:number;
+}
+
+export interface ChannelForTable{
+  name:string;
+  value:number;
 }
 

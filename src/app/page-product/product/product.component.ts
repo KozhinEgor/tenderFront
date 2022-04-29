@@ -2,7 +2,17 @@ import {Component, Inject, OnInit, ViewChild} from '@angular/core';
 import {MatSort} from "@angular/material/sort";
 import {VendorAutocompletComponent} from "../../vendor-autocomplet/vendor-autocomplet.component";
 import {ProductCategoryAutocompletComponent} from "../../product-category-autocomplet/product-category-autocomplet.component";
-import {ChangeCategory, CreateTable, Tender, Product, ProductCategory, Role, Type, User} from "../../classes";
+import {
+  ChangeCategory,
+  CreateTable,
+  Tender,
+  Product,
+  ProductCategory,
+  Role,
+  Type,
+  User,
+  ChannelForTable
+} from "../../classes";
 import {MatTableDataSource} from "@angular/material/table";
 import {ApiService} from "../../api.service";
 import {AuthenticationService} from "../../service/authentication.service";
@@ -50,7 +60,12 @@ export class ProductComponent implements OnInit {
     subcategory: null,
     subcategory_id: null,
     option: [],
-    options:null
+    options:null,
+    channel_for_table_mas:[],
+    channel_for_table: null,
+    type_current: null,
+    accuracy: null,
+    channel_for_table_str: null
   };
   dataSource = new MatTableDataSource<Product>();
   columns: string[] = [];
@@ -58,6 +73,7 @@ export class ProductComponent implements OnInit {
   columnLength: number;
   category_id: number = 0;
   // option: string = null;
+  channel_for_table:ChannelForTable[] = [];
 
   constructor(private api: ApiService, private authenticationService: AuthenticationService, public dialog: MatDialog) {
     this.user = this.authenticationService.userValue;
@@ -87,7 +103,12 @@ export class ProductComponent implements OnInit {
       subcategory_id: null,
       subcategory: this.columns.includes("subcategory") ? '' : null,
       option: [],
-      options:null
+      options:null,
+      channel_for_table_mas:[],
+      channel_for_table: null,
+      type_current: this.columns.includes("type_current") ? false : null,
+      accuracy: this.columns.includes("accuracy") ? null : null,
+      channel_for_table_str: this.columns.includes("channel_for_table") ? null : null
     };
 
     if (this.columns.indexOf("vendor") >= 0 && this.vendorAutocompletComponent !== undefined) {
@@ -99,7 +120,7 @@ export class ProductComponent implements OnInit {
     // if(this.optionsComponent !== undefined){
     //   this.optionsComponent.option.setValue([]);
     // }
-
+    this.channel_for_table = [];
   }
 
   showTables() {
@@ -135,7 +156,7 @@ export class ProductComponent implements OnInit {
             this.columns.splice(this.columns.length, 0, "options");
             this.columnLength = this.columns.length;
           }
-          console.log(this.columns)
+
           this.default();
           // this.subcategoryAutocompletComponent.setSubCategory(this.category.myControl.value.id);
         }
@@ -254,6 +275,13 @@ this.category_id = t.id;
   }
 
   saveProduct() {
+    let CFT: any = {};
+    if (this.product.channel > 0 && this.columns.indexOf('channel_for_table') != -1){
+      for(let c of this.channel_for_table){
+        CFT[c.name] =  c.value
+      }
+    }
+    this.product.channel_for_table = <JSON>CFT;
     if ((this.product.vendor_id !== null || this.columns.indexOf("vendor") <= 0) &&
       this.product.vendor_code !== null && this.product.vendor_code !== '') {
       if(this.product.vendor_id == null){
@@ -261,6 +289,7 @@ this.category_id = t.id;
       }
       this.product.product_category_id = this.category.myControl.value.id;
       // this.product.option = this.optionsComponent.option.value;
+
       this.api.getSaveProduct(this.product).subscribe(product => {
           this.dialog.open(ErrorDialogComponent, {data: "Сохранил"});
           this.dataSource = new MatTableDataSource(product);
@@ -276,8 +305,19 @@ this.category_id = t.id;
     }
   }
 
+  ChangeChannel(){
+    this.channel_for_table = [];
+    if (this.product.channel > 0 && this.columns.indexOf('channel_for_table') != -1){
+      for(let i = 1; i<=this.product.channel;i++){
+        this.channel_for_table.push({name:'current'+i,value:0})
+        this.channel_for_table.push({name:'voltage'+i,value:0})
+      }
+    }
+  }
   ChangeSubCategory(subcategory: any) {
+
     this.product.subcategory = subcategory;
+    this.product.subcategory_id = subcategory.id
   }
 
   createCategory() {
@@ -370,7 +410,10 @@ export class CreateCategoryComponent implements OnInit {
     voltage: false,
     current: false,
     subcategory: [],
-    category: null
+    category: null,
+    channel_for_table: false,
+    type_current: false,
+    accuracy: false,
   };
   name: string = null;
 

@@ -239,7 +239,7 @@ export class PageTenderDateComponent implements OnInit {
         if (i !== '') {
           i = i.replace(/\D/g, '');
           if(i !== ''){
-            this.ids.push(Number(i));
+            this.number_bico.push(Number(i));
           }
         }
 
@@ -260,7 +260,7 @@ export class PageTenderDateComponent implements OnInit {
         if (i !== '') {
           i = i.replace(/\D/g, '');
           if(i !== ''){
-            this.ids.push(Number(i));
+            this.number_bico.push(Number(i));
           }
         }
 

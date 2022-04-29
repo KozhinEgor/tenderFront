@@ -100,7 +100,6 @@ import { PageSetWinnerComponent } from './page-set-winner/page-set-winner.compon
 import {MatCardModule} from '@angular/material/card';
 import {ReportEmailComponent, SafeHtmlPipe} from './report-email/report-email.component';
 import {MatStepperModule} from '@angular/material/stepper';
-import { TestListComponent } from './test-list/test-list.component';
 import {GOOGLE_CHARTS_LAZY_CONFIG, GoogleChartsModule} from 'angular-google-charts';
 import {CustomMatPaginatorIntl} from "./CustomMatPaginatorIntl";
 import {DublicateDialogComponent} from "./dublicate-dialog/dublicate-dialog.component";
@@ -128,7 +127,6 @@ const routes = [
   {path: 'product/synonyms', component: SynonymsComponent, canActivate: [AuthGuard]},
   {path: 'setWinner', component: PageSetWinnerComponent, canActivate: [AuthGuard]},
   {path: 'report-email', component: ReportEmailComponent, canActivate: [AuthGuard]},
-  {path: 'test', component: TestListComponent, canActivate: [AuthGuard]},
   {path: '**', redirectTo:'home'}
 ];
 
@@ -193,7 +191,6 @@ const routes = [
     PlanDialogComponent,
     AddDublicateDialogComponent,
     ReportEmailComponent,
-    TestListComponent,
     DublicateDialogComponent
   ],
   imports: [

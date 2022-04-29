@@ -163,7 +163,7 @@ countTenderInList: number;
         if (i !== '') {
           i = i.replace(/\D/g, '');
           if(i !== ''){
-            this.ids.push(Number(i));
+            this.number_bico.push(Number(i));
           }
         }
 
@@ -184,7 +184,7 @@ countTenderInList: number;
         if (i !== '') {
           i = i.replace(/\D/g, '');
           if(i !== ''){
-            this.ids.push(Number(i));
+            this.number_bico.push(Number(i));
           }
         }
 
@@ -742,7 +742,7 @@ winner:number;
         this.data = data;
 
         if(this.winnerChange !== undefined){
-          this.winnerChange.setWinnerById(Number(this.data.winner));
+          this.winnerChange.setWinner(this.data.winner);
         }
         else {
           this.winner = Number(this.data.winner);

@@ -39,6 +39,17 @@
   justify-content: space-around;
   align-items: center;
 }
+.channel_for_table{
+  max-width: 140px;
+  padding: 5px;
+}
+.row_channel_for_table{
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+}
 .EditContainer{
   position: sticky;
   top: 40px;
