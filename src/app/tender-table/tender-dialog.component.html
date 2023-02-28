@@ -249,6 +249,7 @@
 
     <mat-tab label="Изменение тенедера" >
       <button mat-flat-button color="warn" (click)="deleteTender()" ><mat-icon>delete_outline</mat-icon> Удалить</button>
+      <button mat-flat-button color="primary" (click)="openDived()">Разделить</button>
       <span *ngIf="data.tender_plan != null">Планы графики этого тендера: {{data.tender_plan}}
       </span>
       <span *ngIf="data.tender_dublicate != null">

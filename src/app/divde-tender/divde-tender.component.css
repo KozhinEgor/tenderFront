@@ -1,0 +1,9 @@
+.row{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.mat-dialog-content { max-height: 100%; }
+table{
+  width: 90%;
+}

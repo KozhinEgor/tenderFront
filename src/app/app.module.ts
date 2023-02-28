@@ -103,6 +103,7 @@ import {MatStepperModule} from '@angular/material/stepper';
 import {GOOGLE_CHARTS_LAZY_CONFIG, GoogleChartsModule} from 'angular-google-charts';
 import {CustomMatPaginatorIntl} from "./CustomMatPaginatorIntl";
 import {DublicateDialogComponent} from "./dublicate-dialog/dublicate-dialog.component";
+import { DivdeTenderComponent } from './divde-tender/divde-tender.component';
 
 // export const googleChartsConfigSubject = new ReplaySubject<GoogleChartsConfig>(1);
 //
@@ -191,7 +192,8 @@ const routes = [
     PlanDialogComponent,
     AddDublicateDialogComponent,
     ReportEmailComponent,
-    DublicateDialogComponent
+    DublicateDialogComponent,
+    DivdeTenderComponent
   ],
   imports: [
     AppRoutingModule,

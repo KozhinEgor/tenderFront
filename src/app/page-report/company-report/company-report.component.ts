@@ -103,6 +103,7 @@ export class CompanyReportComponent implements OnInit {
   readonly separatorKeysCodes = [ENTER, COMMA, SPACE] as const;
   ids: number[] = [];
   numberShow = false;
+  query: string = null;
 
   add(event: MatChipInputEvent): void {
     let value = (event.value || '').trim();
@@ -554,5 +555,64 @@ export class CompanyReportComponent implements OnInit {
       }
 
     }
+  }
+  getQuery(){
+    this.show = true;
+    if ((this.productCategoryCheckboxComponent.myControl.value !== undefined && this.productCategoryCheckboxComponent.myControl.value !== null && this.productCategoryCheckboxComponent.myControl.value.length !== 0  && this.productCategoryCheckboxComponent.myControl.value !== [])
+      || (this.vendorCheckboxComponent.myControl.value !== undefined && this.vendorCheckboxComponent.myControl.value !== null && this.vendorCheckboxComponent.myControl.value.length !== 0 && this.vendorCheckboxComponent.myControl.value !== [])
+      || (this.vendorCodeCheckboxComponent.myControl.value  !== undefined && this.vendorCodeCheckboxComponent.myControl.value !== null && this.vendorCodeCheckboxComponent.myControl.value.length !== 0 && this.vendorCodeCheckboxComponent.myControl.value !== [])
+      || (this.subcategoryCheckboxComponent.myControl.value !== undefined && this.subcategoryCheckboxComponent.myControl.value !== null && this.subcategoryCheckboxComponent.myControl.value.length !== 0 && this.subcategoryCheckboxComponent.myControl.value !== [])
+      || (this.categoryProductComponent.category_product !== undefined && this.categoryProductComponent.category_product !== null && this.categoryProductComponent.category_product !== '')) {
+      this.AddProduct();
+    }
+    this.searchParameters = {
+      id: null,
+      nickname: null,
+      name: null,
+      ids_string: null,
+      dateStart: this.dataRange.getDateStart(),
+      dateFinish: this.dataRange.getDateFinish(),
+      dublicate: this.dublicate,
+      quarter: null,
+      typeExclude: this.TypeExclude,
+      type: this.types,
+      customExclude: this.CustomExclude,
+      custom: this.customers,
+      innCustomer: this.innCustomer,
+      innString : null,
+      country: this.country,
+      winnerExclude: this.WinnersExclude,
+      winner: this.winners,
+      minSum: this.minSum.value,
+      maxSum: this.maxSum.value,
+      ids: this.ids,
+      bicotender: this.number_bico,
+      bicotender_string: null,
+      numberShow: this.numberShow,
+      product: this.product,
+      districts: null,
+      regions: null,
+      plan_schedule:this.plan_schedule,
+      adjacent_tender: false,
+      realized: false,
+      private_search: false
+    };
+    this.reportCriteria = {interval: this.typeProductOrderComponent.type === null?'Год':this.typeProductOrderComponent.type
+      , searchParameters: this.searchParameters};
+    this.load = true;
+
+    this.api.getReportCustomerQuarterQuery(this.selected.value, this.reportCriteria).subscribe(
+      data => {
+        if (data === null){
+          this.dialog.open(ErrorDialogComponent,{data:"Ничего не найдено"});
+        }
+        else {
+          this.query = data.name;
+          this.load = false;
+        }
+      },
+      error => {this.dialog.open(ErrorDialogComponent,{data: "Ошибка" + error})}
+    );
+
   }
 }

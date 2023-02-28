@@ -39,6 +39,7 @@ import {startWith, switchMap, tap} from "rxjs/operators";
 import {merge} from "chart.js/helpers";
 import {DublicateDialogComponent} from "../dublicate-dialog/dublicate-dialog.component";
 import {helper} from "../helper";
+import {DivdeTenderComponent} from "../divde-tender/divde-tender.component";
 
 
 export interface CustomerWinner {
@@ -1102,6 +1103,10 @@ export class TenderDialogComponent implements OnInit {
 
   }
 
+  openDived(){
+    this.dialog.open(DivdeTenderComponent, {data: {tender: this.data, orders: this.dataSource.data}, width: '80%',
+      height: '90%'});
+  }
   user: User;
   UserColor = new Map();
   selectable = true;

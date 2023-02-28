@@ -44,6 +44,10 @@ export interface searchTender{
   searchParametrs:SearchParameters;
 }
 
+export interface TenderWithProduct{
+  tender: Tender;
+  orders: Orders[];
+}
 export interface Type {
   id: number;
   type: string;

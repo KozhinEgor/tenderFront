@@ -145,14 +145,15 @@
       </fieldset>
     </mat-expansion-panel>
   </mat-accordion>
-  <button class="saveFile" mat-stroked-button (click)="getFile()" disabled="true">Вывод в файл</button>
+  <button class="saveFile" mat-stroked-button (click)="getQuery()">Получить запрос</button>
+  <button class="default" mat-stroked-button (click)="getFile()" disabled="true">Вывод в файл</button>
   <button class="default" mat-stroked-button (click)="default()">Сбросить все значения</button>
   <button class="show" mat-flat-button color="primary" (click)="showOrder()">Применить условия</button>
 </div>
 <mat-tab-group [selectedIndex]="selected.value"
-               (selectedIndexChange)="selected.setValue($event); loadReport()" *ngIf="show">
+               (selectedIndexChange)="selected.setValue($event); loadReport(); query = null" *ngIf="show">
   <mat-tab *ngFor="let tab of tabs; let index = index" [label]="tab">
-
+    <div *ngIf="query != null">{{query}}</div>
     <div class="tableContainer" *ngIf="!load">
 
       <table mat-table  [dataSource]="report.sumProduct" class="mat-elevation-z8; vendor">

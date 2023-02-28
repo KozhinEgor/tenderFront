@@ -31,6 +31,8 @@ import {
   Region,
   District, CriteriaEmailReport, EmailReport, Orders, deleteOrder, searchTender, Tenders
 } from './classes';
+import {Observable} from "rxjs";
+import {DivdeTenderComponent, TenderAndOrders} from "./divde-tender/divde-tender.component";
 
 
 @Injectable({
@@ -301,7 +303,9 @@ export class ApiService {
       map(reportQuarter => reportQuarter as Report)
     );
   }
-
+  getReportCustomerQuarterQuery(category: number, json: ReportCriteria): Observable<StringAnswer> {
+    return this.http.post<StringAnswer>(this.host + '/demo/quarterCustomer/request/' + category, json);
+  }
   getQuartal(json: ReceivedJson) {
     return this.http.post(this.host + '/demo/getQuartal/', json).pipe(
       map(reportQuarter => reportQuarter as string[])
@@ -372,7 +376,16 @@ export class ApiService {
       map(data => data as Orders[])
     );
   }
-
+  getOrdersString(json: Orders[]){
+    return this.http.post(this.host + '/demo/getOrdersString', json).pipe(
+      map(data => data as StringAnswer)
+    );
+  }
+  divedTender(json: TenderAndOrders[]){
+    return this.http.post<any>(this.host + '/demo/divdeTender', json).pipe(
+      map(data => data as StringAnswer)
+    );
+  }
   deleteOrder(json: deleteOrder) {
     return this.http.post(this.host + '/demo/deleteOrders/', json).pipe(
       map(data => data as Orders[])
